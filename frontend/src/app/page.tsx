@@ -1,7 +1,11 @@
+import Link from "next/link";
+
 export default function landingPage() {
   return (
     <>
-      <button>はじめる</button>
+      <Link href="/register">
+        <p>はじめる</p>
+      </Link>
     </>
   );
 }
