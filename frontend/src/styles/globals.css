@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f7f6f1;
+}
+
+body {
+  background-color: var(--background);
+}
+
+body {
+  @apply bg-background;
+}
