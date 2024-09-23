@@ -1,6 +1,5 @@
-"use client";
-import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import CheckoutButton from "../../components/stripe/CheckoutButton";
 
 const Plan = () => {
   return (
@@ -11,14 +10,7 @@ const Plan = () => {
         <div className="p-4 border border-black rounded-lg w-64 text-center">
           <h2 className="text-xl font-semibold">有料プラン</h2>
           <p>有料プランの詳細説明がここに入ります。</p>
-          <form action="/create-checkout-session" method="POST">
-            <button
-              type="submit"
-              className="mt-4 block bg-blue-500 text-white py-2 px-4 rounded"
-            >
-              有料プランへ
-            </button>
-          </form>
+          <CheckoutButton />
         </div>
 
         <div className="p-4 border border-black rounded-lg w-64 text-center">
@@ -34,30 +26,4 @@ const Plan = () => {
     </div>
   );
 };
-
-const Message = ({ message }: { message: string }) => (
-  <section>
-    <p>{message}</p>
-  </section>
-);
-
-export default function App() {
-  const [message, setMessage] = useState<string>("");
-
-  useEffect(() => {
-    // Check to see if this is a redirect back from Checkout
-    const query = new URLSearchParams(window.location.search);
-
-    if (query.get("success")) {
-      setMessage("Order placed! You will receive an email confirmation.");
-    }
-
-    if (query.get("canceled")) {
-      setMessage(
-        "Order canceled -- continue to shop around and checkout when you're ready."
-      );
-    }
-  }, []);
-
-  return message ? <Message message={message} /> : <Plan />;
-}
+export default Plan;
