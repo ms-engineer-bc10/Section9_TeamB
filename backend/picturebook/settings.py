@@ -95,7 +95,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "picturebook.wsgi.application"
 
 # Usermodelの設定
-AUTH_USER_MODEL = 'myapp.CustomUser'
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
 # Database
@@ -137,7 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "JST"
+TIME_ZONE = 'Asia/Tokyo'
 
 USE_I18N = True
 
