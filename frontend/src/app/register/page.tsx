@@ -5,9 +5,16 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Header from "@/components/Header";
+import { useRouter } from "next/navigation";
 
 const Register: React.FC = () => {
-  const { register, handleSubmit, reset } = useForm<Inputs>();
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = async ({ name, email, password }) => {
     try {
@@ -24,7 +31,7 @@ const Register: React.FC = () => {
         await updateProfile(user, {
           displayName: name,
         });
-        alert("登録が完了しました");
+        router.push("/home"); // あとで子どもの情報入力ページに遷移するように変更する
       }
 
       // フォームのリセット
@@ -47,10 +54,13 @@ const Register: React.FC = () => {
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">名前</label>
+            {errors.name?.message && (
+              <p className="text-red-500 text-xs">{errors.name?.message}</p>
+            )}
             <input
               type="text"
               className="w-full px-3 py-2 border rounded-lg"
-              {...register("name", { required: true })}
+              {...register("name", { required: "名前を入力してください" })}
               placeholder="名前を入力"
             />
           </div>
@@ -59,20 +69,30 @@ const Register: React.FC = () => {
             <label className="block text-sm font-medium mb-2">
               メールアドレス
             </label>
+            {errors.email?.message && (
+              <p className="text-red-500 text-xs">{errors.email?.message}</p>
+            )}
             <input
               type="email"
               className="w-full px-3 py-2 border rounded-lg"
-              {...register("email", { required: true })}
+              {...register("email", {
+                required: "メールアドレスを入力してください",
+              })}
               placeholder="メールアドレスを入力"
             />
           </div>
 
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">パスワード</label>
+            {errors.password?.message && (
+              <p className="text-red-500 text-xs">{errors.password?.message}</p>
+            )}
             <input
               type="password"
               className="w-full px-3 py-2 border rounded-lg"
-              {...register("password", { required: true })}
+              {...register("password", {
+                required: "パスワードを入力してください",
+              })}
               placeholder="パスワードを入力"
             />
           </div>
