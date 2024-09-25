@@ -37,7 +37,7 @@ const Register: React.FC = () => {
 
   return (
     <>
-      {/* <Header /> */}
+      <Header />
       <div className="min-h-screen flex items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
