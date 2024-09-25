@@ -13,13 +13,14 @@ class TemplatePage(models.Model):
     image_url = models.URLField()
 
 class StoryPrompt(models.Model):
-    child = models.ForeignKey('accounts.Child', on_delete=models.CASCADE, related_name='story_prompts')
+    # child = models.ForeignKey('accounts.Child', on_delete=models.CASCADE, related_name='story_prompts')
     telling_record = models.ForeignKey('tellings.TellingRecord', on_delete=models.CASCADE) 
     prompt_template = models.TextField()
     prompt_variables = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+   
 
 class Book(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='books')
