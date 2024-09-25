@@ -47,10 +47,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
-    "payments",
     "accounts",
+    "payments",
+    "tellings",
     "book_creation",
-    "tellings"
 ]
 
 REST_FRAMEWORK = {

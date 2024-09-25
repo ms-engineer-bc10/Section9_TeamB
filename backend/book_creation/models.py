@@ -1,7 +1,5 @@
 from django.db import models
 from django.conf import settings
-from accounts.models import Child
-from tellings.models import TellingRecord
 from django.utils import timezone
 
 class StoryTemplate(models.Model):
@@ -16,7 +14,7 @@ class TemplatePage(models.Model):
 
 class StoryPrompt(models.Model):
     child = models.ForeignKey('accounts.Child', on_delete=models.CASCADE, related_name='story_prompts')
-    telling_record = models.ForeignKey('tellings.TellingRecord', on_delete=models.CASCADE)
+    telling_record = models.ForeignKey('tellings.TellingRecord', on_delete=models.CASCADE) 
     prompt_template = models.TextField()
     prompt_variables = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
