@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     "payments",
     "accounts",
     "book_creation",
-    "telling"
+    "tellings"
 ]
 
 REST_FRAMEWORK = {

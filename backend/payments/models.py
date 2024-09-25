@@ -27,9 +27,3 @@ class Payment(models.Model):
     payment_date = models.DateTimeField(default=timezone.now)
     coupon_id = models.IntegerField(null=True, blank=True)
     promotion_code = models.CharField(max_length=255, null=True, blank=True)
-
-class Coupon(models.Model):
-    code = models.CharField(max_length=50, unique=True)
-    discount_amount = models.DecimalField(max_digits=5, decimal_places=2)
-    expiry_date = models.DateField()
-    stripe_coupon_id = models.CharField(max_length=100)

@@ -1,8 +1,8 @@
 from django.db import models
 from django.conf import settings
 from accounts.models import Child
-from django.utils import timezone
 from tellings.models import TellingRecord
+from django.utils import timezone
 
 class StoryTemplate(models.Model):
     title = models.CharField(max_length=255)
