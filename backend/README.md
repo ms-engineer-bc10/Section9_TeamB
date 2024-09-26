@@ -14,13 +14,6 @@
 - PUT /api/books/{id}/ - 特定の本の更新
 - DELETE /api/books/{id}/ - 特定の本の削除
 
-### TellingRecords
-- GET /api/telling-records/ - Telling記録の一覧取得
-- POST /api/telling-records/ - 新しいTelling記録の作成
-- GET /api/telling-records/{id}/ - 特定のTelling記録の詳細取得
-- PUT /api/telling-records/{id}/ - 特定のTelling記録の更新
-- DELETE /api/telling-records/{id}/ - 特定のTelling記録の削除
-
 ### StoryPrompts
 - GET /api/story-prompts/ - ストーリープロンプトの一覧取得
 - POST /api/story-prompts/ - 新しいストーリープロンプトの作成
@@ -28,6 +21,19 @@
 - PUT /api/story-prompts/{id}/ - 特定のストーリープロンプトの更新
 - DELETE /api/story-prompts/{id}/ - 特定のストーリープロンプトの削除
 
+### TellingRecords
+- GET /api/telling-records/ - Telling記録の一覧取得
+- POST /api/telling-records/ - 新しいTelling記録の作成
+- GET /api/telling-records/{id}/ - 特定のTelling記録の詳細取得
+- PUT /api/telling-records/{id}/ - 特定のTelling記録の更新
+- DELETE /api/telling-records/{id}/ - 特定のTelling記録の削除
+
+### TellingReminder
+- GET /api/telling-reminder/ - Telling予定の一覧取得
+- POST /api/telling-reminder/ - 新しいTelling予定の作成
+- GET /api/telling-reminder/{id}/ - 特定のTelling予定の詳細取得
+- PUT /api/telling-reminder/{id}/ - 特定のTelling予定の更新
+- DELETE /api/telling-reminder/{id}/ - 特定のTelling予定の削除
+
 ## その他
-- GET /api/books/{id}/telling-records/ - 特定の本に関連する読み聞かせ記録の取得
 - GET /api/users/{id}/books/ - 特定のユーザーの本の一覧取得
