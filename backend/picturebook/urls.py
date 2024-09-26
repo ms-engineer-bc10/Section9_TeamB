@@ -17,6 +17,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from book_creation.views import BookViewSet, StoryPromptViewSet
+from tellings.views import TellingRecordViewSet
+
+router = DefaultRouter()
+router.register(r'books', BookViewSet)
+router.register(r'story-prompts', StoryPromptViewSet)
+router.register(r'telling-records', TellingRecordViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
