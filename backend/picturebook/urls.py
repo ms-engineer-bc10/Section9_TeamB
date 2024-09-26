@@ -17,8 +17,21 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from accounts.views import CustomUserViewSet, ChildViewSet
+from book_creation.views import BookViewSet, StoryPromptViewSet
+from tellings.views import TellingRecordViewSet, TellingReminderViewSet
+
+router = DefaultRouter()
+router.register(r'users', CustomUserViewSet)
+router.register(r'children', ChildViewSet)
+router.register(r'books', BookViewSet)
+router.register(r'story-prompts', StoryPromptViewSet)
+router.register(r'telling-records', TellingRecordViewSet)
+router.register(r'telling-reminders', TellingReminderViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('api/', include(router.urls)),
     path("stripe/", include("payments.urls")),
 ]
