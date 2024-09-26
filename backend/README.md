@@ -1,5 +1,11 @@
 # API設計
 ## エンドポイント一覧
+
+### Users（要確認）
+POST /auth/register	-	新規ユーザー登録
+POST /auth/login	- ユーザーログイン
+GET /users/{userId}	- ユーザー情報の取得
+
 ### Children
 - GET /api/child/ - 登録した子どもの一覧取得
 - POST /api/child/ - 子どもの新規登録
