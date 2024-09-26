@@ -21,7 +21,7 @@ staticfiles/
 .env.*
 
 # Django Migrations
-*/migrations/*
+# */migrations/* gitignoreから一旦削除
 
 # pyenv
 .python-version

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     "corsheaders",
     "accounts",
     "payments",
@@ -62,6 +63,13 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+# 開発環境のみでの設定API設定
+if DEBUG:
+    REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': [],
+        'DEFAULT_PERMISSION_CLASSES': [],
+    }
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
