@@ -1,12 +1,17 @@
 # API 設計
 
 ## エンドポイント一覧
+- http://localhost:8000/api/users/
+- http://localhost:8000/api/children/
+- http://localhost:8000/api/books/
+- http://localhost:8000/api/story-prompts/
+- http://localhost:8000/api/telling-records/
+- http://localhost:8000/api/telling-reminders/
 
-### Users（要確認）
-
-- POST /auth/register - 新規ユーザー登録
-- POST /auth/login - ユーザーログイン
-- GET /users/{userId} - ユーザー情報の取得
+### Users（Firebaseとの関連性要確認）
+- POST /auth/register	-	新規ユーザー登録
+- POST /auth/login	- ユーザーログイン
+- GET /api/users/{userId}	- ユーザー情報の取得
 
 ### Children
 
