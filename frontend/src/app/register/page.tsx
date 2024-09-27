@@ -18,13 +18,29 @@ const Register: React.FC = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {
-      // Firebase でのユーザー作成
+      // Firebaseでのユーザー作成
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
       const user = userCredential.user;
+
+      // ユーザー情報をDjangoに送信
+      const response = await fetch("http://localhost:8000/api/users/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          firebase_uid: user.uid,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Django APIへのリクエストに失敗しました");
+      }
 
       // ユーザーが作成された場合にリダイレクト
       if (user) {
