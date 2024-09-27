@@ -6,6 +6,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Header from "@/components/Header";
 import { useRouter } from "next/navigation";
+import { apiUrl } from "@/lib/config";
 
 const Register: React.FC = () => {
   const router = useRouter();
@@ -28,7 +29,7 @@ const Register: React.FC = () => {
       const user = userCredential.user;
 
       // ユーザー情報をDjangoに送信
-      const response = await fetch("http://localhost:8000/api/users/", {
+      const response = await fetch(`${apiUrl}/api/users/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
