@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Header from "@/components/Header";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ const Register: React.FC = () => {
     formState: { errors },
   } = useForm<Inputs>();
 
-  const onSubmit: SubmitHandler<Inputs> = async ({ name, email, password }) => {
+  const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {
       // Firebase でのユーザー作成
       const userCredential = await createUserWithEmailAndPassword(
@@ -26,11 +26,8 @@ const Register: React.FC = () => {
       );
       const user = userCredential.user;
 
-      // ユーザー名の更新
+      // ユーザーが作成された場合にリダイレクト
       if (user) {
-        await updateProfile(user, {
-          displayName: name,
-        });
         router.push("/home"); // あとで子どもの情報入力ページに遷移するように変更する
       }
 
@@ -51,19 +48,6 @@ const Register: React.FC = () => {
           className="w-full max-w-md bg-white p-8 shadow-md"
         >
           <h2 className="text-2xl font-bold mb-6 text-center">新規登録</h2>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">名前</label>
-            {errors.name?.message && (
-              <p className="text-red-500 text-xs">{errors.name?.message}</p>
-            )}
-            <input
-              type="text"
-              className="w-full px-3 py-2 border rounded-lg"
-              {...register("name", { required: "名前を入力してください" })}
-              placeholder="名前を入力"
-            />
-          </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
