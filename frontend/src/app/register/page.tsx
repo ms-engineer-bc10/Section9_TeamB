@@ -13,6 +13,7 @@ const Register: React.FC = () => {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm<Inputs>();
 
@@ -39,19 +40,33 @@ const Register: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Django APIへのリクエストに失敗しました");
-      }
+        const data = await response.json();
+        // サーバーからのエラーメッセージの処理
+        if (data.error && data.error.includes("既に登録されています")) {
+          setError("email", {
+            type: "manual",
+            message: "既に登録されているメールアドレスです",
+          });
+        } else {
+          throw new Error("Django APIへのリクエストに失敗しました");
+        }
+      } else {
+        if (user) {
+          router.push("/home"); // あとで子どもの情報入力ページに遷移するように変更する
+        }
 
-      // ユーザーが作成された場合にリダイレクト
-      if (user) {
-        router.push("/home"); // あとで子どもの情報入力ページに遷移するように変更する
+        reset();
       }
-
-      // フォームのリセット
-      reset();
-    } catch (error) {
-      console.error("エラーが発生しました:", error);
-      alert("登録に失敗しました");
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        setError("email", {
+          type: "manual",
+          message: "このメールアドレスは既に登録されています",
+        });
+      } else {
+        console.error("エラーが発生しました:", error);
+        alert("登録に失敗しました");
+      }
     }
   };
 

@@ -25,7 +25,6 @@ const Header: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      router.push("/login"); // ログアウト後、ログインページにリダイレクト
     } catch (error) {
       console.error("ログアウトに失敗しました:", error);
     }
