@@ -1,5 +1,7 @@
+from datetime import datetime
+
 def get_story_prompt(child, telling_record):
-    age = (telling_record.telling_date - child.birth_date).days // 365
+    age = (telling_record.telling_date.date() - child.birth_date).days // 365
     
     prompt = f"""
     Create a children's story for {child.name}, a {age}-year-old {child.gender}. 

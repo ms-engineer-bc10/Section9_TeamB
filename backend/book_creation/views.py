@@ -5,8 +5,8 @@ from .models import Book, StoryPrompt, Page
 from .serializers import BookSerializer, StoryPromptSerializer
 from accounts.models import Child
 from tellings.models import TellingRecord
-from openai.story_generator import generate_story, generate_book_title
-from openai.image_generator import generate_images
+from picturebook_generation.story_generator import generate_story, generate_book_title
+from picturebook_generation.image_generator import generate_images
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
