@@ -5,4 +5,4 @@ django-cors-headers
 black
 stripe
 python-dotenv
-django-cors-headers
+openai  # 追加
