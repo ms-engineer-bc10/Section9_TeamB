@@ -27,7 +27,8 @@ SECRET_KEY = "django-insecure-di5$7m6)js(1^*q7w9*+aka4-v0i@x5lui*z58o@_&kab@wzb4
 # .envファイルを読み込み
 load_dotenv()
 
-# Stripeのシークレットキーを環境変数から取得
+# 各種シークレットキーを環境変数から取得
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PRICE_ID = os.getenv("STRIPE_PRICE_ID")
 

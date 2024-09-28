@@ -44,3 +44,6 @@ class Page(models.Model):
     page_number = models.IntegerField()
     content = models.TextField()
     image_url = models.URLField()
+
+    def __str__(self):
+        return self.name

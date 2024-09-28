@@ -33,5 +33,6 @@ router.register(r'telling-reminders', TellingReminderViewSet)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/superuser/', CustomUserViewSet.as_view({'post': 'create_superuser'})),
     path("stripe/", include("payments.urls")),
 ]
