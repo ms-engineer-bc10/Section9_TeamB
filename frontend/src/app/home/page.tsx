@@ -23,27 +23,27 @@ const HomePage = () => {
             <nav>
               <ul className="flex space-x-6">
                 <li>
-                  <Link href="#home">
+                  <Link href="#home" legacyBehavior>
                     <a className="hover:text-blue-600">ホーム</a>
                   </Link>
                 </li>
                 <li>
-                  <Link href="#features">
+                  <Link href="#features" legacyBehavior>
                     <a className="hover:text-blue-600">機能紹介</a>
                   </Link>
                 </li>
                 <li>
-                  <Link href="#pricing">
+                  <Link href="#pricing" legacyBehavior>
                     <a className="hover:text-blue-600">料金プラン</a>
                   </Link>
                 </li>
                 <li>
-                  <Link href="#support">
+                  <Link href="#support" legacyBehavior>
                     <a className="hover:text-blue-600">サポート</a>
                   </Link>
                 </li>
                 <li>
-                  <Link href="#contact">
+                  <Link href="#contact" legacyBehavior>
                     <a className="hover:text-blue-600">お問い合わせ</a>
                   </Link>
                 </li>
