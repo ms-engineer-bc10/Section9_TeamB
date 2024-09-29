@@ -1,8 +1,12 @@
-import { ChildFormData } from "@/types/index";
-import { genderMap, backgroundTypeMap } from "@/types/index";
+import { ChildFormData } from "@/types";
+import { genderMap, backgroundTypeMap } from "@/types";
 import { apiUrl } from "@/lib/config";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-export const handleFormSubmit = async (data: ChildFormData) => {
+export const handleFormSubmit = async (
+  data: ChildFormData,
+  router: AppRouterInstance
+) => {
   try {
     const postData = {
       name: data.name,
@@ -32,7 +36,7 @@ export const handleFormSubmit = async (data: ChildFormData) => {
 
     if (response.ok) {
       console.log("子供情報が正常に送信されました");
-      //   router.push("/home");
+      router.push("/home");
     } else {
       console.error("送信エラーが発生しました");
     }

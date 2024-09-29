@@ -1,6 +1,7 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
 import { ChildFormData } from "@/types";
@@ -18,8 +19,13 @@ const ChildInfoForm = () => {
     defaultValues: { gender: "no_answer" },
   });
   const [step, setStep] = useState(1);
+  const router = useRouter();
   const swiperRef = useRef<any>(null);
   const selectedBackgroundType = watch("backgroundType");
+
+  const onSubmit = async (data: ChildFormData) => {
+    await handleFormSubmit(data, router);
+  };
 
   const nextStep = () => {
     if (swiperRef.current) {
@@ -38,7 +44,7 @@ const ChildInfoForm = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <div className="w-full max-w-md bg-white p-8 shadow-md">
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Swiper ref={swiperRef} slidesPerView={1} allowTouchMove={false}>
             <SwiperSlide>
               <Slide1 register={register} />
