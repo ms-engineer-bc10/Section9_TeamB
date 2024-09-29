@@ -7,6 +7,7 @@ import { auth } from "@/lib/firebase";
 import Header from "@/components/Header";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/lib/config";
+import { Inputs } from "@/types";
 
 const Register: React.FC = () => {
   const router = useRouter();
@@ -53,7 +54,7 @@ const Register: React.FC = () => {
         }
       } else {
         if (user) {
-          router.push("/home"); // あとで子どもの情報入力ページに遷移するように変更する
+          router.push("/children");
         }
 
         reset();
