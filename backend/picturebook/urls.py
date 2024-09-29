@@ -21,6 +21,8 @@ from rest_framework.routers import DefaultRouter
 from accounts.views import CustomUserViewSet, ChildViewSet
 from book_creation.views import BookViewSet, StoryPromptViewSet
 from tellings.views import TellingRecordViewSet, TellingReminderViewSet
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'users', CustomUserViewSet)
@@ -36,3 +38,6 @@ urlpatterns = [
     path('api/superuser/', CustomUserViewSet.as_view({'post': 'create_superuser'})),
     path("stripe/", include("payments.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
