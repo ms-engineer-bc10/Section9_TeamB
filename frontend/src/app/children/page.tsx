@@ -1,14 +1,19 @@
 "use client";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/swiper-bundle.css";
 import { apiUrl } from "@/lib/config";
-import { genderMap, backgroundTypeMap, ChildFormData } from "@/types";
+import { genderMap, backgroundTypeMap, ChildFormData } from "../../types/index";
 
 const ChildInfoForm = () => {
-  const { register, handleSubmit, watch } = useForm<ChildFormData>();
+  const { register, handleSubmit, watch } = useForm<ChildFormData>({
+    defaultValues: { gender: "no_answer" },
+  });
   const [step, setStep] = useState(1);
   const router = useRouter();
+  const swiperRef = useRef<any>(null);
 
   const selectedBackgroundType = watch("backgroundType");
 
@@ -51,164 +56,199 @@ const ChildInfoForm = () => {
     }
   };
 
-  const nextStep = () => setStep(step + 1);
-  const prevStep = () => setStep(step - 1);
+  const nextStep = () => {
+    if (swiperRef.current) {
+      swiperRef.current.swiper.slideNext();
+      setStep(step + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (swiperRef.current) {
+      swiperRef.current.swiper.slidePrev();
+      setStep(step - 1);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <div className="w-full max-w-md bg-white p-8 shadow-md">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {step === 1 && (
-            <div>
-              <label className="block mb-2">子供の名前</label>
-              <input
-                type="text"
-                {...register("name")}
-                className="w-full p-2 mb-4 border rounded"
-              />
-              <label className="block mb-2">誕生日</label>
-              <input
-                type="date"
-                {...register("birthDate")}
-                className="w-full p-2 mb-4 border rounded"
-              />
-              <label className="block mb-2">性別</label>
-              <select
-                {...register("gender")}
-                className="w-full p-2 mb-4 border rounded"
-              >
-                <option value="other">未選択</option>
-                <option value="boy">男の子</option>
-                <option value="girl">女の子</option>
-              </select>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div>
-              <label>家族構成を教えてください</label>
-              <input
-                type="text"
-                {...register("familyStructure")}
-                className="w-full p-2 mb-4 border rounded"
-              />
-            </div>
-          )}
-
-          {step === 3 && (
-            <div>
-              <label className="block mb-2">
-                お子さまからどのように呼ばれていますか
-              </label>
-              <label>例：ぱぱ、おとうさん</label>
-              <input
-                {...register("fatherTitle")}
-                type="text"
-                className="w-full p-2 mb-4 border rounded"
-              />
-              <label>例：まま、おかあさん</label>
-              <input
-                {...register("motherTitle")}
-                type="text"
-                className="w-full p-2 mb-4 border rounded"
-              />
-            </div>
-          )}
-
-          {step === 4 && (
-            <div>
-              <label className="block mb-2">
-                お子さまの好きなものを教えてください
-              </label>
-              <textarea
-                {...register("interests")}
-                className="w-full p-2 mb-4 border rounded h-24"
-              ></textarea>
-            </div>
-          )}
-
-          {step === 5 && (
-            <div>
-              <label className="block mb-2">
-                どのような経緯でご家族になりましたか
-              </label>
-              <select
-                {...register("backgroundType")}
-                className="w-full p-2 mb-4 border rounded"
-              >
-                <option value="special_adoption">特別養子縁組</option>
-                <option value="foster_regular_adoption">
-                  里子・普通養子縁組
-                </option>
-                <option value="sperm_donation">精子提供</option>
-                <option value="egg_donation">卵子提供</option>
-                <option value="step_family">ステップファミリー</option>
-                <option value="other">その他</option>
-              </select>
-
-              {selectedBackgroundType === "other" && (
-                <div>
-                  <label className="block mb-2">
-                    その他の背景を教えてください
+          <Swiper ref={swiperRef} slidesPerView={1} allowTouchMove={false}>
+            <SwiperSlide>
+              <div>
+                <label className="block mb-2">お子さまの呼び名</label>
+                <input
+                  type="text"
+                  {...register("name")}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+                <label className="block mb-2">誕生日</label>
+                <input
+                  type="date"
+                  {...register("birthDate")}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+                <label className="block mb-2">性別</label>
+                <div className="flex items-center space-x-4 mb-4">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      value="boy"
+                      {...register("gender")}
+                      className="form-radio"
+                    />
+                    <span className="ml-2">男の子</span>
                   </label>
-                  <input
-                    {...register("backgroundOther")}
-                    type="text"
-                    className="w-full p-2 mb-4 border rounded"
-                  />
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      value="girl"
+                      {...register("gender")}
+                      className="form-radio"
+                    />
+                    <span className="ml-2">女の子</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      value="other"
+                      {...register("gender")}
+                      className="form-radio"
+                      defaultChecked
+                    />
+                    <span className="ml-2">答えたくない</span>
+                  </label>
                 </div>
-              )}
+              </div>
+            </SwiperSlide>
 
-              {selectedBackgroundType !== "sperm_donation" &&
-                selectedBackgroundType !== "egg_donation" && (
+            <SwiperSlide>
+              <div>
+                <label>家族構成を教えてください</label>
+                <input
+                  type="text"
+                  {...register("familyStructure")}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+              </div>
+            </SwiperSlide>
+
+            <SwiperSlide>
+              <div>
+                <label className="block mb-2">
+                  お子さまからどのように呼ばれていますか
+                </label>
+                <label>例：ぱぱ、おとうさん</label>
+                <input
+                  {...register("fatherTitle")}
+                  type="text"
+                  className="w-full p-2 mb-4 border rounded"
+                />
+                <label>例：まま、おかあさん</label>
+                <input
+                  {...register("motherTitle")}
+                  type="text"
+                  className="w-full p-2 mb-4 border rounded"
+                />
+              </div>
+            </SwiperSlide>
+
+            <SwiperSlide>
+              <div>
+                <label className="block mb-2">
+                  お子さまの好きなものを教えてください
+                </label>
+                <textarea
+                  {...register("interests")}
+                  className="w-full p-2 mb-4 border rounded h-36"
+                ></textarea>
+              </div>
+            </SwiperSlide>
+
+            <SwiperSlide>
+              <div>
+                <label className="block mb-2">
+                  どのような経緯でご家族になりましたか
+                </label>
+                <select
+                  {...register("backgroundType")}
+                  className="w-full p-2 mb-4 border rounded"
+                >
+                  <option value="special_adoption">特別養子縁組</option>
+                  <option value="foster_regular_adoption">
+                    里子・普通養子縁組
+                  </option>
+                  <option value="sperm_donation">精子提供</option>
+                  <option value="egg_donation">卵子提供</option>
+                  <option value="step_family">ステップファミリー</option>
+                  <option value="other">その他</option>
+                </select>
+
+                {selectedBackgroundType === "other" && (
                   <div>
                     <label className="block mb-2">
-                      お子さまを迎えた日を教えてください
+                      その他の背景を教えてください
                     </label>
                     <input
-                      {...register("arrivalDate")}
-                      type="date"
+                      {...register("backgroundOther")}
+                      type="text"
                       className="w-full p-2 mb-4 border rounded"
                     />
                   </div>
                 )}
-            </div>
-          )}
 
-          {step === 6 && (
-            <div>
-              <label className="block mb-2">
-                お子さまを育てられなかった背景を教えてください
-              </label>
-              <textarea
-                {...register("originBackground")}
-                className="w-full p-2 mb-4 border rounded h-24"
-              ></textarea>
-            </div>
-          )}
+                {selectedBackgroundType !== "sperm_donation" &&
+                  selectedBackgroundType !== "egg_donation" && (
+                    <div>
+                      <label className="block mb-2">
+                        お子さまを迎えた日を教えてください
+                      </label>
+                      <input
+                        {...register("arrivalDate")}
+                        type="date"
+                        className="w-full p-2 mb-4 border rounded"
+                      />
+                    </div>
+                  )}
+              </div>
+            </SwiperSlide>
 
-          {step === 7 && (
-            <div>
-              <label>ご家族になった背景を教えてください</label>
-              <textarea
-                {...register("careBackground")}
-                className="w-full p-2 mb-4 border rounded h-24"
-              ></textarea>
-            </div>
-          )}
+            <SwiperSlide>
+              <div>
+                <label className="block mb-2">
+                  お子さまを育てられなかった背景を教えてください
+                </label>
+                <textarea
+                  {...register("originBackground")}
+                  className="w-full p-2 mb-4 border rounded h-36"
+                ></textarea>
+              </div>
+            </SwiperSlide>
 
-          {step === 8 && (
-            <div>
-              <p>ご回答ありがとうございます。</p>
-              <p>素敵な絵本を作りましょう✨</p>
-              <button
-                type="submit"
-                className="w-full p-2 bg-blue-500 text-white rounded h-12"
-              >
-                完了
-              </button>
-            </div>
-          )}
+            <SwiperSlide>
+              <div>
+                <label>ご家族になった背景を教えてください</label>
+                <textarea
+                  {...register("careBackground")}
+                  className="w-full p-2 mb-4 border rounded h-36"
+                ></textarea>
+              </div>
+            </SwiperSlide>
+
+            <SwiperSlide>
+              <div>
+                <p>ご回答ありがとうございます。</p>
+                <p>素敵な絵本を作りましょう✨</p>
+                <button
+                  type="submit"
+                  className="w-full p-2 bg-blue-500 text-white rounded h-12"
+                >
+                  完了
+                </button>
+              </div>
+            </SwiperSlide>
+          </Swiper>
         </form>
 
         <div className="mt-4 flex justify-between w-full max-w-md h-12">
