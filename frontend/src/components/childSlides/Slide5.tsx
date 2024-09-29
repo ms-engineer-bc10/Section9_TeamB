@@ -9,7 +9,9 @@ interface Slide5Props {
 export const Slide5 = ({ register, selectedBackgroundType }: Slide5Props) => {
   return (
     <div>
-      <label className="block mb-2">どのような経緯でご家族になりましたか</label>
+      <label className="block mb-2">
+        どのような経緯でご家族になりましたか？
+      </label>
       <select
         {...register("backgroundType")}
         className="w-full p-2 mb-4 border rounded"
@@ -24,7 +26,7 @@ export const Slide5 = ({ register, selectedBackgroundType }: Slide5Props) => {
 
       {selectedBackgroundType === "other" && (
         <div>
-          <label className="block mb-2">その他の背景を教えてください</label>
+          <label className="block mb-2">その他の背景を教えてください。</label>
           <input
             {...register("backgroundOther")}
             type="text"
@@ -37,7 +39,7 @@ export const Slide5 = ({ register, selectedBackgroundType }: Slide5Props) => {
         selectedBackgroundType !== "egg_donation" && (
           <div>
             <label className="block mb-2">
-              お子さまを迎えた日を教えてください
+              お子さまを迎えた日を教えてください。
             </label>
             <input
               {...register("arrivalDate")}

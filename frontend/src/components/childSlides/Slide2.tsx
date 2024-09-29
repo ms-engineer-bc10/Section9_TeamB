@@ -7,7 +7,7 @@ interface Slide2Props {
 
 export const Slide2 = ({ register }: Slide2Props) => (
   <div>
-    <label>家族構成を教えてください</label>
+    <label>ご家族構成を教えてください</label>
     <input
       type="text"
       {...register("familyStructure")}

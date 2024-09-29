@@ -7,7 +7,13 @@ interface Slide4Props {
 
 export const Slide4 = ({ register }: Slide4Props) => (
   <div>
-    <label className="block mb-2">お子さまの好きなものを教えてください</label>
+    <label className="block mb-2">
+      お子さまの好きなもの・ことを教えてください。
+    </label>
+    <p className="text-sm text-gray-600">例： 恐竜、おままごと、砂場遊び</p>
+    <p className="text-sm text-gray-600">
+      　　もしかすると、絵本の中に登場するかもしれません！
+    </p>
     <textarea
       {...register("interests")}
       className="w-full p-2 mb-4 border rounded h-36"

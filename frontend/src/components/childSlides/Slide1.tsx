@@ -7,13 +7,13 @@ interface Slide1Props {
 
 export const Slide1 = ({ register }: Slide1Props) => (
   <div>
-    <label className="block mb-2">お子さまの呼び名</label>
+    <label className="block mb-2">お子さまのおなまえ/ニックネーム</label>
     <input
       type="text"
       {...register("name")}
       className="w-full p-2 mb-4 border rounded"
     />
-    <label className="block mb-2">誕生日</label>
+    <label className="block mb-2">お誕生日</label>
     <input
       type="date"
       {...register("birthDate")}

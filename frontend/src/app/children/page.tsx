@@ -70,17 +70,25 @@ const ChildInfoForm = () => {
             </SwiperSlide>
 
             <SwiperSlide>
-              <Slide6 register={register} />
+              <Slide6
+                register={register}
+                selectedBackgroundType={selectedBackgroundType}
+              />
             </SwiperSlide>
 
             <SwiperSlide>
-              <Slide7 register={register} />
+              <Slide7
+                register={register}
+                selectedBackgroundType={selectedBackgroundType}
+              />
             </SwiperSlide>
 
             <SwiperSlide>
               <div>
-                <p>ご回答ありがとうございます。</p>
-                <p>素敵な絵本を作りましょう✨</p>
+                <div className="p-8">
+                  <p className="p-2">ご回答ありがとうございます。</p>
+                  <p className="p-2">素敵な絵本を作りましょう✨</p>
+                </div>
                 <button
                   type="submit"
                   className="w-full p-2 bg-blue-500 text-white rounded h-12"

@@ -7,14 +7,20 @@ interface Slide3Props {
 
 export const Slide3 = ({ register }: Slide3Props) => (
   <div>
-    <label className="block mb-2">お子さまからどのように呼ばれていますか</label>
-    <label>例：ぱぱ、おとうさん</label>
+    <label className="block mb-2">
+      お子さまからどのように呼ばれていますか？
+    </label>
+    <label className="text-sm text-gray-600">
+      例：ぱぱ、おとうさん、ダディ
+    </label>
     <input
       {...register("fatherTitle")}
       type="text"
       className="w-full p-2 mb-4 border rounded"
     />
-    <label>例：まま、おかあさん</label>
+    <label className="text-sm text-gray-600">
+      例：まま、おかあさん、マミー
+    </label>
     <input
       {...register("motherTitle")}
       type="text"
