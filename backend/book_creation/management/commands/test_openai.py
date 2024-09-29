@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         # テスト用の子供データを作成
         child, created = Child.objects.get_or_create(
-            name="Test Child",
+            name="ゆうきくん",
             user=user,
             defaults={
                 'birth_date': timezone.now().date(),
@@ -89,7 +89,7 @@ class Command(BaseCommand):
 
         # 画像生成をテスト
         self.stdout.write('画像生成中...')
-        image_data_list = generate_images(story_pages, child)
+        image_data_list = generate_images(story_pages, child, book_title)
         self.stdout.write(self.style.SUCCESS('画像生成完了:'))
         for i, image_data in enumerate(image_data_list, 1):
             self.stdout.write(f'Image {i}: {type(image_data)}')
