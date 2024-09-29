@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "payments",
     "tellings",
     "book_creation",
+    'picturebook_generation',
 ]
 
 REST_FRAMEWORK = {

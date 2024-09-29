@@ -5,13 +5,12 @@ from django.core.management.base import BaseCommand
 from accounts.models import Child, CustomUser
 from tellings.models import TellingRecord
 from book_creation.models import Book
-from picturebook_generation.story_generator import generate_story, generate_book_title
-from picturebook_generation.image_generator import generate_images
+from picturebook_generation import generate_story, generate_book_title, generate_images, create_storybook_pdf
 from django.utils import timezone
 from django.conf import settings
 
 class Command(BaseCommand):
-    help = 'Test OpenAI API integration and save generated images'
+    help = 'Test OpenAI API integration, save generated images, and create PDF'
 
     def save_images(self, image_data_list):
         # 保存先ディレクトリの作成
@@ -99,5 +98,14 @@ class Command(BaseCommand):
         self.stdout.write('画像を保存中...')
         saved_image_paths = self.save_images(image_data_list)
         self.stdout.write(self.style.SUCCESS(f'{len(saved_image_paths)}個の画像を保存しました'))
+
+        # PDF生成
+        self.stdout.write('PDF生成中...')
+        pdf_dir = os.path.join(settings.MEDIA_ROOT, 'generated_books')
+        os.makedirs(pdf_dir, exist_ok=True)
+        pdf_path = os.path.join(pdf_dir, f'{book_title}.pdf')
+        
+        create_storybook_pdf(saved_image_paths, story_pages, book_title, pdf_path)
+        self.stdout.write(self.style.SUCCESS(f'PDFを生成しました: {pdf_path}'))
 
         self.stdout.write(self.style.SUCCESS('全てのテストが完了しました'))
