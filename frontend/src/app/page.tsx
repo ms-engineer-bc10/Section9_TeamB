@@ -45,10 +45,11 @@ const HomePage = () => {
           </p>
           {/* ヒーローセクションの画像 */}
           <Image
-            src="https://files.oaiusercontent.com/file-7aow1rff3Jlcv4m5vI2PxBQf?se=2024-09-30T12%3A05%3A37Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3D60eee5b0-afdb-4597-a9d4-8eafecf05203.webp&sig=2AyujhM7lZVTsisXqgc10RzbFWzICFJZQ6bEsvKXdZ0%3D"
+            src="https://i.imgur.com/MYXcsfW.jpg" // Imgurの直接リンクに変更
             alt="ヒーローセクションのイメージ"
-            width={1200} // 幅を設定
-            height={600} // 高さを設定
+            layout="responsive" // レイアウトをレスポンシブに設定
+            width={400} // 幅を設定
+            height={400} // 高さを設定
             className="object-cover mx-auto mb-4 rounded-lg shadow-lg"
           />
           <Link href="/register">
@@ -73,6 +74,36 @@ const HomePage = () => {
                   <p className="text-gray-600">{feature.desc}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 価格セクション */}
+        <section id="pricing" className="py-16 bg-peach-400">
+          <div className="container mx-auto text-center">
+            <h2 className="text-3xl font-bold text-orange-700 mb-10">料金プラン</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10">
+              {/* 無料プラン */}
+              <div className="bg-white p-6 rounded-lg shadow-md border border-orange-600">
+                <h3 className="text-xl font-semibold mb-4 text-center text-orange-700">無料プラン</h3>
+                <p className="text-gray-600 mb-6 text-left">以下の機能が利用できます：</p>
+                <ul className="list-disc list-inside mb-4 text-left">
+                  <li>簡単なストーリー作成</li>
+                  <li>PDF出力</li>
+                  <li>カスタムメッセージの追加</li>
+                </ul>
+              </div>
+
+              {/* 有料プラン */}
+              <div className="bg-white p-6 rounded-lg shadow-md border border-orange-600">
+                <h3 className="text-xl font-semibold mb-4 text-center text-orange-700">有料プラン</h3>
+                <p className="text-gray-600 mb-6 text-left">追加機能：</p>
+                <ul className="list-disc list-inside mb-4 text-left">
+                  <li>完全パーソナライズストーリー</li>
+                  <li>キャラクターカスタマイズ</li>
+                  <li>過去ストーリーブックの保存</li>
+                </ul>
+              </div>
             </div>
           </div>
         </section>
