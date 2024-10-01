@@ -10,5 +10,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
-        fields = '__all__'
-        read_only_fields = ['id']
+        fields = ['name', 'birth_date', 'gender', 'interests', 'background_type', 
+                  'background_other', 'origin_background', 'care_background', 
+                  'family_structure', 'father_title', 'mother_title']

@@ -8,6 +8,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Firebaseのサービスアカウントキーをコピー
+COPY picturebook/serviceAccountKey.json /app/serviceAccountKey.json
+
 ENV DJANGO_SETTINGS_MODULE=picturebook.settings
 
 # ReportLab の日本語フォントサポートのためのフォントのインストール

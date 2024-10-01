@@ -2,12 +2,25 @@ import { ChildFormData } from "@/types";
 import { genderMap, backgroundTypeMap } from "@/types";
 import { apiUrl } from "@/lib/config";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { auth } from "@/lib/firebase";
 
 export const handleFormSubmit = async (
   data: ChildFormData,
   router: AppRouterInstance
 ) => {
   try {
+    // Firebase Authenticationからトークンを取得
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      console.error("ユーザーがログインしていません");
+      return;
+    }
+
+    // 認証トークンの取得
+    const token = await currentUser.getIdToken(true);
+    console.log(token);
+
     const postData = {
       name: data.name,
       birth_date: data.birthDate,
@@ -21,7 +34,6 @@ export const handleFormSubmit = async (
       family_structure: data.familyStructure,
       father_title: data.fatherTitle,
       mother_title: data.motherTitle,
-      user: 1,
     };
 
     console.log("送信するデータ:", postData);
@@ -30,6 +42,7 @@ export const handleFormSubmit = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Bearer形式でトークンを送信
       },
       body: JSON.stringify(postData),
     });
