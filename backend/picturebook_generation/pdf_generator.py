@@ -11,7 +11,7 @@ from PIL import Image
 # IPAexゴシックフォントを登録
 pdfmetrics.registerFont(TTFont('IPAexGothic', '/usr/share/fonts/opentype/ipaexfont-gothic/ipaexg.ttf'))
 
-def create_storybook_pdf(images, story_pages, title, output_path):
+def create_storybook_pdf(images, story_pages, title):
     # A4サイズの横向きを使用
     page_width, page_height = landscape(A4)
     
@@ -62,6 +62,5 @@ def create_storybook_pdf(images, story_pages, title, output_path):
     # PDFの保存
     c.save()
     
-    # BytesIOの内容をファイルに書き込む
-    with open(output_path, 'wb') as f:
-        f.write(pdf_buffer.getvalue())
+    # BytesIOの内容を返す
+    return pdf_buffer.getvalue()
