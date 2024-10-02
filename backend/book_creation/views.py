@@ -1,4 +1,5 @@
 import os
+from io import BytesIO
 import logging
 from django.conf import settings
 from django.http import HttpResponse
@@ -6,6 +7,7 @@ from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from PIL import Image
 
 from .models import Book, StoryPrompt, Page
 from .serializers import BookSerializer, StoryPromptSerializer
@@ -32,27 +34,38 @@ class BookViewSet(viewsets.ModelViewSet):
             return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
         
         pdf_path = None 
+        temp_image_paths = []
         
         try:
             book_logger.start_process("ストーリー生成")
             story_pages = generate_story(child)
             book_logger.end_process("ストーリー生成")
             for i, page in enumerate(story_pages, 1):
-                book_logger.info(f'Page {i}: {page[:100]}...')  # 各ページの最初の100文字をログ出力
+                book_logger.info(f'Page {i}: {page[:100]}...')
             
             book_logger.start_process("タイトル生成")
             book_title = generate_book_title(child)
             book_logger.success(f"タイトル生成完了: {book_title}")
             
             book_logger.start_process("画像生成")
-            image_urls = generate_images(story_pages, child, book_title)
+            image_data_list = generate_images(story_pages, child, book_title)
             book_logger.end_process("画像生成")
-            for i, image_url in enumerate(image_urls, 1):
-                book_logger.info(f'Image {i}: {image_url}')
+            book_logger.info(f"生成された画像の数: {len(image_data_list)}")
+            
+            # BytesIOオブジェクトを一時的な画像ファイルとして保存
+            for i, image_data in enumerate(image_data_list):
+                if isinstance(image_data, BytesIO):
+                    temp_path = os.path.join(settings.MEDIA_ROOT, f'temp_image_{i}.png')
+                    image = Image.open(image_data)
+                    image.save(temp_path, 'PNG')
+                    temp_image_paths.append(temp_path)
+                    book_logger.info(f'Temporary image saved: {temp_path}')
+                else:
+                    book_logger.error(f'Unexpected image data type: {type(image_data)}')
             
             pdf_path = os.path.join(settings.MEDIA_ROOT, f'{book_title}.pdf')
             book_logger.start_process("PDF生成")
-            pdf_content = create_storybook_pdf(image_urls, story_pages, book_title, pdf_path)
+            pdf_content = create_storybook_pdf(temp_image_paths, story_pages, book_title, pdf_path)
             book_logger.success(f"PDFを生成しました: {pdf_path}")
             
             book_logger.start_process("データベースへの保存")
@@ -60,28 +73,33 @@ class BookViewSet(viewsets.ModelViewSet):
                 user=request.user,
                 child=child,
                 title=book_title,
-                cover_image_url=image_urls[0] if image_urls else "",
+                cover_image_url=temp_image_paths[0] if temp_image_paths else "",
                 is_original=True,
                 pdf_file=pdf_content,
                 is_pdf_generated=True,
                 pdf_generated_at=timezone.now()
             )
             
-            for i, (content, image_url) in enumerate(zip(story_pages, image_urls)):
+            for i, (content, image_path) in enumerate(zip(story_pages, temp_image_paths)):
                 Page.objects.create(
                     book=book,
                     page_number=i,
                     content=content,
-                    image_url=image_url
+                    image_url=image_path
                 )
             book_logger.end_process("データベースへの保存")
             
             serializer = self.get_serializer(book)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            book_logger.error(f"Error in book creation: {str(e)}")
+            book_logger.error(f"Error in book creation: {str(e)}", exc_info=True)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
+            # 一時ファイルの削除
+            for path in temp_image_paths:
+                if os.path.exists(path):
+                    os.remove(path)
+                    book_logger.info(f"Removed temporary image file: {path}")
             if pdf_path and os.path.exists(pdf_path):
                 os.remove(pdf_path)
                 book_logger.info(f"Removed temporary PDF file: {pdf_path}")
@@ -91,7 +109,7 @@ class BookViewSet(viewsets.ModelViewSet):
         book = self.get_object()
         if not book.pdf_file:
             book_logger.warning(f"PDF not found for book ID {pk}")
-            return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FILE)
 
         response = HttpResponse(book.pdf_file, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{book.title}.pdf"'
