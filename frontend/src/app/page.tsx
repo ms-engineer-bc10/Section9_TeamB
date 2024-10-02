@@ -16,12 +16,12 @@ const HomePage = () => {
       <Head>
         <title>楽しい絵本アプリ - YourCompany</title>
         <meta name="description" content="家族と一緒に成長するパーソナライズされた絵本を作りましょう！" />
-        <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Indie+Flower&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Indie+Flower&family=Sawarabi+Gothic&display=swap" rel="stylesheet" />
       </Head>
 
-      <div className="bg-beige-100 font-playful">
+      <div className="bg-peach-100 font-playful" style={{ fontFamily: "'Sawarabi Gothic', sans-serif" }}>
         {/* ヘッダー */}
-        <header className="bg-beige-300 shadow-md">
+        <header className="bg-peach-300 shadow-md">
           <div className="container mx-auto flex justify-between items-center p-4">
             <div className="text-lg font-bold text-orange-700">YourCompany</div>
             <nav>
@@ -36,11 +36,24 @@ const HomePage = () => {
         </header>
 
         {/* ヒーローセクション */}
-        <section id="home" className="bg-beige-200 py-16 text-center">
-          <h1 className="text-4xl font-bold text-orange-700 mb-6">家族と一緒に成長するストーリーを作ろう！</h1>
-          <p className="text-xl mb-8">お子様だけのパーソナライズされた絵本を作ってみましょう！</p>
+        <section id="home" className="bg-peach-200 py-16 text-center">
+          <h1 className="text-4xl font-bold text-orange-700 mb-6" style={{ fontFamily: "'Indie Flower', cursive" }}>
+            家族と一緒に成長するストーリーを作ろう！
+          </h1>
+          <p className="text-xl mb-8" style={{ fontFamily: "'Caveat', cursive" }}>
+            お子様だけのパーソナライズされた絵本を作ってみましょう！
+          </p>
+          {/* ヒーローセクションの画像 */}
+          <Image
+            src="https://i.imgur.com/MYXcsfW.jpg" // Imgurの直接リンクに変更
+            alt="ヒーローセクションのイメージ"
+            layout="responsive" // レイアウトをレスポンシブに設定
+            width={400} // 幅を設定
+            height={400} // 高さを設定
+            className="object-cover mx-auto mb-4 rounded-lg shadow-lg"
+          />
           <Link href="/register">
-            <button className="bg-orange-400 text-white px-8 py-4 rounded-full text-lg hover:bg-orange-300 transition-all duration-200 transform hover:scale-105 shadow-lg">
+            <button className="bg-orange-400 text-white px-8 py-4 rounded-full text-lg hover:bg-orange-300 transition-all duration-200 transform hover:scale-105 shadow-lg mt-8">
               今すぐ始めよう！
             </button>
           </Link>
@@ -50,7 +63,7 @@ const HomePage = () => {
         </section>
 
         {/* 特徴セクション */}
-        <section id="features" className="py-16 bg-beige-300">
+        <section id="features" className="py-16 bg-peach-300">
           <div className="container mx-auto text-center">
             <h2 className="text-3xl font-bold text-orange-700 mb-10">特徴</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -66,7 +79,7 @@ const HomePage = () => {
         </section>
 
         {/* 価格セクション */}
-        <section id="pricing" className="py-16 bg-beige-400">
+        <section id="pricing" className="py-16 bg-peach-400">
           <div className="container mx-auto text-center">
             <h2 className="text-3xl font-bold text-orange-700 mb-10">料金プラン</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-10">
