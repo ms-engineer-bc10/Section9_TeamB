@@ -10,14 +10,12 @@ from rest_framework.response import Response
 from .models import Book, StoryPrompt, Page
 from .serializers import BookSerializer, StoryPromptSerializer
 from accounts.models import Child
-from tellings.models import TellingRecord
 from picturebook_generation.story_generator import generate_story, generate_book_title
 from picturebook_generation.image_generator import generate_images
 from picturebook_generation.pdf_generator import create_storybook_pdf
+from .utils.logger import book_logger
 
 logger = logging.getLogger(__name__)
-
-# Telling recordを使用する記述は現時点で一旦削除しています
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
@@ -30,26 +28,34 @@ class BookViewSet(viewsets.ModelViewSet):
         try:
             child = Child.objects.get(id=child_id)
         except Child.DoesNotExist:
-            logger.error(f"Invalid child ID {child_id}")
+            book_logger.error(f"Invalid child ID {child_id}")
             return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
         
-        pdf_path = None  # pdf_pathをtry文の外で初期化
+        pdf_path = None 
         
         try:
-            logger.info(f"Generating story for child {child_id}")
+            book_logger.start_process("ストーリー生成")
             story_pages = generate_story(child)
+            book_logger.end_process("ストーリー生成")
+            for i, page in enumerate(story_pages, 1):
+                book_logger.info(f'Page {i}: {page[:100]}...')  # 各ページの最初の100文字をログ出力
             
-            logger.info("Generating images for the story")
-            image_urls = generate_images(story_pages, child)
-            
-            logger.info("Generating book title")
+            book_logger.start_process("タイトル生成")
             book_title = generate_book_title(child)
+            book_logger.success(f"タイトル生成完了: {book_title}")
+            
+            book_logger.start_process("画像生成")
+            image_urls = generate_images(story_pages, child, book_title)
+            book_logger.end_process("画像生成")
+            for i, image_url in enumerate(image_urls, 1):
+                book_logger.info(f'Image {i}: {image_url}')
             
             pdf_path = os.path.join(settings.MEDIA_ROOT, f'{book_title}.pdf')
-            logger.info(f"Generating PDF at {pdf_path}")
+            book_logger.start_process("PDF生成")
             pdf_content = create_storybook_pdf(image_urls, story_pages, book_title, pdf_path)
+            book_logger.success(f"PDFを生成しました: {pdf_path}")
             
-            logger.info("Creating book instance in database")
+            book_logger.start_process("データベースへの保存")
             book = Book.objects.create(
                 user=request.user,
                 child=child,
@@ -61,7 +67,6 @@ class BookViewSet(viewsets.ModelViewSet):
                 pdf_generated_at=timezone.now()
             )
             
-            logger.info("Creating page instances for the book")
             for i, (content, image_url) in enumerate(zip(story_pages, image_urls)):
                 Page.objects.create(
                     book=book,
@@ -69,22 +74,23 @@ class BookViewSet(viewsets.ModelViewSet):
                     content=content,
                     image_url=image_url
                 )
+            book_logger.end_process("データベースへの保存")
             
             serializer = self.get_serializer(book)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            logger.error(f"Error in book creation: {str(e)}", exc_info=True)
+            book_logger.error(f"Error in book creation: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
-            if pdf_path and os.path.exists(pdf_path):  # pdf_pathがNoneでない場合のみチェック
+            if pdf_path and os.path.exists(pdf_path):
                 os.remove(pdf_path)
-                logger.info(f"Removed temporary PDF file: {pdf_path}")
+                book_logger.info(f"Removed temporary PDF file: {pdf_path}")
 
     @action(detail=True, methods=['get'])
     def download_pdf(self, request, pk=None):
         book = self.get_object()
         if not book.pdf_file:
-            logger.warning(f"PDF not found for book ID {pk}")
+            book_logger.warning(f"PDF not found for book ID {pk}")
             return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FOUND)
 
         response = HttpResponse(book.pdf_file, content_type='application/pdf')
@@ -94,7 +100,7 @@ class BookViewSet(viewsets.ModelViewSet):
         book.pdf_download_count += 1
         book.save()
 
-        logger.info(f"PDF downloaded for book ID {pk}. Total downloads: {book.pdf_download_count}")
+        book_logger.info(f"PDF downloaded for book ID {pk}. Total downloads: {book.pdf_download_count}")
         return response
 
 class StoryPromptViewSet(viewsets.ModelViewSet):

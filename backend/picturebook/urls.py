@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/superuser/', CustomUserViewSet.as_view({'post': 'create_superuser'})),
     path("stripe/", include("payments.urls")),
+    path('api/books/create_book/', BookViewSet.as_view({'post': 'create_book'}), name='create-book'),
     path('api/books/<int:pk>/download-pdf/', BookViewSet.as_view({'get': 'download_pdf'}), name='book-download-pdf'),
 ]
 
