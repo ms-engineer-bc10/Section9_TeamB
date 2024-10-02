@@ -49,7 +49,24 @@ export const handleFormSubmit = async (
 
     if (response.ok) {
       console.log("子供情報が正常に送信されました");
-      router.push("/home");
+      const childData = await response.json();
+
+      // 絵本生成リクエスト
+      const bookResponse = await fetch(`${apiUrl}/api/books/create_book/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ child_id: childData.id }),
+      });
+
+      if (bookResponse.ok) {
+        console.log("絵本生成リクエストが正常に送信されました");
+        router.push("/home");
+      } else {
+        console.error("絵本生成リクエストに失敗しました");
+      }
     } else {
       console.error("送信エラーが発生しました");
     }

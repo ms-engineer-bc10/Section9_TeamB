@@ -17,6 +17,8 @@ from picturebook_generation.pdf_generator import create_storybook_pdf
 
 logger = logging.getLogger(__name__)
 
+# Telling recordを使用する記述は現時点で一旦削除しています
+
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -24,24 +26,22 @@ class BookViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def create_book(self, request):
         child_id = request.data.get('child_id')
-        telling_record_id = request.data.get('telling_record_id')
         
         try:
             child = Child.objects.get(id=child_id)
-            telling_record = TellingRecord.objects.get(id=telling_record_id)
-        except (Child.DoesNotExist, TellingRecord.DoesNotExist):
-            logger.error(f"Invalid child ID {child_id} or telling record ID {telling_record_id}")
-            return Response({"error": "Invalid child or telling record ID"}, status=status.HTTP_400_BAD_REQUEST)
+        except Child.DoesNotExist:
+            logger.error(f"Invalid child ID {child_id}")
+            return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            logger.info(f"Generating story for child {child_id} and telling record {telling_record_id}")
-            story_pages = generate_story(child, telling_record)
+            logger.info(f"Generating story for child {child_id}")
+            story_pages = generate_story(child)
             
             logger.info("Generating images for the story")
             image_urls = generate_images(story_pages, child)
             
             logger.info("Generating book title")
-            book_title = generate_book_title(child, telling_record)
+            book_title = generate_book_title(child)
             
             pdf_path = os.path.join(settings.MEDIA_ROOT, f'{book_title}.pdf')
             logger.info(f"Generating PDF at {pdf_path}")
@@ -51,7 +51,6 @@ class BookViewSet(viewsets.ModelViewSet):
             book = Book.objects.create(
                 user=request.user,
                 child=child,
-                story_prompt=telling_record.story_prompt,
                 title=book_title,
                 cover_image_url=image_urls[0] if image_urls else "",
                 is_original=True,
@@ -69,7 +68,6 @@ class BookViewSet(viewsets.ModelViewSet):
                     image_url=image_url
                 )
             
-            logger.info(f"Book creation completed successfully. Book ID: {book.id}")
             serializer = self.get_serializer(book)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
