@@ -13,7 +13,7 @@ def generate_images(story_pages, child, book_title):
     
     try:
         # 表紙の生成
-        cover_prompt = f"Book cover for a children's book titled '{book_title}'. A friendly-looking {child.gender} child named {child.name}, with large, joyful eyes, wearing a bright, simple outfit. The image is in a minimalist, rounded, and cute art style with soft pastel colors. The child is standing with a friendly smile. The overall atmosphere is warm and welcoming. Consistent design throughout the book. Illustration in portrait format for a book cover."
+        cover_prompt = f"Create a picturebook cover for a children's book titled '{book_title}'. The title '{book_title}' should be prominently displayed on the cover. A friendly-looking {child.gender} child named {child.name}, with large, joyful eyes, wearing a bright, simple outfit. The image is rounded, and cute art style with soft pastel colors. The overall atmosphere is warm and welcoming. Consistent design throughout the book. Illustration in portrait format for a book cover."
         cover_image = generate_single_image(cover_prompt, is_cover=True)
         images.append(cover_image)
         
@@ -29,7 +29,7 @@ def generate_images(story_pages, child, book_title):
         return []
 
 def generate_single_image(prompt, is_cover=False):
-    prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。また、1枚目の画像のテイストに2枚目以降は合わせたものにしてください。"
+    prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。また、1枚目の画像のテイストに2枚目以降は同じスタイルにしてください。"
     
     response = client.images.generate(
         prompt=prompt,
