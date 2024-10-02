@@ -10,3 +10,4 @@ black
 stripe
 python-dotenv
 django-cors-headers
+firebase-admin

@@ -64,3 +64,5 @@ docker-compose.override.yml
 .dockerignore
 
 venv/
+
+serviceAccountKey.json

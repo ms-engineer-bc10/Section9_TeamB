@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +33,13 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PRICE_ID = os.getenv("STRIPE_PRICE_ID")
+
+# Firebaseのサービスアカウントキーのパスを指定
+cred_path = os.path.join(BASE_DIR, 'picturebook', 'serviceAccountKey.json')
+
+# Firebase Admin SDKを初期化
+cred = credentials.Certificate(cred_path)
+firebase_admin.initialize_app(cred)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

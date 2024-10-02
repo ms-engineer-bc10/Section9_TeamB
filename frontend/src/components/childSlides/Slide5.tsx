@@ -11,6 +11,7 @@ export const Slide5 = ({ register, selectedBackgroundType }: Slide5Props) => {
     <div>
       <label className="block mb-2">
         どのような経緯でご家族になりましたか？
+        <span className="text-red-500 text-sm ml-1">*</span>
       </label>
       <select
         {...register("backgroundType")}

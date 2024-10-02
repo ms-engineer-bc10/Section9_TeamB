@@ -7,25 +7,34 @@ interface Slide1Props {
 
 export const Slide1 = ({ register }: Slide1Props) => (
   <div>
-    <label className="block mb-2">お子さまのおなまえ/ニックネーム</label>
+    <label className="block mb-2">
+      お子さまのおなまえ/ニックネーム
+      <span className="text-red-500 text-sm ml-1">*</span>
+    </label>
     <input
       type="text"
-      {...register("name")}
+      {...register("name", { required: true })}
       className="w-full p-2 mb-4 border rounded"
     />
-    <label className="block mb-2">お誕生日</label>
+    <label className="block mb-2">
+      お誕生日
+      <span className="text-red-500 text-sm ml-1">*</span>
+    </label>
     <input
       type="date"
-      {...register("birthDate")}
+      {...register("birthDate", { required: true })}
       className="w-full p-2 mb-4 border rounded"
     />
-    <label className="block mb-2">性別</label>
+    <label className="block mb-2">
+      性別
+      <span className="text-red-500 text-sm ml-1">*</span>
+    </label>
     <div className="flex items-center space-x-4 mb-4">
       <label className="inline-flex items-center">
         <input
           type="radio"
           value="boy"
-          {...register("gender")}
+          {...register("gender", { required: true })}
           className="form-radio"
         />
         <span className="ml-2">男の子</span>
@@ -34,7 +43,7 @@ export const Slide1 = ({ register }: Slide1Props) => (
         <input
           type="radio"
           value="girl"
-          {...register("gender")}
+          {...register("gender", { required: true })}
           className="form-radio"
         />
         <span className="ml-2">女の子</span>
@@ -43,7 +52,7 @@ export const Slide1 = ({ register }: Slide1Props) => (
         <input
           type="radio"
           value="no_answer"
-          {...register("gender")}
+          {...register("gender", { required: true })}
           className="form-radio"
           defaultChecked
         />
