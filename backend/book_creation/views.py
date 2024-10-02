@@ -33,6 +33,8 @@ class BookViewSet(viewsets.ModelViewSet):
             logger.error(f"Invalid child ID {child_id}")
             return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
         
+        pdf_path = None  # pdf_pathをtry文の外で初期化
+        
         try:
             logger.info(f"Generating story for child {child_id}")
             story_pages = generate_story(child)
@@ -74,7 +76,7 @@ class BookViewSet(viewsets.ModelViewSet):
             logger.error(f"Error in book creation: {str(e)}", exc_info=True)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
-            if os.path.exists(pdf_path):
+            if pdf_path and os.path.exists(pdf_path):  # pdf_pathがNoneでない場合のみチェック
                 os.remove(pdf_path)
                 logger.info(f"Removed temporary PDF file: {pdf_path}")
 
