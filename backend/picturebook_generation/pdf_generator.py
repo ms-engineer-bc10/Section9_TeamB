@@ -5,17 +5,17 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import ParagraphStyle
-from io import BytesIO
 from PIL import Image
+from io import BytesIO
 
 # IPAexゴシックフォントを登録
 pdfmetrics.registerFont(TTFont('IPAexGothic', '/usr/share/fonts/opentype/ipaexfont-gothic/ipaexg.ttf'))
 
-def create_storybook_pdf(images, story_pages, title, output_path):
+def create_storybook_pdf(images, story_pages, title, output_path=None):
     # A4サイズの横向きを使用
     page_width, page_height = landscape(A4)
     
-    # PDFキャンバスの作成
+    # PDFをメモリ上に作成
     pdf_buffer = BytesIO()
     c = canvas.Canvas(pdf_buffer, pagesize=landscape(A4))
 
@@ -31,19 +31,29 @@ def create_storybook_pdf(images, story_pages, title, output_path):
     body_style = ParagraphStyle(
         'Body',
         fontName='IPAexGothic',
-        fontSize=12,
-        leading=14
+        fontSize=20,  # 文字サイズを20ポイントに変更
+        leading=24
     )
 
-    # タイトルページの作成
-    c.setFont('IPAexGothic', 24)
+    # 表紙の作成
+    cover_image = images[0]
+    pil_img = Image.open(cover_image)
+    img_width, img_height = pil_img.size
+    aspect = img_height / float(img_width)
+    img_width = page_width / 2 - 2*cm  # 横幅をA4半分に
+    img_height = img_width * aspect
+    c.drawImage(cover_image, page_width / 2 + cm, (page_height - img_height) / 2, width=img_width, height=img_height)
+
+    # タイトルの描画
     title_paragraph = Paragraph(title, title_style)
-    title_paragraph.wrapOn(c, page_width - 2*cm, page_height - 2*cm)
+    title_width = page_width / 2 - 2*cm
+    title_paragraph.wrapOn(c, title_width, page_height - 2*cm)
     title_paragraph.drawOn(c, cm, page_height / 2)
+
     c.showPage()
 
-    # 各ページの作成
-    for img, story in zip(images, story_pages):
+    # ストーリーページの作成
+    for img, story in zip(images[1:], story_pages):
         # 画像の描画
         pil_img = Image.open(img)
         img_width, img_height = pil_img.size
@@ -62,6 +72,11 @@ def create_storybook_pdf(images, story_pages, title, output_path):
     # PDFの保存
     c.save()
     
-    # BytesIOの内容をファイルに書き込む
-    with open(output_path, 'wb') as f:
-        f.write(pdf_buffer.getvalue())
+    pdf_content = pdf_buffer.getvalue()
+    
+    # ファイルシステムにも保存する場合
+    if output_path:
+        with open(output_path, 'wb') as f:
+            f.write(pdf_content)
+    
+    return pdf_content

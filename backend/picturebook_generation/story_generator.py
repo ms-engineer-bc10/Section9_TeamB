@@ -11,7 +11,7 @@ def generate_story(child, telling_record):
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "あなたは、日本で人気の絵本作家です。背景が複雑な養育家庭における真実告知を目的として子ども向けの絵本を作成してください。真実告知として適切な内容であると同時に、あまり直接的になりすぎないよう配慮してください。必ず日本語で8ページの物語を作成してください。各ページにタイトルをつけず、ストーリーのみを書いてください。"},
+                {"role": "system", "content": "あなたは、日本で人気の絵本作家です。背景が複雑な養育家庭における真実告知を目的として子ども向けの絵本を作成してください。真実告知として適切な内容であると同時に、あまり直接的になりすぎないよう配慮してください。必ず日本語のひらがなとカナカナのみで、8ページの物語を作成してください。各ページにタイトルをつけず、ストーリーのみを書いてください。"},
                 {"role": "user", "content": f"以下の情報に基づいて、子どもに合わせた8ページの日本語の絵本を作成してください。各ページはストーリーのみで、タイトルは不要です：\n{prompt}"}
             ],
             temperature=0.7,
@@ -41,7 +41,7 @@ def generate_book_title(child, telling_record):
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "あなたは子供向け絵本のタイトルを生成する専門家です。日本語でタイトルを作成してください。"},
+                {"role": "system", "content": "あなたは子供向け絵本のタイトルを生成する専門家です。日本語でタイトルを作成してください。タイトルはひらがなとカタカナのみで、簡易でシンプルなものにしてください。"},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
