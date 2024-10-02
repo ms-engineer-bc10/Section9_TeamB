@@ -5,17 +5,17 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import ParagraphStyle
-from io import BytesIO
 from PIL import Image
+from io import BytesIO
 
 # IPAexゴシックフォントを登録
 pdfmetrics.registerFont(TTFont('IPAexGothic', '/usr/share/fonts/opentype/ipaexfont-gothic/ipaexg.ttf'))
 
-def create_storybook_pdf(images, story_pages, title):
+def create_storybook_pdf(images, story_pages, title, output_path=None):
     # A4サイズの横向きを使用
     page_width, page_height = landscape(A4)
     
-    # PDFキャンバスの作成
+    # PDFをメモリ上に作成
     pdf_buffer = BytesIO()
     c = canvas.Canvas(pdf_buffer, pagesize=landscape(A4))
 
@@ -62,5 +62,11 @@ def create_storybook_pdf(images, story_pages, title):
     # PDFの保存
     c.save()
     
-    # BytesIOの内容を返す
-    return pdf_buffer.getvalue()
+    pdf_content = pdf_buffer.getvalue()
+    
+    # ファイルシステムにも保存する場合
+    if output_path:
+        with open(output_path, 'wb') as f:
+            f.write(pdf_content)
+    
+    return pdf_content

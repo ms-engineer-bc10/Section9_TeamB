@@ -105,7 +105,14 @@ class Command(BaseCommand):
         os.makedirs(pdf_dir, exist_ok=True)
         pdf_path = os.path.join(pdf_dir, f'{book_title}.pdf')
         
-        create_storybook_pdf(saved_image_paths, story_pages, book_title, pdf_path)
+        pdf_content = create_storybook_pdf(saved_image_paths, story_pages, book_title, pdf_path)
         self.stdout.write(self.style.SUCCESS(f'PDFを生成しました: {pdf_path}'))
+
+        # PDFの内容をデータベースに保存
+        book.pdf_file = pdf_content
+        book.is_pdf_generated = True
+        book.pdf_generated_at = timezone.now()
+        book.save()
+        self.stdout.write(self.style.SUCCESS('PDFの内容をデータベースに保存しました'))
 
         self.stdout.write(self.style.SUCCESS('全てのテストが完了しました'))

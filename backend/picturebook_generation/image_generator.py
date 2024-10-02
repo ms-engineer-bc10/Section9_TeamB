@@ -29,7 +29,7 @@ def generate_images(story_pages, child, book_title):
         return []
 
 def generate_single_image(prompt, is_cover=False):
-    prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。"
+    prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。また、1枚目の画像のテイストに2枚目以降は合わせたものにしてください。"
     
     response = client.images.generate(
         prompt=prompt,
