@@ -2,12 +2,12 @@ import os
 from io import BytesIO
 import logging
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+#from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -131,25 +131,31 @@ class BookViewSet(viewsets.ModelViewSet):
     def download_pdf(self, request, pk=None):
         try:
             book = self.get_object()
-            user = self.get_user_from_token(request)
-            
-            # ユーザーが本の所有者またはSuperuserであるかチェック
-            if book.user != user and not user.is_superuser:
-                return Response({"error": "You do not have permission to download this PDF"}, status=status.HTTP_403_FORBIDDEN)
+            logger.info(f"Attempting to download PDF for book ID: {pk}")
             
             if not book.pdf_file:
+                logger.warning(f"PDF not found for book ID: {pk}")
                 return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            response = HttpResponse(book.pdf_file, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{book.title}.pdf"'
+            try:
+                response = FileResponse(book.pdf_file, content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="{book.title}.pdf"'
+            except Exception as e:
+                logger.error(f"Error reading PDF file for book ID {pk}: {str(e)}")
+                return Response({"error": "Error reading PDF file"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             book.last_downloaded_at = timezone.now()
             book.pdf_download_count += 1
             book.save()
 
+            logger.info(f"PDF downloaded successfully for book ID: {pk}")
             return response
+        except Book.DoesNotExist:
+            logger.warning(f"Book not found with ID: {pk}")
+            return Response({"error": "Book not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Unexpected error downloading PDF for book ID {pk}: {str(e)}")
+            return Response({"error": "An unexpected error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StoryPromptViewSet(viewsets.ModelViewSet):
     queryset = StoryPrompt.objects.all()
