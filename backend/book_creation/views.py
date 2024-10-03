@@ -12,6 +12,7 @@ from rest_framework.exceptions import ValidationError, PermissionDenied
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from PIL import Image
+from rest_framework.permissions import AllowAny
 
 from .models import Book, StoryPrompt, Page
 from .serializers import BookSerializer, StoryPromptSerializer
@@ -28,7 +29,7 @@ logger = logging.getLogger(__name__)
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [AllowAny]  # 一時的に全てのリクエストを許可
 
     def get_user_from_token(self, request):
         id_token = request.headers.get('Authorization')

@@ -7,6 +7,7 @@ from accounts.utils import verify_firebase_token
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.permissions import AllowAny
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
@@ -49,28 +50,27 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 class ChildViewSet(viewsets.ModelViewSet):
     queryset = Child.objects.all()
     serializer_class = ChildSerializer
+    permission_classes = [AllowAny]  # 一時的に全てのリクエストを許可
 
-    def perform_create(self, serializer):
-        id_token = self.request.headers.get('Authorization')
+    def create(self, request, *args, **kwargs):
+        id_token = request.headers.get('Authorization')
         
-        # トークンが正しく受信されているか確認
-        print(f"受信したトークン: {id_token}")
-
         if not id_token:
-            raise PermissionDenied("Authorizationヘッダーがありません")
+            return Response({"error": "Authorizationヘッダーがありません"}, status=status.HTTP_401_UNAUTHORIZED)
 
         user_info = verify_firebase_token(id_token)
         
         if user_info is None:
-            raise PermissionDenied("Invalid or expired token")
+            return Response({"error": "Invalid or expired token"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        user = CustomUser.objects.filter(firebase_uid=user_info['uid']).first()
+        firebase_uid = user_info['uid']
+        user, created = CustomUser.objects.get_or_create(firebase_uid=firebase_uid)
 
-        if user is None:
-            raise ValidationError("User not found")
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer.save(user=user)
-
-    def create(self, request, *args, **kwargs):
-        """オーバーライドしてCSRF免除のために明示的に記載"""
-        return super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        pass  # createメソッドで直接処理するため、ここでは何もしない

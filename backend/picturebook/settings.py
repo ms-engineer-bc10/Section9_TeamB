@@ -72,8 +72,14 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ]
+    ],
+    'EXCEPTION_HANDLER': 'accounts.utils.custom_exception_handler'
 }
+
+# DEBUGモードでの設定（開発中のみ使用）
+if DEBUG:
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = []
+    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = []
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

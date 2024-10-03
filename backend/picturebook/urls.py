@@ -16,7 +16,6 @@ router.register(r'telling-records', TellingRecordViewSet)
 router.register(r'telling-reminders', TellingReminderViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
     path("admin/", admin.site.urls),
     path('api/', include(router.urls)),
     path('api/superuser/', CustomUserViewSet.as_view({'post': 'create_superuser'})),
