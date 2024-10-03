@@ -129,23 +129,27 @@ class BookViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def download_pdf(self, request, pk=None):
-        user = self.get_user_from_token(request)
-        book = self.get_object()
-        if book.user != user:
-            raise PermissionDenied("You don't have permission to download this PDF")
-        if not book.pdf_file:
-            book_logger.warning(f"PDF not found for book ID {pk}")
-            return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            book = self.get_object()
+            user = self.get_user_from_token(request)
+            
+            # ユーザーが本の所有者またはSuperuserであるかチェック
+            if book.user != user and not user.is_superuser:
+                return Response({"error": "You do not have permission to download this PDF"}, status=status.HTTP_403_FORBIDDEN)
+            
+            if not book.pdf_file:
+                return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        response = HttpResponse(book.pdf_file, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{book.title}.pdf"'
+            response = HttpResponse(book.pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{book.title}.pdf"'
 
-        book.last_downloaded_at = timezone.now()
-        book.pdf_download_count += 1
-        book.save()
+            book.last_downloaded_at = timezone.now()
+            book.pdf_download_count += 1
+            book.save()
 
-        book_logger.info(f"PDF downloaded for book ID {pk}. Total downloads: {book.pdf_download_count}")
-        return response
+            return response
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StoryPromptViewSet(viewsets.ModelViewSet):
     queryset = StoryPrompt.objects.all()
