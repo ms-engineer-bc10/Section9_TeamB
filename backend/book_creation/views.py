@@ -7,11 +7,16 @@ from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError, PermissionDenied
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from PIL import Image
 
 from .models import Book, StoryPrompt, Page
 from .serializers import BookSerializer, StoryPromptSerializer
-from accounts.models import Child
+from accounts.models import Child, CustomUser
+from accounts.utils import verify_firebase_token
 from picturebook_generation.story_generator import generate_story, generate_book_title
 from picturebook_generation.image_generator import generate_images
 from picturebook_generation.pdf_generator import create_storybook_pdf
@@ -19,16 +24,33 @@ from .utils.logger import book_logger
 
 logger = logging.getLogger(__name__)
 
+@method_decorator(csrf_exempt, name='dispatch')
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated] 
+
+    def get_user_from_token(self, request):
+        id_token = request.headers.get('Authorization')
+        if not id_token:
+            raise PermissionDenied("Authorizationヘッダーがありません")
+
+        user_info = verify_firebase_token(id_token)
+        if user_info is None:
+            raise PermissionDenied("Invalid or expired token")
+
+        user = CustomUser.objects.filter(firebase_uid=user_info['uid']).first()
+        if user is None:
+            raise ValidationError("User not found")
+        return user
 
     @action(detail=False, methods=['post'])
     def create_book(self, request):
+        user = self.get_user_from_token(request)
         child_id = request.data.get('child_id')
         
         try:
-            child = Child.objects.get(id=child_id)
+            child = Child.objects.get(id=child_id, user=user)
         except Child.DoesNotExist:
             book_logger.error(f"Invalid child ID {child_id}")
             return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
@@ -70,7 +92,7 @@ class BookViewSet(viewsets.ModelViewSet):
             
             book_logger.start_process("データベースへの保存")
             book = Book.objects.create(
-                user=request.user,
+                user=user,
                 child=child,
                 title=book_title,
                 cover_image_url=temp_image_paths[0] if temp_image_paths else "",
@@ -92,7 +114,7 @@ class BookViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(book)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            book_logger.error(f"Error in book creation: {str(e)}", exc_info=True)
+            book_logger.error(f"Error in book creation: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         finally:
             # 一時ファイルの削除
@@ -106,10 +128,13 @@ class BookViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def download_pdf(self, request, pk=None):
+        user = self.get_user_from_token(request)
         book = self.get_object()
+        if book.user != user:
+            raise PermissionDenied("You don't have permission to download this PDF")
         if not book.pdf_file:
             book_logger.warning(f"PDF not found for book ID {pk}")
-            return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FILE)
+            return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FOUND)
 
         response = HttpResponse(book.pdf_file, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{book.title}.pdf"'

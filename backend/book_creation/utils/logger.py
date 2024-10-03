@@ -1,13 +1,24 @@
 import logging
+import os
 from django.utils import timezone
+from django.conf import settings
 
 class BookCreationLogger:
     def __init__(self, name='book_creation'):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.INFO)
         
+        # ログディレクトリのパスを設定
+        log_dir = os.path.join(settings.BASE_DIR, 'logs', 'book_creation')
+        
+        # ログディレクトリが存在しない場合は作成
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # ログファイルのパスを設定
+        log_file = os.path.join(log_dir, f'book_creation_{timezone.now().strftime("%Y%m%d_%H%M%S")}.log')
+        
         # ファイルハンドラーの設定
-        file_handler = logging.FileHandler(f'book_creation_{timezone.now().strftime("%Y%m%d_%H%M%S")}.log')
+        file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.INFO)
         
         # コンソールハンドラーの設定
