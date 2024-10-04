@@ -66,3 +66,6 @@ docker-compose.override.yml
 venv/
 
 serviceAccountKey.json
+
+#ログファイル
+logs/

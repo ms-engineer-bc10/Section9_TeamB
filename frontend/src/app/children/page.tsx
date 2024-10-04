@@ -22,9 +22,24 @@ const ChildInfoForm = () => {
   const router = useRouter();
   const swiperRef = useRef<any>(null);
   const selectedBackgroundType = watch("backgroundType");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (data: ChildFormData) => {
-    await handleFormSubmit(data, router);
+    setIsLoading(true);
+    setError(null);
+    try {
+      await handleFormSubmit(data, router);
+      // 絵本生成リクエストが完了したら、ホームページにリダイレクトする
+      router.push("/home");
+    } catch (error) {
+      console.error("エラーが発生しました:", error);
+      setError(
+        error instanceof Error ? error.message : "予期せぬエラーが発生しました"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const nextStep = () => {
@@ -92,9 +107,11 @@ const ChildInfoForm = () => {
                 <button
                   type="submit"
                   className="w-full p-2 bg-blue-500 text-white rounded h-12"
+                  disabled={isLoading}
                 >
-                  完了
+                  {isLoading ? "処理中..." : "完了"}
                 </button>
+                {error && <p className="text-red-500 mt-2">{error}</p>}
               </div>
             </SwiperSlide>
           </Swiper>
@@ -104,7 +121,7 @@ const ChildInfoForm = () => {
           <button
             type="button"
             onClick={prevStep}
-            disabled={step === 1}
+            disabled={step === 1 || isLoading}
             className={`p-2 rounded h-full ${
               step === 1 ? "invisible" : "bg-gray-300 text-gray-800"
             }`}
@@ -115,6 +132,7 @@ const ChildInfoForm = () => {
             <button
               type="button"
               onClick={nextStep}
+              disabled={isLoading}
               className="p-2 bg-blue-500 text-white rounded h-full"
             >
               次へ

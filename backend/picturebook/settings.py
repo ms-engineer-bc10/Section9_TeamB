@@ -69,18 +69,18 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
+        'accounts.authentication.FirebaseAuthentication', 
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ]
+    ],
+    'EXCEPTION_HANDLER': 'accounts.utils.custom_exception_handler'
 }
 
-# 開発環境のみでの設定API設定
+# DEBUGモードでの設定（開発中のみ使用）
 if DEBUG:
-    REST_FRAMEWORK = {
-        'DEFAULT_AUTHENTICATION_CLASSES': [],
-        'DEFAULT_PERMISSION_CLASSES': [],
-    }
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = []
+    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = []
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -4,8 +4,8 @@ from .utils import get_story_prompt
 
 client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
-def generate_story(child, telling_record):
-    prompt = get_story_prompt(child, telling_record)
+def generate_story(child):
+    prompt = get_story_prompt(child)
     
     try:
         response = client.chat.completions.create(
@@ -34,14 +34,14 @@ def generate_story(child, telling_record):
         print(f"ストーリー生成中にエラーが発生しました: {str(e)}")
         return []
 
-def generate_book_title(child, telling_record):
+def generate_book_title(child):
     prompt = f"{child.name}の家族についての子供向け絵本のタイトルを作成してください。この本は{child.background_type}について優しく扱います。"
     
     try:
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "あなたは子供向け絵本のタイトルを生成する専門家です。日本語でタイトルを作成してください。タイトルはひらがなとカタカナのみで、簡易でシンプルなものにしてください。"},
+                {"role": "system", "content": "あなたは子供向け絵本のタイトルを生成する専門家です。日本語でタイトルを作成してください。タイトルに使用するのはひらがなかカタカナとし、簡易でシンプルなものにしてください。"},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
