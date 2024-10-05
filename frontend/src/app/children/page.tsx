@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
 import { ChildFormData } from "@/types";
-import { handleFormSubmit } from "@/utils/handleFormSubmit";
+import { genderMap, backgroundTypeMap } from "@/types";
+import { auth } from "@/lib/firebase";
+import { createChild, createBook } from "@/lib/api";
 import { Slide1 } from "@/components/childSlides/Slide1";
 import { Slide2 } from "@/components/childSlides/Slide2";
 import { Slide3 } from "@/components/childSlides/Slide3";
@@ -29,11 +31,40 @@ const ChildInfoForm = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await handleFormSubmit(data, router);
-      // 絵本生成リクエストが完了したら、ホームページにリダイレクトする
+      const currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        console.error("ユーザーがログインしていません");
+        return;
+      }
+
+      const token = await currentUser.getIdToken(true);
+
+      const postData = {
+        name: data.name,
+        birth_date: data.birthDate,
+        arrival_date: data.arrivalDate || null,
+        gender: genderMap[data.gender] || "no_answer",
+        interests: data.interests,
+        background_type: backgroundTypeMap[data.backgroundType] || null,
+        background_other: data.backgroundOther || null,
+        origin_background: data.originBackground || null,
+        care_background: data.careBackground || null,
+        family_structure: data.familyStructure || null,
+        father_title: data.fatherTitle || null,
+        mother_title: data.motherTitle || null,
+      };
+
+      // 子供情報の送信
+      const childData = await createChild(token, postData);
+
+      // 絵本生成リクエスト
+      await createBook(token, childData.id);
+
+      // 正常に処理が完了した場合、ホームページにリダイレクト
       router.push("/home");
     } catch (error) {
-      console.error("エラーが発生しました:", error);
+      console.error("APIリクエスト中にエラーが発生しました:", error);
       setError(
         error instanceof Error ? error.message : "予期せぬエラーが発生しました"
       );
