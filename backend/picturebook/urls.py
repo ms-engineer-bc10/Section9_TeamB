@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from accounts.views import CustomUserViewSet, ChildViewSet
 from book_creation.views import BookViewSet, StoryPromptViewSet
 from tellings.views import TellingRecordViewSet, TellingReminderViewSet
+from payments.views import PaymentViewSet, PaidServiceViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -14,6 +15,8 @@ router.register(r'books', BookViewSet)
 router.register(r'story-prompts', StoryPromptViewSet)
 router.register(r'telling-records', TellingRecordViewSet)
 router.register(r'telling-reminders', TellingReminderViewSet)
+router.register(r'payments', PaymentViewSet)  # Add Payment viewset
+router.register(r'paid-services', PaidServiceViewSet)  # Add PaidService viewset
 
 urlpatterns = [
     path("admin/", admin.site.urls),

@@ -1,9 +1,20 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Payment, PaidService
+from .serializers import PaymentSerializer, PaidServiceSerializer
+from django.shortcuts import render  # 必要？
 import stripe
 from django.conf import settings
-from django.shortcuts import redirect
+from django.shortcuts import redirect # 必要？
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+
+class PaidServiceViewSet(viewsets.ModelViewSet):
+    queryset = PaidService.objects.all()
+    serializer_class = PaidServiceSerializer
 
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
