@@ -1,15 +1,27 @@
 "use client";
 import React from "react";
+import { auth } from "@/lib/firebase";
+import { apiUrl } from "@/lib/config";
 
 const CheckoutButton = () => {
   const handleCheckout = async () => {
     try {
+      const currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        console.error("ユーザーがログインしていません");
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+
       const response = await fetch(
-        "http://localhost:8000/stripe/create-checkout-session/",
+        `${apiUrl}/stripe/create-checkout-session/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -19,10 +31,10 @@ const CheckoutButton = () => {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error("Error:", data.error);
+        console.error("エラー:", data.error);
       }
     } catch (error) {
-      console.error("Request failed:", error);
+      console.error("リクエストが失敗しました:", error);
     }
   };
 
