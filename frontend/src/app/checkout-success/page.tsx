@@ -1,10 +1,12 @@
 "use client";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 
 export default function CheckoutSuccess() {
+  const router = useRouter();
+
   useEffect(() => {
-    // Firebase認証状態が変わるたびにコールバックを実行
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (!currentUser) {
         console.error("ユーザーがログインしていません");
@@ -12,17 +14,21 @@ export default function CheckoutSuccess() {
       }
 
       currentUser
-        .getIdToken(/* forceRefresh */ true)
+        .getIdToken(true)
         .then(function (idToken) {
           fetch(`http://localhost:8000/api/payments/`, {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${idToken}`,
               "Content-Type": "application/json",
+              Authorization: `Bearer ${idToken}`,
             },
           })
             .then((response) => response.json())
-            .then((data) => console.log(data))
+            .then((data) => {
+              console.log(data);
+              // POSTリクエストが成功した後に/homeにリダイレクト
+              router.push("/home");
+            })
             .catch((error) => console.error("Error:", error));
         })
         .catch((error) => {
@@ -30,14 +36,17 @@ export default function CheckoutSuccess() {
         });
     });
 
-    // クリーンアップ関数を返してイベントリスナーを解除
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   return (
-    <div>
-      <h1>Payment Success!</h1>
-      <p>Thank you for your payment.</p>
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4">支払いが完了しました！</h1>
+        <p className="text-lg">
+          お支払いありがとうございます。画面が自動的に遷移するまでお待ちください。
+        </p>
+      </div>
     </div>
   );
 }
