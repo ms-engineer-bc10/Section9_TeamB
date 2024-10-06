@@ -96,7 +96,9 @@ export default function EditChild({ params }: { params: { id: string } }) {
           showBackgroundOther={showBackgroundOther}
         />
       ) : (
-        <p>Loading...</p>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+          <h1 className="text-2xl font-bold text-orange-600">Loading...</h1>
+        </div>
       )}
     </div>
   );

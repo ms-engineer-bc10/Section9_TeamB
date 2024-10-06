@@ -1,5 +1,14 @@
 import { apiUrl } from "@/lib/config";
 
+// 子ども情報をGETするAPIリクエスト
+export const getChild = async () => {
+  const response = await fetch(`${apiUrl}/api/children/`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch child data");
+  }
+  return response.json();
+};
+
 // 子供情報をPOSTするAPIリクエスト
 export const createChild = async (token: string, postData: any) => {
   const response = await fetch(`${apiUrl}/api/children/`, {
