@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getChildId, updateChild } from "@/lib/api";
+import ChildForm from "@/components/EditChild/ChildForm";
 
 export default function EditChild({ params }: { params: { id: string } }) {
   const [child, setChild] = useState(null);
@@ -11,44 +13,72 @@ export default function EditChild({ params }: { params: { id: string } }) {
     gender: "no_answer",
     interests: "",
     background_type: "special_adoption",
+    background_other: "",
     origin_background: "",
     care_background: "",
     family_structure: "",
     father_title: "",
     mother_title: "",
   });
+  const [showArrivalDate, setShowArrivalDate] = useState(true);
+  const [showBackgroundOther, setShowBackgroundOther] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
     if (params.id) {
-      fetch(`http://localhost:8000/api/children/${params.id}/`)
-        .then((response) => response.json())
+      // 子ども情報[id]をGET
+      getChildId(params.id)
         .then((data) => {
           setChild(data);
           setFormData(data);
+
+          if (
+            data.background_type === "sperm_donation" ||
+            data.background_type === "egg_donation"
+          ) {
+            setShowArrivalDate(false);
+          } else {
+            setShowArrivalDate(true);
+          }
+          if (data.background_type === "other") {
+            setShowBackgroundOther(true);
+          } else {
+            setShowBackgroundOther(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch child data:", error);
         });
     }
   }, [params.id]);
 
   const handleChange = (e: any) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "background_type") {
+      if (value === "sperm_donation" || value === "egg_donation") {
+        setShowArrivalDate(false);
+      } else {
+        setShowArrivalDate(true);
+      }
+      if (value === "other") {
+        setShowBackgroundOther(true);
+      } else {
+        setShowBackgroundOther(false);
+      }
+    }
+
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const response = await fetch(
-      `http://localhost:8000/api/children/${params.id}/`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      }
-    );
+    // 子ども情報をPUT
+    const response = await updateChild(params.id, formData);
 
     if (response.ok) {
-      alert("Child updated successfully!");
-      router.push("/"); // Redirect to homepage or wherever appropriate
+      router.push("/home");
     } else {
       alert("Error updating child.");
     }
@@ -58,147 +88,13 @@ export default function EditChild({ params }: { params: { id: string } }) {
     <div className="max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">入力情報を確認してください</h1>
       {child ? (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block mb-2">
-              お子さまのおなまえ/ニックネーム*
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block mb-2">お誕生日*</label>
-            <input
-              type="date"
-              name="birth_date"
-              value={formData.birth_date}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block mb-2">性別*</label>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            >
-              <option value="boy">男の子</option>
-              <option value="girl">女の子</option>
-              <option value="not_answer">答えたくない</option>
-            </select>
-          </div>
-          <div>
-            <label className="block mb-2">ご家族構成を教えてください</label>
-            <input
-              type="text"
-              name="family_structure"
-              placeholder="例：父、母、子"
-              value={formData.family_structure}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block mb-2">
-              お子さまからどのように呼ばれていますか？
-            </label>
-            <input
-              type="text"
-              name="father_title"
-              placeholder="例：ぱぱ、おとうさん、ダディ"
-              value={formData.father_title}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            />
-            <input
-              type="text"
-              name="mother_title"
-              placeholder="例：まま、おかあさん、マミー"
-              value={formData.mother_title}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block mb-2">
-              お子さまの好きなもの・ことを教えてください
-            </label>
-            <textarea
-              name="care_background"
-              placeholder="例： 恐竜、おままごと、砂場遊び"
-              value={formData.interests}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            ></textarea>
-          </div>
-          <div>
-            <label className="block mb-2">
-              どのような経緯でご家族になりましたか？*
-            </label>
-            <select
-              name="background_type"
-              value={formData.background_type}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            >
-              <option value="special_adoption">特別養子縁組</option>
-              <option value="foster_regular_adoption">
-                里子・普通養子縁組
-              </option>
-              <option value="sperm_donation">精子提供</option>
-              <option value="egg_donation">卵子提供</option>
-              <option value="step_family">ステップファミリー</option>
-              <option value="other">その他</option>
-            </select>
-          </div>
-          <div>
-            <label className="block mb-2">
-              お子さまを迎えた日を教えてください
-            </label>
-            <input
-              type="date"
-              name="arrival_date"
-              value={formData.arrival_date}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block mb-2">
-              お子さまを育てられなかった背景を教えてください
-            </label>
-            <textarea
-              name="origin_background"
-              value={formData.origin_background}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            ></textarea>
-          </div>
-          <div>
-            <label className="block mb-2">
-              ご家族になった背景を教えてください
-            </label>
-            <textarea
-              name="care_background"
-              value={formData.care_background}
-              onChange={handleChange}
-              className="w-full p-2 mb-1 border rounded"
-            ></textarea>
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-          >
-            完了
-          </button>
-        </form>
+        <ChildForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          showArrivalDate={showArrivalDate}
+          showBackgroundOther={showBackgroundOther}
+        />
       ) : (
         <p>Loading...</p>
       )}

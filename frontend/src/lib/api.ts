@@ -18,6 +18,26 @@ export const createChild = async (token: string, postData: any) => {
   return response.json();
 };
 
+// 子ども情報[id]をGETするAPIリクエスト
+export const getChildId = async (id: string) => {
+  const response = await fetch(`${apiUrl}/api/children/${id}/`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch child data");
+  }
+  return response.json();
+};
+
+// 子ども情報[id]のPUTをするAPIリクエスト
+export const updateChild = async (id: string, formData: any) => {
+  const response = await fetch(`${apiUrl}/api/children/${id}/`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  });
+
+  return response;
+};
+
 // 絵本生成リクエストのAPIリクエスト
 export const createBook = async (token: string, childId: number) => {
   const response = await fetch(`${apiUrl}/api/books/create_book/`, {
