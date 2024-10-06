@@ -60,7 +60,7 @@ export default function EditChild({ params }: { params: { id: string } }) {
       {child ? (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block mb-2">
               お子さまのおなまえ/ニックネーム*
             </label>
             <input
@@ -68,30 +68,26 @@ export default function EditChild({ params }: { params: { id: string } }) {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              お誕生日*
-            </label>
+            <label className="block mb-2">お誕生日*</label>
             <input
               type="date"
               name="birth_date"
               value={formData.birth_date}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              性別*
-            </label>
+            <label className="block mb-2">性別*</label>
             <select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             >
               <option value="boy">男の子</option>
               <option value="girl">女の子</option>
@@ -99,20 +95,18 @@ export default function EditChild({ params }: { params: { id: string } }) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              ご家族構成を教えてください
-            </label>
+            <label className="block mb-2">ご家族構成を教えてください</label>
             <input
               type="text"
               name="family_structure"
               placeholder="例：父、母、子"
               value={formData.family_structure}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block mb-2">
               お子さまからどのように呼ばれていますか？
             </label>
             <input
@@ -121,7 +115,7 @@ export default function EditChild({ params }: { params: { id: string } }) {
               placeholder="例：ぱぱ、おとうさん、ダディ"
               value={formData.father_title}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             />
             <input
               type="text"
@@ -129,11 +123,11 @@ export default function EditChild({ params }: { params: { id: string } }) {
               placeholder="例：まま、おかあさん、マミー"
               value={formData.mother_title}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block mb-2">
               お子さまの好きなもの・ことを教えてください
             </label>
             <textarea
@@ -141,18 +135,18 @@ export default function EditChild({ params }: { params: { id: string } }) {
               placeholder="例： 恐竜、おままごと、砂場遊び"
               value={formData.interests}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             ></textarea>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block mb-2">
               どのような経緯でご家族になりましたか？*
             </label>
             <select
               name="background_type"
               value={formData.background_type}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             >
               <option value="special_adoption">特別養子縁組</option>
               <option value="foster_regular_adoption">
@@ -165,7 +159,7 @@ export default function EditChild({ params }: { params: { id: string } }) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block mb-2">
               お子さまを迎えた日を教えてください
             </label>
             <input
@@ -173,29 +167,29 @@ export default function EditChild({ params }: { params: { id: string } }) {
               name="arrival_date"
               value={formData.arrival_date}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block mb-2">
               お子さまを育てられなかった背景を教えてください
             </label>
             <textarea
               name="origin_background"
               value={formData.origin_background}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             ></textarea>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block mb-2">
               ご家族になった背景を教えてください
             </label>
             <textarea
               name="care_background"
               value={formData.care_background}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className="w-full p-2 mb-1 border rounded"
             ></textarea>
           </div>
           <button
