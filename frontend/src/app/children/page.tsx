@@ -1,16 +1,18 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { auth } from "@/lib/firebase";
 import { getChild } from "@/lib/api";
 import Link from "next/link";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Page = () => {
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (token: string) => {
       try {
-        const data = await getChild();
+        const data = await getChild(token); // 子ども情報をGET
         setChildren(data);
       } catch (error) {
         console.error("Error fetching children data:", error);
@@ -19,7 +21,23 @@ const Page = () => {
       }
     };
 
-    fetchData();
+    // Firebase認証状態の変化を監視
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const token = await user.getIdToken(); // Firebaseユーザートークンを取得
+          fetchData(token); // 子ども情報を取得
+        } catch (error) {
+          console.error("Error fetching token:", error);
+          setLoading(false);
+        }
+      } else {
+        console.error("User is not authenticated");
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   if (loading) {

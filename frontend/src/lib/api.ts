@@ -1,11 +1,19 @@
 import { apiUrl } from "@/lib/config";
 
 // 子ども情報をGETするAPIリクエスト
-export const getChild = async () => {
-  const response = await fetch(`${apiUrl}/api/children/`);
+export const getChild = async (token: string) => {
+  const response = await fetch(`${apiUrl}/api/children/`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`, // トークンをヘッダーに追加
+      "Content-Type": "application/json",
+    },
+  });
+
   if (!response.ok) {
     throw new Error("Failed to fetch child data");
   }
+
   return response.json();
 };
 
