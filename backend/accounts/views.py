@@ -52,6 +52,29 @@ class ChildViewSet(viewsets.ModelViewSet):
     serializer_class = ChildSerializer
     permission_classes = [AllowAny]  # 一時的に全てのリクエストを許可
 
+
+    # def list(self, request, *args, **kwargs):
+    #     id_token = request.headers.get('Authorization')
+        
+    #     if not id_token:
+    #         return Response({"error": "Authorizationヘッダーがありません"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    #     user_info = verify_firebase_token(id_token)
+        
+    #     if user_info is None:
+    #         return Response({"error": "Invalid or expired token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    #     firebase_uid = user_info['uid']
+    #     try:
+    #         user = CustomUser.objects.get(firebase_uid=firebase_uid)
+    #     except CustomUser.DoesNotExist:
+    #         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    #     # 認証されたユーザーに紐づく子ども情報のみを取得
+    #     children = Child.objects.filter(user=user)
+    #     serializer = self.get_serializer(children, many=True)
+    #     return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         id_token = request.headers.get('Authorization')
         
