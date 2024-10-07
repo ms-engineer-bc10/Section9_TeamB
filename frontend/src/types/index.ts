@@ -45,3 +45,33 @@ export interface ChildFormData {
   fatherTitle: string;
   motherTitle: string;
 }
+
+// Bookの型定義
+export interface Book {
+  id: number;
+  user: number; // User model の id
+  child: number; // Child model の id
+  paid_service: number | null; // PaidService model の id、nullable
+  story_prompt: number | null; // StoryPrompt model の id、nullable
+  story_template: number | null; // StoryTemplate model の id、nullable
+  title: string;
+  cover_image_url: string;
+  lead_message: string;
+  pdf_file: Blob | null; // BinaryFieldはBlobとして扱う
+  is_pdf_generated: boolean;
+  pdf_generated_at: string | null; // DateTimeField、nullable
+  last_downloaded_at: string | null; // DateTimeField、nullable
+  pdf_download_count: number;
+  created_at: string; // DateTimeField
+  updated_at: string; // DateTimeField
+  is_original: boolean;
+}
+
+// Pageの型定義
+export interface Page {
+  id: number;
+  book: number; // Book model の id
+  page_number: number;
+  content: string;
+  image_url: string;
+}
