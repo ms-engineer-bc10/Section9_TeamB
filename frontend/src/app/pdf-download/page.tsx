@@ -20,7 +20,7 @@ export default function BookDownloadPage() {
   useEffect(() => {
     const fetchChildren = async () => {
       try {
-        // 実際の認証トークン取得ロジックに置き換える必要があります
+        // 実際の認証トークン取得ロジックに合ってるか確認
         const authToken = "YOUR_AUTH_TOKEN_HERE";
         setToken(authToken);
         const fetchedChildren = await getChild(authToken);
@@ -35,13 +35,13 @@ export default function BookDownloadPage() {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">絵本ダウンロード</h1>
+      <h1 className="text-3xl font-bold mb-6">絵本のダウンロード</h1>
       <div className="mb-6">
         <label
           htmlFor="childSelect"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
-          子どもを選択:
+          お子さんを選択:
         </label>
         <select
           id="childSelect"
