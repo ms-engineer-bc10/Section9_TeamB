@@ -55,7 +55,7 @@ export const updateChild = async (id: string, formData: any) => {
   return response;
 };
 
-// 絵本生成リクエストのAPIリクエスト
+// 絵本生成のAPIリクエスト
 export const createBook = async (token: string, childId: number) => {
   const response = await fetch(`${apiUrl}/api/books/create_book/`, {
     method: "POST",
@@ -71,4 +71,37 @@ export const createBook = async (token: string, childId: number) => {
   }
 
   return response.json();
+};
+
+// ユーザーに紐づく絵本をGETするリクエスト
+export const getUserBooks = async (token: string) => {
+  const response = await fetch(`${apiUrl}/api/books/`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch user books");
+  }
+
+  return response.json();
+};
+
+// 特定の{id}の絵本のPDFをGET（ダウンロード）するリクエスト
+export const downloadBookPDF = async (token: string, bookId: number) => {
+  const response = await fetch(`${apiUrl}/api/books/${bookId}/download-pdf/`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to download PDF");
+  }
+
+  return response.blob();
 };
