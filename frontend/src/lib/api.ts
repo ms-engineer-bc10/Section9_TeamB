@@ -105,3 +105,25 @@ export const downloadBookPDF = async (token: string, bookId: number) => {
 
   return response.blob();
 };
+
+// 会員ステータスの確認リクエスト
+export const fetchMembershipStatus = async (idToken: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/stripe/membership-status/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch membership status");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching membership status:", error);
+    throw error;
+  }
+};

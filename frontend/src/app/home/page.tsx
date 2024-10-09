@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import Link from "next/link";
+import MembershipStatus from "@/components/MembershipStatus";
 
 const HomePage: React.FC = () => {
   return (
@@ -47,6 +48,8 @@ const HomePage: React.FC = () => {
             [ユーザー名]さん、ログインありがとうございます！
           </h1>
           <p className="text-xl mb-6">一緒にストーリーを作りましょう！(仮)</p>
+          {/* 会員ステータス */}
+          <MembershipStatus />
         </section>
 
         {/* 登録確認セクション */}
