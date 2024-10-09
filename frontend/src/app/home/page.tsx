@@ -91,7 +91,7 @@ const HomePage: React.FC = () => {
                   </h3>
                 </div>
               </Link>
-              <Link href="/PDF">
+              <Link href="/pdf-download">
                 <div className="bg-orange-400 text-white p-6 rounded-lg shadow-md hover:bg-orange-300 transition-colors duration-200">
                   <h3 className="text-xl font-semibold">
                     生成した絵本をPDFで見る

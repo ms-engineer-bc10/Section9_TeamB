@@ -4,8 +4,11 @@ import { auth } from "@/lib/firebase";
 import { getChild } from "@/lib/api";
 import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
+import Button from "@/components/Button";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
+  const router = useRouter();
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -67,6 +70,9 @@ const Page = () => {
               </button>
             </Link>
           ))}
+      </div>
+      <div className="mt-8">
+        <Button onClick={() => router.push("/home")}>ホームに戻る</Button>
       </div>
       <div className="mt-10"></div>
     </div>
