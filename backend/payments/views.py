@@ -37,11 +37,24 @@ class PaymentViewSet(viewsets.ModelViewSet):
         if not user:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        # PaidServiceの作成
+        paid_service_data = {
+            "user": user,
+            "start_date": timezone.now(),
+            "end_date": timezone.now() + timezone.timedelta(days=30),
+            "status": "active",  # 固定値
+            "service_type": "premium",  # 固定値
+            "creation_limit": 10,  # 固定値
+            "books_created": 0,  # 固定値
+            "last_reset_date": timezone.now()  # 固定値
+        }
+        paid_service = PaidService.objects.create(**paid_service_data)
+
         # 支払い情報の仮の値を設定
         payment_data = {
             "user": user.id,
             "stripe_uid": "test_stripe_uid",  # StripeのUIDは仮の値
-            "paid_service": PaidService.objects.first().id,  # 最初のPaidServiceを取得
+            "paid_service": paid_service.id,  # 作成されたPaidServiceのID
             "amount": 100.00,  # 仮の金額
             "payment_method": "credit_card",  # 仮の支払い方法
             "status": "paid",  # 仮のステータス
