@@ -1,13 +1,13 @@
 "use client";
-
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import Header from "@/components/Header";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/lib/config";
 import { Inputs } from "@/types";
+import Link from "next/link";
+import { useRedirectIfAuthenticated } from "@/lib/auth";
 
 const Register: React.FC = () => {
   const router = useRouter();
@@ -18,6 +18,8 @@ const Register: React.FC = () => {
     setError,
     formState: { errors },
   } = useForm<Inputs>();
+
+  useRedirectIfAuthenticated();
 
   const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {
@@ -74,7 +76,6 @@ const Register: React.FC = () => {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen flex items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -116,10 +117,18 @@ const Register: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+            className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600"
           >
             登録
           </button>
+
+          <p className="mt-4 text-center text-sm">
+            すでにアカウントをお持ちの方は{" "}
+            <Link href="/login" className="text-orange-700 hover:underline">
+              こちら
+            </Link>
+            からログインしてください。
+          </p>
         </form>
       </div>
     </>
