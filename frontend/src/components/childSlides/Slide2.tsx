@@ -11,6 +11,7 @@ export const Slide2 = ({ register }: Slide2Props) => (
     <input
       type="text"
       {...register("familyStructure")}
+      placeholder="父、母、りんちゃん"
       className="w-full p-2 mb-4 border rounded"
     />
   </div>
