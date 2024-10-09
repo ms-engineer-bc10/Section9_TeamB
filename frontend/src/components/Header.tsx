@@ -1,7 +1,9 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase"; // Firebase 初期化ファイルからauthをインポート
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Header: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -25,33 +27,38 @@ const Header: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      router.push("/login");
     } catch (error) {
       console.error("ログアウトに失敗しました:", error);
     }
   };
 
   return (
-    <header className="flex justify-between items-center p-4 bg-gray-800 text-white">
-      <h1 className="text-xl font-bold">My App</h1>
-      <div>
-        {user ? (
-          <div className="flex items-center space-x-4">
-            <span>{user.displayName ? user.displayName : user.email}</span>
+    <header className="shadow-md">
+      <div className="container mx-auto flex justify-between items-center p-4">
+        <h1 className="text-lg font-bold text-orange-700">
+          <Link href={"/home"}>Tellry</Link>
+        </h1>
+        <div>
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <span>{user.displayName ? user.displayName : user.email}</span>
+              <button
+                onClick={handleLogout}
+                className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-300 transition-colors duration-200"
+              >
+                ログアウト
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+              onClick={() => router.push("/login")}
+              className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-300 transition-colors duration-200"
             >
-              ログアウト
+              ログイン
             </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => router.push("/login")}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            ログイン
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

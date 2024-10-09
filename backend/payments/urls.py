@@ -7,4 +7,9 @@ urlpatterns = [
         views.create_checkout_session,
         name="create-checkout-session",
     ),
+    path(
+        "membership-status/",
+        views.membership_status,
+        name="membership-status"
+    ),
 ]

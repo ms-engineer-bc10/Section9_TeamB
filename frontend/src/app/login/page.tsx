@@ -1,11 +1,12 @@
 "use client";
-
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import Header from "@/components/Header";
 import { useRouter } from "next/navigation";
+import { Inputs } from "@/types";
+import Link from "next/link";
+import { useRedirectIfAuthenticated } from "@/lib/auth";
 
 const Login: React.FC = () => {
   const router = useRouter();
@@ -16,6 +17,8 @@ const Login: React.FC = () => {
     reset,
     formState: { errors },
   } = useForm<Inputs>();
+
+  useRedirectIfAuthenticated();
 
   const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {
@@ -54,7 +57,6 @@ const Login: React.FC = () => {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen flex items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -96,10 +98,18 @@ const Login: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+            className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600"
           >
             ログイン
           </button>
+
+          <p className="mt-4 text-center text-sm">
+            アカウントをお持ちでない方は{" "}
+            <Link href="/register" className="text-orange-500 hover:underline">
+              こちら
+            </Link>
+            から登録してください。
+          </p>
         </form>
       </div>
     </>

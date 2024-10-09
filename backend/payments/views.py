@@ -10,6 +10,7 @@ from .models import Payment, PaidService
 from .serializers import PaymentSerializer, PaidServiceSerializer
 from accounts.utils import verify_firebase_token
 from accounts.models import CustomUser
+from rest_framework.decorators import api_view
 
 # StripeのAPIキーを設定
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -37,11 +38,24 @@ class PaymentViewSet(viewsets.ModelViewSet):
         if not user:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        # PaidServiceの作成
+        paid_service_data = {
+            "user": user,
+            "start_date": timezone.now(),
+            "end_date": timezone.now() + timezone.timedelta(days=30),
+            "status": "active",  # 固定値
+            "service_type": "premium",  # 固定値
+            "creation_limit": 10,  # 固定値
+            "books_created": 0,  # 固定値
+            "last_reset_date": timezone.now()  # 固定値
+        }
+        paid_service = PaidService.objects.create(**paid_service_data)
+
         # 支払い情報の仮の値を設定
         payment_data = {
             "user": user.id,
             "stripe_uid": "test_stripe_uid",  # StripeのUIDは仮の値
-            "paid_service": PaidService.objects.first().id,  # 最初のPaidServiceを取得
+            "paid_service": paid_service.id,  # 作成されたPaidServiceのID
             "amount": 100.00,  # 仮の金額
             "payment_method": "credit_card",  # 仮の支払い方法
             "status": "paid",  # 仮のステータス
@@ -94,3 +108,33 @@ def create_checkout_session(request):
         return JsonResponse({"url": checkout_session.url})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+
+@api_view(['GET'])
+def membership_status(request):
+    # Firebaseトークンの検証
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return Response({"error": "Authorization header missing"}, status=400)
+
+    decoded_token = verify_firebase_token(auth_header)
+    if not decoded_token:
+        return Response({"error": "Invalid or expired Firebase token"}, status=401)
+
+    # `firebase_uid`を使用してユーザーを特定
+    firebase_uid = decoded_token.get('user_id')
+    user = CustomUser.objects.filter(firebase_uid=firebase_uid).first()
+    if not user:
+        return Response({"error": "User not found"}, status=404)
+
+    # 現在の日付を取得
+    today = timezone.now()
+
+    # 該当ユーザーのPaidServiceを確認
+    paid_service = PaidService.objects.filter(user=user).order_by('-end_date').first()
+
+    if paid_service and paid_service.end_date > today:
+        return Response({"status": "custom"}, status=200)
+    else:
+        return Response({"status": "select"}, status=200)

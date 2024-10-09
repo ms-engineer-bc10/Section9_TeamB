@@ -4,10 +4,17 @@ import { auth } from "@/lib/firebase";
 import { getChild } from "@/lib/api";
 import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
+import Button from "@/components/Button";
+import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import { useRedirectIfNotAuthenticated } from "@/lib/auth";
 
 const Page = () => {
+  const router = useRouter();
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useRedirectIfNotAuthenticated();
 
   useEffect(() => {
     const fetchData = async (token: string) => {
@@ -49,27 +56,33 @@ const Page = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-      <h1 className="text-3xl font-bold mb-8 text-center text-orange-600">
-        だれの本を作成する？
-      </h1>
-      <div className="flex flex-col space-y-4">
-        <Link href="/children/input">
-          <button className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 focus:outline-none shadow-md transition-all w-60">
-            新規入力
-          </button>
-        </Link>
-        {children.length > 0 &&
-          children.map((child) => (
-            <Link key={child.id} href={`/children/${child.id}`}>
-              <button className="bg-orange-400 text-white px-6 py-3 rounded-lg hover:bg-orange-500 focus:outline-none shadow-md transition-all w-60">
-                {child.name}の本を作成する
-              </button>
-            </Link>
-          ))}
+    <>
+      <Header />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <h1 className="text-3xl font-bold mb-8 text-center text-orange-600">
+          だれの絵本を作成する？
+        </h1>
+        <div className="flex flex-col space-y-4">
+          <Link href="/children/input">
+            <button className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 focus:outline-none shadow-md transition-all w-60">
+              新規入力
+            </button>
+          </Link>
+          {children.length > 0 &&
+            children.map((child) => (
+              <Link key={child.id} href={`/children/${child.id}`}>
+                <button className="bg-orange-400 text-white px-6 py-3 rounded-lg hover:bg-orange-500 focus:outline-none shadow-md transition-all w-60">
+                  {child.name}の絵本を作成する
+                </button>
+              </Link>
+            ))}
+        </div>
+        <div className="mt-8">
+          <Button onClick={() => router.push("/home")}>ホームに戻る</Button>
+        </div>
+        <div className="mt-10"></div>
       </div>
-      <div className="mt-10"></div>
-    </div>
+    </>
   );
 };
 

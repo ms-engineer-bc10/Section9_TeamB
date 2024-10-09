@@ -14,6 +14,7 @@ export const Slide1 = ({ register }: Slide1Props) => (
     <input
       type="text"
       {...register("name", { required: true })}
+      placeholder="りんちゃん、あおくん"
       className="w-full p-2 mb-4 border rounded"
     />
     <label className="block mb-2">
@@ -35,7 +36,7 @@ export const Slide1 = ({ register }: Slide1Props) => (
           type="radio"
           value="boy"
           {...register("gender", { required: true })}
-          className="form-radio"
+          className="form-radio appearance-none h-4 w-4 border border-gray-300 rounded-full checked:bg-orange-500 checked:border-transparent focus:outline-none"
         />
         <span className="ml-2">男の子</span>
       </label>
@@ -44,7 +45,7 @@ export const Slide1 = ({ register }: Slide1Props) => (
           type="radio"
           value="girl"
           {...register("gender", { required: true })}
-          className="form-radio"
+          className="form-radio appearance-none h-4 w-4 border border-gray-300 rounded-full checked:bg-orange-500 checked:border-transparent focus:outline-none"
         />
         <span className="ml-2">女の子</span>
       </label>
@@ -53,7 +54,7 @@ export const Slide1 = ({ register }: Slide1Props) => (
           type="radio"
           value="no_answer"
           {...register("gender", { required: true })}
-          className="form-radio"
+          className="form-radio appearance-none h-4 w-4 border border-gray-300 rounded-full checked:bg-orange-500 checked:border-transparent focus:outline-none"
           defaultChecked
         />
         <span className="ml-2">答えたくない</span>
