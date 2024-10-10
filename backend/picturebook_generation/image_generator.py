@@ -16,7 +16,7 @@ def generate_images(story_pages, child, book_title):
     
     try:
         # 表紙の生成
-        cover_prompt = f"Create a picturebook cover for a children's book titled '{book_title}'. The title '{book_title}' should be prominently displayed on the cover. A friendly-looking {child.gender} child named {child.name}, with large, joyful eyes, wearing a bright, simple outfit. The image is rounded, and cute art style with soft pastel colors. The overall atmosphere is warm and welcoming. Consistent design throughout the book. Illustration in portrait format for a book cover."
+        cover_prompt = f"Create a picturebook cover for a children's book titled '{book_title}'. The title '{book_title}' should be prominently displayed on the cover with clear, legible text. A friendly-looking {child.gender} child named {child.name}, with large, joyful eyes, wearing a bright, simple outfit. The image should have a rounded, cute art style with soft pastel colors. The overall atmosphere should be warm and welcoming. Ensure the design is consistent with a children's book aesthetic. The illustration should be in portrait format suitable for a book cover."
         cover_image = generate_single_image(cover_prompt, is_cover=True)
         images.append(cover_image)
         
@@ -32,15 +32,17 @@ def generate_images(story_pages, child, book_title):
         return []
 
 def generate_single_image(prompt, is_cover=False):
-    prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。また、1枚目の画像のテイストに2枚目以降は同じスタイルにしてください。"
+    if not is_cover:
+        prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。"
+    prompt += "また、1枚目の画像のテイストに2枚目以降は同じスタイルにしてください。"
     
     response = client.images.generate(
         prompt=prompt,
         n=1,
         size="1024x1024",
-        model="dall-e-3",  # DALL-E 3モデルを使用
+        model="dall-e-3",
         quality="standard",
-        style="vivid"  # スタイルの一貫性を高めるためにvividスタイルを使用
+        style="vivid"
     )
     
     image_type = "表紙" if is_cover else "内容ページ"
@@ -51,10 +53,9 @@ def generate_single_image(prompt, is_cover=False):
     image = Image.open(BytesIO(image_response.content))
     
     if is_cover:
-        # 表紙のサイズ調整（A4縦置きの半分）
+        # 表紙のサイズ調整（A4縦置き）
         a4_width, a4_height = 210, 297  # A4サイズ（mm）
-        cover_width, cover_height = a4_width, a4_height // 2
-        image = image.resize((cover_width, cover_height), Image.LANCZOS)
+        image = image.resize((a4_width, a4_height), Image.LANCZOS)
     else:
         # ストーリーページのアスペクト比調整（16:9）
         width, height = image.size
