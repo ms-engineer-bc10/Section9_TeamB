@@ -9,7 +9,6 @@ from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-#from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -23,7 +22,6 @@ from accounts.utils import verify_firebase_token
 from picturebook_generation.story_generator import generate_story, generate_book_title
 from picturebook_generation.image_generator import generate_images
 from picturebook_generation.pdf_generator import create_storybook_pdf
-from .utils.logger import book_logger
 
 logger = logging.getLogger(__name__)
 book_logger = logging.getLogger('book_creation')
@@ -65,19 +63,19 @@ class BookViewSet(viewsets.ModelViewSet):
         temp_image_paths = []
         
         try:
-            book_logger.start_process("ストーリー生成")
+            book_logger.info("ストーリー生成開始")
             story_pages = generate_story(child)
-            book_logger.end_process("ストーリー生成")
+            book_logger.info("ストーリー生成完了")
             for i, page in enumerate(story_pages, 1):
                 book_logger.info(f'Page {i}: {page[:100]}...')
             
-            book_logger.start_process("タイトル生成")
+            book_logger.info("タイトル生成開始")
             book_title = generate_book_title(child)
-            book_logger.success(f"タイトル生成完了: {book_title}")
+            book_logger.info(f"タイトル生成完了: {book_title}")
             
-            book_logger.start_process("画像生成")
+            book_logger.info("画像生成開始")
             image_data_list = generate_images(story_pages, child, book_title)
-            book_logger.end_process("画像生成")
+            book_logger.info("画像生成完了")
             book_logger.info(f"生成された画像の数: {len(image_data_list)}")
             
             # BytesIOオブジェクトを一時的な画像ファイルとして保存
@@ -92,11 +90,11 @@ class BookViewSet(viewsets.ModelViewSet):
                     book_logger.error(f'Unexpected image data type: {type(image_data)}')
             
             pdf_path = os.path.join(settings.MEDIA_ROOT, f'{book_title}.pdf')
-            book_logger.start_process("PDF生成")
+            book_logger.info("PDF生成開始")
             pdf_content = create_storybook_pdf(temp_image_paths, story_pages, book_title, pdf_path)
-            book_logger.success(f"PDFを生成しました: {pdf_path}")
+            book_logger.info(f"PDFを生成しました: {pdf_path}")
             
-            book_logger.start_process("データベースへの保存")
+            book_logger.info("データベースへの保存開始")
             book = Book.objects.create(
                 user=user,
                 child=child,
@@ -115,7 +113,7 @@ class BookViewSet(viewsets.ModelViewSet):
                     content=content,
                     image_url=image_path
                 )
-            book_logger.end_process("データベースへの保存")
+            book_logger.info("データベースへの保存")
             
             end_time = time.time()
             total_time = end_time - start_time
