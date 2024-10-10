@@ -1,6 +1,8 @@
 import os
-from io import BytesIO
 import logging
+import time
+from datetime import timedelta
+from io import BytesIO
 from django.conf import settings
 from django.http import HttpResponse, FileResponse
 from django.utils import timezone
@@ -24,6 +26,8 @@ from picturebook_generation.pdf_generator import create_storybook_pdf
 from .utils.logger import book_logger
 
 logger = logging.getLogger(__name__)
+book_logger = logging.getLogger('book_creation')
+openai_logger = logging.getLogger('openai_usage')
 
 @method_decorator(csrf_exempt, name='dispatch')
 class BookViewSet(viewsets.ModelViewSet):
@@ -47,6 +51,7 @@ class BookViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def create_book(self, request):
+        start_time = time.time()
         user = self.get_user_from_token(request)
         child_id = request.data.get('child_id')
         
@@ -112,8 +117,15 @@ class BookViewSet(viewsets.ModelViewSet):
                 )
             book_logger.end_process("データベースへの保存")
             
+            end_time = time.time()
+            total_time = end_time - start_time
+            time_delta = timedelta(seconds=total_time)
+            minutes, seconds = divmod(time_delta.seconds, 60)
+            book_logger.info(f"絵本の生成完了 - 合計時間: {minutes}分 {seconds}秒")
+            
             serializer = self.get_serializer(book)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
         except Exception as e:
             book_logger.error(f"Error in book creation: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
