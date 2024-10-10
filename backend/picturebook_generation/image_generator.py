@@ -1,8 +1,11 @@
 import openai
+import logging
 from django.conf import settings
 from PIL import Image
 import requests
 from io import BytesIO
+
+openai_logger = logging.getLogger('openai_usage')
 
 client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
@@ -39,6 +42,9 @@ def generate_single_image(prompt, is_cover=False):
         quality="standard",
         style="vivid"  # スタイルの一貫性を高めるためにvividスタイルを使用
     )
+    
+    image_type = "表紙" if is_cover else "内容ページ"
+    openai_logger.info(f"DALL-E API使用: タイプ={image_type}, プロンプト文字数={len(prompt)}, 生成画像数=1, サイズ=1024x1024")
     
     image_url = response.data[0].url
     image_response = requests.get(image_url)
