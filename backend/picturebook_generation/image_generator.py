@@ -4,25 +4,35 @@ from django.conf import settings
 from PIL import Image
 import requests
 from io import BytesIO
+from datetime import date
 
 openai_logger = logging.getLogger('openai_usage')
 
 client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
+# 年齢計算のための関数
+def calculate_age(birth_date):
+    today = date.today()
+    age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    return age
+
 def generate_images(story_pages, child, book_title):
     images = []
-    main_character_prompt = f"A friendly-looking {child.gender} child named {child.name}, "
-    style_prompt = "in a warm, colorful children's book style. Consistent character design and art style throughout all images. Soft, gentle colors and simple, expressive shapes."
+    
+    child_age = calculate_age(child.birth_date)
+    
+    main_character_prompt = f"{child_age}歳の元気で親しみやすい{child.gender}の子どもで、名前は{child.name}です"
+    style_prompt = "温かみのある、カラフルな子ども向け絵本の画像スタイルにしてください。すべての画像でキャラクターのデザインを統一し、キャラクターの髪型や服装も共通にしてください。"
     
     try:
         # 表紙の生成
-        cover_prompt = f"Create a picturebook cover for a children's book titled '{book_title}'. The title '{book_title}' should be prominently displayed on the cover with clear, legible text. A friendly-looking {child.gender} child named {child.name}, with large, joyful eyes, wearing a bright, simple outfit. The image should have a rounded, cute art style with soft pastel colors. The overall atmosphere should be warm and welcoming. Ensure the design is consistent with a children's book aesthetic. The illustration should be in portrait format suitable for a book cover."
+        cover_prompt = f"『{book_title}』というタイトルの子ども向け絵本の表紙を作成してください。タイトル『{book_title}』は表紙の中央上部に大きく、太く、はっきりとした文字で表示してください。文字が見やすくなるようにしてください。元気で明るい目をした{child.gender}の子ども{child.name}を描いてください。絵は、柔らかくて親しみやすい雰囲気にしてください。絵本らしいデザインであることを確認してください。"
         cover_image = generate_single_image(cover_prompt, is_cover=True)
         images.append(cover_image)
         
         # ストーリーページの生成
         for page_content in story_pages:
-            prompt = f"Illustration for a children's book double-page spread: {page_content}. Featuring a friendly-looking {child.gender} child named {child.name}, with large, joyful eyes and a bright, simple outfit. The background is simple, with a cozy living room or playful park setting. Keep the focus on the child and avoid distracting details. The scene should feel playful and engaging. Illustration in wide landscape format for a book spread, maintaining character consistency across all pages."
+            prompt = f"子ども向け絵本の見開きページのイラスト: {page_content}を作成してください。元気で親しみやすい顔をした{child.gender}の子ども{child.name}が登場し、大きくて明るい目をしていて、シンプルで明るい服を着ています。背景は居心地の良いリビングルームや遊び場の公園など、シンプルにしてください。主な焦点は子どもに置き、シーン全体は楽しげで引き込まれる雰囲気にしてください。絵本の見開きページ向けに広い横長のフォーマットで描き、すべてのページで登場人物（キャラクター）のデザインや描写、服装に一貫性を持たせてください。"
             page_image = generate_single_image(prompt)
             images.append(page_image)
         
@@ -34,7 +44,7 @@ def generate_images(story_pages, child, book_title):
 def generate_single_image(prompt, is_cover=False):
     if not is_cover:
         prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。"
-    prompt += "また、1枚目の画像のテイストに2枚目以降は同じスタイルにしてください。"
+        prompt += "また、1枚目の画像のテイストに2枚目以降は同じスタイルにしてください。"
     
     response = client.images.generate(
         prompt=prompt,
@@ -42,7 +52,7 @@ def generate_single_image(prompt, is_cover=False):
         size="1024x1024",
         model="dall-e-3",
         quality="standard",
-        style="vivid"
+        style="vivid",
     )
     
     image_type = "表紙" if is_cover else "内容ページ"
