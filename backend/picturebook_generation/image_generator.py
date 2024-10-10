@@ -32,7 +32,7 @@ def generate_images(story_pages, child, book_title):
         
         # ストーリーページの生成
         for page_content in story_pages:
-            prompt = f"子ども向け絵本の見開きページのイラスト: {page_content}を作成してください。元気で親しみやすい顔をした{child.gender}の子ども{child.name}が登場し、大きくて明るい目をしていて、シンプルで明るい服を着ています。背景は居心地の良いリビングルームや遊び場の公園など、シンプルにしてください。主な焦点は子どもに置き、シーン全体は楽しげで引き込まれる雰囲気にしてください。絵本の見開きページ向けに広い横長のフォーマットで描き、すべてのページで登場人物（キャラクター）のデザインや描写、服装に一貫性を持たせてください。"
+            prompt = f"子ども向け絵本の見開きページのイラスト: {page_content}を描いてください。{main_character_prompt}が登場し、ページごとに{page_content}の内容を再現したイラストにしてください。絵本の見開きページ向けに広い横長のフォーマットで描き、すべてのページで登場人物（キャラクター）のデザインや描写、服装に一貫性を持たせてください。{style_prompt}"
             page_image = generate_single_image(prompt)
             images.append(page_image)
         
