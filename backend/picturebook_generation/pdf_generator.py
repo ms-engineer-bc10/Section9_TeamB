@@ -20,18 +20,10 @@ def create_storybook_pdf(images, story_pages, title, output_path=None):
     c = canvas.Canvas(pdf_buffer, pagesize=landscape(A4))
 
     # スタイルの定義
-    title_style = ParagraphStyle(
-        'Title',
-        fontName='IPAexGothic',
-        fontSize=24,
-        leading=28,
-        alignment=1  # 中央揃え
-    )
-    
     body_style = ParagraphStyle(
         'Body',
         fontName='IPAexGothic',
-        fontSize=20,  # 文字サイズを20ポイントに変更
+        fontSize=20,
         leading=24
     )
 
@@ -40,15 +32,18 @@ def create_storybook_pdf(images, story_pages, title, output_path=None):
     pil_img = Image.open(cover_image)
     img_width, img_height = pil_img.size
     aspect = img_height / float(img_width)
-    img_width = page_width / 2 - 2*cm  # 横幅をA4半分に
-    img_height = img_width * aspect
-    c.drawImage(cover_image, page_width / 2 + cm, (page_height - img_height) / 2, width=img_width, height=img_height)
-
-    # タイトルの描画
-    title_paragraph = Paragraph(title, title_style)
-    title_width = page_width / 2 - 2*cm
-    title_paragraph.wrapOn(c, title_width, page_height - 2*cm)
-    title_paragraph.drawOn(c, cm, page_height / 2)
+    
+    # 表紙画像をA4縦サイズに合わせる
+    if aspect > 1:  # 縦長の画像
+        img_height = page_height
+        img_width = img_height / aspect
+    else:  # 横長の画像
+        img_width = page_height
+        img_height = img_width * aspect
+    
+    # 表紙画像を中央に配置
+    x_offset = (page_width - img_width) / 2
+    c.drawImage(cover_image, x_offset, 0, width=img_width, height=img_height)
 
     c.showPage()
 
