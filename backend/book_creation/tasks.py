@@ -8,7 +8,8 @@ from django.utils import timezone
 from PIL import Image
 from io import BytesIO
 
-from .models import Book, Page, Child
+from accounts.models import Child
+from .models import Book, Page
 from picturebook_generation.story_generator import generate_story, generate_book_title
 from picturebook_generation.image_generator import generate_images
 from picturebook_generation.pdf_generator import create_storybook_pdf

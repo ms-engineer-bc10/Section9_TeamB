@@ -10,7 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from celery.result import AsyncResult
 
-from .models import Book, StoryPrompt, Child
+from accounts.models import Child
+from .models import Book, StoryPrompt
 from .serializers import BookSerializer, StoryPromptSerializer
 from accounts.models import CustomUser
 from accounts.utils import verify_firebase_token
