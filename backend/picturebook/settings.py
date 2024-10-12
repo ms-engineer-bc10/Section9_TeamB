@@ -190,8 +190,6 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
-INSTALLED_APPS += ['django_celery_results']
-
 # Redis settings
 REDIS_HOST = 'redis'
 REDIS_PORT = 6379
