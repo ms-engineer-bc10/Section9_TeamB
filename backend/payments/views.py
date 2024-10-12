@@ -135,6 +135,6 @@ def membership_status(request):
     paid_service = PaidService.objects.filter(user=user).order_by('-end_date').first()
 
     if paid_service and paid_service.end_date > today:
-        return Response({"status": "custom"}, status=200)
+        return Response({"status": "standard"}, status=200)
     else:
-        return Response({"status": "select"}, status=200)
+        return Response({"status": "light"}, status=200)

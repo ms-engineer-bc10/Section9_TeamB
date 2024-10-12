@@ -1,4 +1,6 @@
 import React from "react";
+import { useRouter } from "next/navigation";
+import Button from "@/components/Button";
 
 interface ChildFormProps {
   formData: any;
@@ -79,161 +81,178 @@ export default function ChildForm({
   showBackgroundOther,
 }: ChildFormProps) {
   const currentBackground = backgroundLabels[formData.background_type] || {};
+  const router = useRouter();
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block mb-2">お子さまのおなまえ/ニックネーム*</label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className="w-full p-2 mb-1 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block mb-2">お誕生日*</label>
-        <input
-          type="date"
-          name="birth_date"
-          value={formData.birth_date}
-          onChange={handleChange}
-          className="w-full p-2 mb-1 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block mb-2">性別*</label>
-        <select
-          name="gender"
-          value={formData.gender}
-          onChange={handleChange}
-          className="w-full p-2 mb-1 border rounded"
-        >
-          <option value="boy">男の子</option>
-          <option value="girl">女の子</option>
-          <option value="not_answer">答えたくない</option>
-        </select>
-      </div>
-      <div>
-        <label className="block mb-2">ご家族構成を教えてください</label>
-        <input
-          type="text"
-          name="family_structure"
-          placeholder="例：父、母、子"
-          value={formData.family_structure}
-          onChange={handleChange}
-          className="w-full p-2 mb-1 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block mb-2">
-          お子さまからどのように呼ばれていますか？
-        </label>
-        <input
-          type="text"
-          name="father_title"
-          placeholder="例：ぱぱ、おとうさん、ダディ"
-          value={formData.father_title}
-          onChange={handleChange}
-          className="w-full p-2 mb-1 border rounded"
-        />
-        <input
-          type="text"
-          name="mother_title"
-          placeholder="例：まま、おかあさん、マミー"
-          value={formData.mother_title}
-          onChange={handleChange}
-          className="w-full p-2 mb-1 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block mb-2">
-          お子さまの好きなもの・ことを教えてください
-        </label>
-        <textarea
-          name="interests"
-          placeholder="例： 恐竜、おままごと、砂場遊び"
-          value={formData.interests}
-          onChange={handleChange}
-          className="w-full h-24 p-2 mb-1 border rounded"
-        ></textarea>
-      </div>
-      <div>
-        <label className="block mb-2">
-          どのような経緯でご家族になりましたか？*
-        </label>
-        <select
-          name="background_type"
-          value={formData.background_type}
-          onChange={handleChange}
-          className="w-full p-2 mb-1 border rounded"
-        >
-          <option value="special_adoption">特別養子縁組</option>
-          <option value="foster_regular_adoption">里子・普通養子縁組</option>
-          <option value="sperm_donation">精子提供</option>
-          <option value="egg_donation">卵子提供</option>
-          <option value="step_family">ステップファミリー</option>
-          <option value="other">その他</option>
-        </select>
-      </div>
-
-      {showBackgroundOther && (
+    <>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block mb-2">その他の背景を教えてください</label>
-          <textarea
-            name="background_other"
-            value={formData.background_other ?? ""}
-            onChange={handleChange}
-            className="w-full p-2 mb-1 border rounded"
-          ></textarea>
-        </div>
-      )}
-
-      {showArrivalDate && (
-        <div>
-          <label className="block mb-2">
-            お子さまを迎えた日を教えてください
-          </label>
+          <label className="block mb-2">お子さまのおなまえ/ニックネーム*</label>
           <input
-            type="date"
-            name="arrival_date"
-            value={formData.arrival_date}
+            type="text"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             className="w-full p-2 mb-1 border rounded"
           />
         </div>
-      )}
+        <div>
+          <label className="block mb-2">お誕生日*</label>
+          <input
+            type="date"
+            name="birth_date"
+            value={formData.birth_date}
+            onChange={handleChange}
+            className="w-full p-2 mb-1 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block mb-2">性別*</label>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="w-full p-2 mb-1 border rounded"
+          >
+            <option value="boy">男の子</option>
+            <option value="girl">女の子</option>
+            <option value="not_answer">答えたくない</option>
+          </select>
+        </div>
+        <div>
+          <label className="block mb-2">ご家族構成を教えてください</label>
+          <input
+            type="text"
+            name="family_structure"
+            placeholder="例：父、母、子"
+            value={formData.family_structure}
+            onChange={handleChange}
+            className="w-full p-2 mb-1 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block mb-2">
+            お子さまからどのように呼ばれていますか？
+          </label>
+          <input
+            type="text"
+            name="father_title"
+            placeholder="例：ぱぱ、おとうさん、ダディ"
+            value={formData.father_title}
+            onChange={handleChange}
+            className="w-full p-2 mb-1 border rounded"
+          />
+          <input
+            type="text"
+            name="mother_title"
+            placeholder="例：まま、おかあさん、マミー"
+            value={formData.mother_title}
+            onChange={handleChange}
+            className="w-full p-2 mb-1 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block mb-2">
+            お子さまの好きなもの・ことを教えてください
+          </label>
+          <textarea
+            name="interests"
+            placeholder="例： 恐竜、おままごと、砂場遊び"
+            value={formData.interests}
+            onChange={handleChange}
+            className="w-full h-24 p-2 mb-1 border rounded"
+          ></textarea>
+        </div>
+        <div>
+          <label className="block mb-2">
+            どのような経緯でご家族になりましたか？*
+          </label>
+          <select
+            name="background_type"
+            value={formData.background_type}
+            onChange={handleChange}
+            className="w-full p-2 mb-1 border rounded"
+          >
+            <option value="special_adoption">特別養子縁組</option>
+            <option value="foster_regular_adoption">里子・普通養子縁組</option>
+            <option value="sperm_donation">精子提供</option>
+            <option value="egg_donation">卵子提供</option>
+            <option value="step_family">ステップファミリー</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
 
-      <div>
-        <label className="block mb-2">{currentBackground.originLabel}</label>
-        <p className="text-sm text-gray-500 mt-2">
-          例: {currentBackground.originExample}
-        </p>
-        <textarea
-          name="origin_background"
-          value={formData.origin_background}
-          onChange={handleChange}
-          className="w-full h-32 p-2 mb-1 border rounded"
-        ></textarea>
+        {showBackgroundOther && (
+          <div>
+            <label className="block mb-2">その他の背景を教えてください</label>
+            <textarea
+              name="background_other"
+              value={formData.background_other ?? ""}
+              onChange={handleChange}
+              className="w-full p-2 mb-1 border rounded"
+            ></textarea>
+          </div>
+        )}
+
+        {showArrivalDate && (
+          <div>
+            <label className="block mb-2">
+              お子さまを迎えた日を教えてください
+            </label>
+            <input
+              type="date"
+              name="arrival_date"
+              value={formData.arrival_date}
+              onChange={handleChange}
+              className="w-full p-2 mb-1 border rounded"
+            />
+          </div>
+        )}
+
+        <div>
+          <label className="block mb-2">{currentBackground.originLabel}</label>
+          <p className="text-sm text-gray-500 mt-2">
+            例: {currentBackground.originExample}
+          </p>
+          <textarea
+            name="origin_background"
+            value={formData.origin_background}
+            onChange={handleChange}
+            className="w-full h-32 p-2 mb-1 border rounded"
+          ></textarea>
+        </div>
+        <div>
+          <label className="block mb-2">{currentBackground.careLabel}</label>
+          <p className="text-sm text-gray-500 mt-2">
+            例: {currentBackground.careExample}
+          </p>
+          <textarea
+            name="care_background"
+            value={formData.care_background}
+            onChange={handleChange}
+            className="w-full h-32 p-2 mb-1 border rounded"
+          ></textarea>
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-orange-500 text-white py-2 px-4 rounded-md  hover:bg-orange-600 focus:outline-none shadow-md"
+        >
+          完了
+        </button>
+      </form>
+      <div className="mt-8">
+        <Button
+          onClick={() => {
+            const confirmLeave = window.confirm(
+              "入力した内容は破棄されます。ホームに戻りますか？"
+            );
+            if (confirmLeave) {
+              router.push("/home");
+            }
+          }}
+        >
+          ホームに戻る
+        </Button>
       </div>
-      <div>
-        <label className="block mb-2">{currentBackground.careLabel}</label>
-        <p className="text-sm text-gray-500 mt-2">
-          例: {currentBackground.careExample}
-        </p>
-        <textarea
-          name="care_background"
-          value={formData.care_background}
-          onChange={handleChange}
-          className="w-full h-32 p-2 mb-1 border rounded"
-        ></textarea>
-      </div>
-      <button
-        type="submit"
-        className="w-full bg-orange-500 text-white py-2 px-4 rounded-md  hover:bg-orange-600 focus:outline-none shadow-md"
-      >
-        完了
-      </button>
-    </form>
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getChild } from "@/lib/api";
 import DownloadPdf from "@/components/DownloadPdf";
 import Button from "@/components/Button";
+import Header from "@/components/Header";
 
 interface Child {
   id: number;
@@ -34,35 +35,38 @@ export default function BookDownloadPage() {
   }, []);
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">絵本のダウンロード</h1>
-      <div className="mb-6">
-        <label
-          htmlFor="childSelect"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          お子さんを選択:
-        </label>
-        <select
-          id="childSelect"
-          value={selectedChildId || ""}
-          onChange={(e) => setSelectedChildId(Number(e.target.value))}
-          className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        >
-          <option value="">選択してください</option>
-          {children.map((child) => (
-            <option key={child.id} value={child.id}>
-              {child.name}
-            </option>
-          ))}
-        </select>
+    <>
+      <Header />
+      <div className="container mx-auto py-8">
+        <h1 className="text-3xl font-bold mb-6">絵本のダウンロード</h1>
+        <div className="mb-6">
+          <label
+            htmlFor="childSelect"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            お子さんを選択:
+          </label>
+          <select
+            id="childSelect"
+            value={selectedChildId || ""}
+            onChange={(e) => setSelectedChildId(Number(e.target.value))}
+            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          >
+            <option value="">選択してください</option>
+            {children.map((child) => (
+              <option key={child.id} value={child.id}>
+                {child.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        {selectedChildId && token && (
+          <DownloadPdf token={token} childId={selectedChildId} />
+        )}
+        <div className="mt-8">
+          <Button onClick={() => router.push("/home")}>ホームに戻る</Button>
+        </div>
       </div>
-      {selectedChildId && token && (
-        <DownloadPdf token={token} childId={selectedChildId} />
-      )}
-      <div className="mt-8">
-        <Button onClick={() => router.push("/home")}>ホームに戻る</Button>
-      </div>
-    </div>
+    </>
   );
 }

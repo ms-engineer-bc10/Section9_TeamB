@@ -16,6 +16,7 @@ import { Slide5 } from "@/components/childSlides/Slide5";
 import { Slide6 } from "@/components/childSlides/Slide6";
 import { Slide7 } from "@/components/childSlides/Slide7";
 import Header from "@/components/Header";
+import Button from "@/components/Button";
 import { useRedirectIfNotAuthenticated } from "@/lib/auth";
 
 const TOTAL_STEPS = 8;
@@ -182,6 +183,20 @@ const ChildInfoForm = () => {
               </button>
             )}
           </div>
+        </div>
+        <div className="mt-8">
+          <Button
+            onClick={() => {
+              const confirmLeave = window.confirm(
+                "入力した内容は破棄されます。ホームに戻りますか？"
+              );
+              if (confirmLeave) {
+                router.push("/home");
+              }
+            }}
+          >
+            ホームに戻る
+          </Button>
         </div>
       </div>
     </>

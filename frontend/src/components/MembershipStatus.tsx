@@ -27,10 +27,12 @@ const MembershipStatus: React.FC = () => {
 
   return (
     <div>
-      {membershipStatus === "custom" ? (
-        <p className="text-lg font-semibold text-green-600">カスタムプラン</p>
-      ) : membershipStatus === "select" ? (
-        <p className="text-lg font-semibold text-blue-600">セレクトプラン</p>
+      {membershipStatus === "standard" ? (
+        <p className="text-lg font-semibold text-green-600">
+          スタンダードプラン
+        </p>
+      ) : membershipStatus === "light" ? (
+        <p className="text-lg font-semibold text-blue-600">ライトプラン</p>
       ) : (
         <p className="text-lg">会員ステータスを取得中...</p>
       )}
