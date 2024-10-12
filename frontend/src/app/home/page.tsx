@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PenTool, Book, MessageCircle, LogOut } from "lucide-react";
+import { PenTool, Book, MessageCircle, LogOut, Star } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { fetchMembershipStatus, getChild } from "@/lib/api";
 import { handleLogout, useRedirectIfNotAuthenticated } from "@/lib/auth";
@@ -131,6 +131,7 @@ const Home = () => {
             <PenTool size={64} className="mx-auto mb-4 animate-bounce" />
             <span className="text-2xl font-bold font-comic">絵本を作る</span>
           </Link>
+
           <Link
             href="/pdf-download"
             className="bg-gradient-to-br from-teal-400 to-teal-600 hover:from-teal-500 hover:to-teal-700 text-white rounded-2xl p-6 text-center transition-all transform hover:scale-105 hover:rotate-2 shadow-lg"
@@ -140,6 +141,7 @@ const Home = () => {
               作った絵本を見る
             </span>
           </Link>
+
           <Link
             href="/tellingRecord"
             className="bg-gradient-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white rounded-2xl p-6 text-center transition-all transform hover:scale-105 hover:rotate-2 shadow-lg"
@@ -149,6 +151,32 @@ const Home = () => {
               子供の反応を記録
             </span>
           </Link>
+        </div>
+
+        <div className="mt-12 bg-white rounded-2xl p-6 shadow-2xl transform hover:scale-105 transition-transform">
+          <h2 className="text-2xl font-bold font-comic text-orange-600 mb-4">
+            絵本作成状況
+          </h2>
+          <div className="flex justify-around items-center">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-purple-600">3</div>
+              <div className="text-sm text-gray-600">作成済み</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-pink-600">2</div>
+              <div className="text-sm text-gray-600">残り</div>
+            </div>
+            <div className="flex">
+              {[1, 2, 3, 4, 5].map((_, index) => (
+                <Star
+                  key={index}
+                  className={`w-8 h-8 ${
+                    index < 3 ? "text-yellow-400" : "text-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </main>
 
