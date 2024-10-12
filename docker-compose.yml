@@ -24,6 +24,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:13
@@ -33,6 +34,20 @@ services:
       - POSTGRES_DB=tellingsupport
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
+
+  redis:
+    image: "redis:alpine"
+
+  celery:
+    build: ./backend
+    command: celery -A picturebook worker -l info
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/tellingsupport
 
 volumes:
   postgres_data:
