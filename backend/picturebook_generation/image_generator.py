@@ -1,25 +1,38 @@
 import openai
+import logging
 from django.conf import settings
 from PIL import Image
 import requests
 from io import BytesIO
+from datetime import date
+
+openai_logger = logging.getLogger('openai_usage')
 
 client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
+# 年齢計算のための関数
+def calculate_age(birth_date):
+    today = date.today()
+    age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    return age
+
 def generate_images(story_pages, child, book_title):
     images = []
-    main_character_prompt = f"A friendly-looking {child.gender} child named {child.name}, "
-    style_prompt = "in a warm, colorful children's book style. Consistent character design and art style throughout all images. Soft, gentle colors and simple, expressive shapes."
+    
+    child_age = calculate_age(child.birth_date)
+    
+    main_character_prompt = f"{child_age}歳の元気で親しみやすい{child.gender}の子どもで、名前は{child.name}です"
+    style_prompt = "温かみのある、カラフルな子ども向け絵本の画像スタイルにしてください。すべての画像でキャラクターのデザインを統一し、キャラクターの髪型や服装も共通にしてください。"
     
     try:
         # 表紙の生成
-        cover_prompt = f"Create a picturebook cover for a children's book titled '{book_title}'. The title '{book_title}' should be prominently displayed on the cover. A friendly-looking {child.gender} child named {child.name}, with large, joyful eyes, wearing a bright, simple outfit. The image is rounded, and cute art style with soft pastel colors. The overall atmosphere is warm and welcoming. Consistent design throughout the book. Illustration in portrait format for a book cover."
+        cover_prompt = f"『{book_title}』というタイトルの子ども向け絵本の表紙を作成してください。タイトル『{book_title}』は表紙の中央上部に大きく、太く、はっきりとした文字で表示してください。文字が見やすくなるようにしてください。元気で明るい目をした{child.gender}の子ども{child.name}を描いてください。絵は、柔らかくて親しみやすい雰囲気にしてください。絵本らしいデザインであることを確認してください。"
         cover_image = generate_single_image(cover_prompt, is_cover=True)
         images.append(cover_image)
         
         # ストーリーページの生成
         for page_content in story_pages:
-            prompt = f"Illustration for a children's book double-page spread: {page_content}. Featuring a friendly-looking {child.gender} child named {child.name}, with large, joyful eyes and a bright, simple outfit. The background is simple, with a cozy living room or playful park setting. Keep the focus on the child and avoid distracting details. The scene should feel playful and engaging. Illustration in wide landscape format for a book spread, maintaining character consistency across all pages."
+            prompt = f"子ども向け絵本の見開きページのイラスト: {page_content}を描いてください。{main_character_prompt}が登場し、ページごとに{page_content}の内容を再現したイラストにしてください。絵本の見開きページ向けに広い横長のフォーマットで描き、すべてのページで登場人物（キャラクター）のデザインや描写、服装に一貫性を持たせてください。{style_prompt}"
             page_image = generate_single_image(prompt)
             images.append(page_image)
         
@@ -29,26 +42,30 @@ def generate_images(story_pages, child, book_title):
         return []
 
 def generate_single_image(prompt, is_cover=False):
-    prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。また、1枚目の画像のテイストに2枚目以降は同じスタイルにしてください。"
+    if not is_cover:
+        prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。"
+        prompt += "また、1枚目の画像のテイストに2枚目以降は同じスタイルにしてください。"
     
     response = client.images.generate(
         prompt=prompt,
         n=1,
         size="1024x1024",
-        model="dall-e-3",  # DALL-E 3モデルを使用
+        model="dall-e-3",
         quality="standard",
-        style="vivid"  # スタイルの一貫性を高めるためにvividスタイルを使用
+        style="vivid",
     )
+    
+    image_type = "表紙" if is_cover else "内容ページ"
+    openai_logger.info(f"DALL-E API使用: タイプ={image_type}, プロンプト文字数={len(prompt)}, 生成画像数=1, サイズ=1024x1024")
     
     image_url = response.data[0].url
     image_response = requests.get(image_url)
     image = Image.open(BytesIO(image_response.content))
     
     if is_cover:
-        # 表紙のサイズ調整（A4縦置きの半分）
+        # 表紙のサイズ調整（A4縦置き）
         a4_width, a4_height = 210, 297  # A4サイズ（mm）
-        cover_width, cover_height = a4_width, a4_height // 2
-        image = image.resize((cover_width, cover_height), Image.LANCZOS)
+        image = image.resize((a4_width, a4_height), Image.LANCZOS)
     else:
         # ストーリーページのアスペクト比調整（16:9）
         width, height = image.size
