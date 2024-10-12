@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PenTool, Book, MessageCircle, LogOut } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { fetchMembershipStatus, getChild } from "@/lib/api";
+import { handleLogout, useRedirectIfNotAuthenticated } from "@/lib/auth";
 
 const Home = () => {
   const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
@@ -44,14 +45,7 @@ const Home = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      router.push("/login");
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
-  };
+  useRedirectIfNotAuthenticated();
 
   if (loading) {
     return (
@@ -77,7 +71,7 @@ const Home = () => {
             {auth.currentUser?.email || "user@example.com"}
           </span>
           <button
-            onClick={handleLogout}
+            onClick={() => handleLogout(router)}
             className="bg-orange-600 text-white p-3 rounded-full hover:bg-orange-700 transition-transform transform hover:scale-110 shadow-lg"
           >
             <LogOut size={20} />
@@ -94,9 +88,9 @@ const Home = () => {
             会員ステータス:{" "}
             <span className="font-semibold text-orange-600 bg-yellow-200 px-2 py-1 rounded-full">
               {membershipStatus === "standard"
-                ? "スタンダードプラン"
+                ? "スタンダード"
                 : membershipStatus === "light"
-                ? "ライトプラン"
+                ? "ライト"
                 : "ステータスを取得中..."}
             </span>
           </p>
@@ -110,11 +104,17 @@ const Home = () => {
                   key={index}
                   className="inline-block bg-orange-200 rounded-full px-3 py-1 mr-2 mb-2"
                 >
-                  {child.name}
+                  <Link
+                    href={`/home/children/${child.id}`}
+                    className="text-orange-600 hover:underline"
+                  >
+                    {child.name}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
+
           <Link
             href="/mypage"
             className="text-orange-600 hover:underline font-comic"
