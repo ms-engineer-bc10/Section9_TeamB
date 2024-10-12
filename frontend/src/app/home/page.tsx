@@ -1,136 +1,162 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import MembershipStatus from "@/components/MembershipStatus";
-import Header from "@/components/Header";
-import { useRedirectIfNotAuthenticated } from "@/lib/auth"; // カスタムフックをインポート
+import { useRouter } from "next/navigation";
+import { PenTool, Book, MessageCircle, LogOut } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import { fetchMembershipStatus, getChild } from "@/lib/api";
 
-const HomePage: React.FC = () => {
-  // カスタムフックを呼び出して認証をチェック
-  useRedirectIfNotAuthenticated();
+const Home = () => {
+  const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
+  const [children, setChildren] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchData = async (token: string) => {
+      try {
+        const data = await getChild(token);
+        setChildren(data);
+      } catch (error) {
+        console.error("Error fetching children data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const token = await user.getIdToken();
+          const membershipData = await fetchMembershipStatus(token);
+          setMembershipStatus(membershipData.status);
+          fetchData(token);
+        } catch (error) {
+          console.error("Error fetching token or membership status:", error);
+          setLoading(false);
+        }
+      } else {
+        console.error("User is not authenticated");
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      router.push("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <h1 className="text-2xl font-bold text-orange-600">Loading...</h1>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <Header />
+    <div className="min-h-screen bg-gradient-to-b from-orange-200 to-beige-100 text-orange-900 py-8 px-4 relative overflow-hidden">
+      {/* 背景の装飾 */}
+      <div className="absolute top-10 left-10 w-32 h-32 bg-orange-300 rounded-full opacity-50 animate-pulse"></div>
+      <div className="absolute top-40 right-20 w-24 h-24 bg-beige-200 rounded-full opacity-50 animate-bounce"></div>
+      <div className="absolute bottom-20 left-1/4 w-40 h-20 bg-beige-300 rounded-full opacity-50 transform -skew-x-6 animate-float"></div>
 
-      {/* ヒーローセクション */}
-      <section id="home" className="py-16 text-center">
-        <h1 className="text-4xl font-bold text-orange-700 mb-6">
-          [ユーザー名]さん、ログインありがとうございます！
+      <header className="max-w-4xl mx-auto flex justify-between items-center mb-8 relative z-10">
+        <h1 className="text-5xl font-bold text-orange-600 font-comic">
+          Tellry
         </h1>
-        <p className="text-xl mb-6">一緒にストーリーを作りましょう！(仮)</p>
-        {/* 会員ステータス */}
-        <MembershipStatus />
-      </section>
-
-      {/* 登録確認セクション */}
-      <section id="registration" className="py-16 text-center">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-orange-700 mb-10">
-            子どもの登録情報を確認
-          </h2>
-          <Link href="/register">
-            <button className="bg-orange-400 text-white px-8 py-4 rounded-lg shadow-md hover:bg-orange-300 transition-colors duration-200">
-              子どもの登録情報を確認
-            </button>
-          </Link>
+        <div className="flex items-center space-x-4">
+          <span className="text-sm bg-white px-3 py-1 rounded-full shadow-md">
+            {auth.currentUser?.email || "user@example.com"}
+          </span>
+          <button
+            onClick={handleLogout}
+            className="bg-orange-600 text-white p-3 rounded-full hover:bg-orange-700 transition-transform transform hover:scale-110 shadow-lg"
+          >
+            <LogOut size={20} />
+          </button>
         </div>
-      </section>
+      </header>
 
-      {/* 自分の登録情報セクション */}
-      <section id="user-registration" className="py-16 bg-white">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-700 mb-10">
-            自分の登録情報
+      <main className="max-w-4xl mx-auto relative z-10">
+        <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8 transform hover:scale-105 transition-transform">
+          <h2 className="text-3xl font-semibold mb-4 font-comic">
+            ようこそ、{auth.currentUser?.email?.split("@")[0]}さん！
           </h2>
-          <Link href="/register">
-            <button className="bg-orange-400 text-white px-8 py-4 rounded-lg shadow-md hover:bg-orange-300 transition-all duration-200">
-              自分の登録情報を確認
-            </button>
-          </Link>
-        </div>
-      </section>
-
-      {/* 絵本生成セクション */}
-      <section id="storybook-generation" className="py-16 text-center">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-orange-700 mb-10">絵本生成</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-            <Link href="/children">
-              <div className="bg-orange-400 text-white p-6 rounded-lg shadow-md hover:bg-orange-300 transition-colors duration-200">
-                <h3 className="text-xl font-semibold">オリジナル絵本を生成</h3>
-              </div>
-            </Link>
-            <Link href="/pdf-download">
-              <div className="bg-orange-400 text-white p-6 rounded-lg shadow-md hover:bg-orange-300 transition-colors duration-200">
-                <h3 className="text-xl font-semibold">
-                  生成した絵本をPDFで見る
-                </h3>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Tellingの記録セクション */}
-      <section id="past-stories" className="py-16 text-center">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-orange-700 mb-10">
-            Tellingの記録
-          </h2>
-          <Link href="/past-stories">
-            <button className="bg-orange-400 text-white px-8 py-4 rounded-lg shadow-md hover:bg-orange-300 transition-colors duration-200">
-              記録を確認
-            </button>
-          </Link>
-        </div>
-      </section>
-
-      {/* お問い合わせセクション */}
-      <section id="contact" className="py-16 bg-peach-300">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold text-orange-700 mb-10">
-            お問い合わせ
-          </h2>
-          <p className="mb-6">
-            ご質問やご要望がありましたら、こちらからお問い合わせください。
+          <p className="mb-2">
+            会員ステータス:{" "}
+            <span className="font-semibold text-orange-600 bg-yellow-200 px-2 py-1 rounded-full">
+              {membershipStatus === "standard"
+                ? "スタンダードプラン"
+                : membershipStatus === "light"
+                ? "ライトプラン"
+                : "ステータスを取得中..."}
+            </span>
           </p>
-          <Link href="/contact">
-            <button className="bg-orange-400 text-white px-8 py-4 rounded-full text-lg hover:bg-orange-300 transition-all duration-200">
-              お問い合わせ
-            </button>
+          <div className="mb-4">
+            <h3 className="text-xl font-semibold mb-2 font-comic">
+              登録されているお子様:
+            </h3>
+            <ul className="list-none">
+              {children.map((child, index) => (
+                <li
+                  key={index}
+                  className="inline-block bg-orange-200 rounded-full px-3 py-1 mr-2 mb-2"
+                >
+                  {child.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <Link
+            href="/mypage"
+            className="text-orange-600 hover:underline font-comic"
+          >
+            メールアドレスの変更
           </Link>
         </div>
-      </section>
 
-      {/* フッター */}
-      <footer className="bg-orange-700 text-white py-6">
-        <div className="container mx-auto text-center">
-          <p>&copy; 2024 YourCompany. All rights reserved.</p>
-          <div className="mt-4">
-            <Link
-              href="#"
-              className="mx-2 hover:text-yellow-200 transition-colors duration-200"
-            >
-              Facebook
-            </Link>
-            <Link
-              href="#"
-              className="mx-2 hover:text-yellow-200 transition-colors duration-200"
-            >
-              Instagram
-            </Link>
-            <Link
-              href="#"
-              className="mx-2 hover:text-yellow-200 transition-colors duration-200"
-            >
-              Twitter
-            </Link>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            href="/children"
+            className="bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white rounded-2xl p-6 text-center transition-all transform hover:scale-105 hover:rotate-2 shadow-lg"
+          >
+            <PenTool size={64} className="mx-auto mb-4 animate-bounce" />
+            <span className="text-2xl font-bold font-comic">絵本を作る</span>
+          </Link>
+          <Link
+            href="/pdf-download"
+            className="bg-gradient-to-br from-teal-400 to-teal-600 hover:from-teal-500 hover:to-teal-700 text-white rounded-2xl p-6 text-center transition-all transform hover:scale-105 hover:rotate-2 shadow-lg"
+          >
+            <Book size={64} className="mx-auto mb-4 animate-wiggle" />
+            <span className="text-2xl font-bold font-comic">
+              作った絵本を見る
+            </span>
+          </Link>
+          <Link
+            href="/tellingRecord"
+            className="bg-gradient-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white rounded-2xl p-6 text-center transition-all transform hover:scale-105 hover:rotate-2 shadow-lg"
+          >
+            <MessageCircle size={64} className="mx-auto mb-4 animate-pulse" />
+            <span className="text-2xl font-bold font-comic">
+              子供の反応を記録
+            </span>
+          </Link>
         </div>
+      </main>
+
+      <footer className="max-w-4xl mx-auto mt-12 text-center text-sm text-orange-700 relative z-10">
+        <p className="font-comic">&copy; 2024 Tellry. All rights reserved.</p>
       </footer>
-    </>
+    </div>
   );
 };
 
-export default HomePage;
+export default Home;
