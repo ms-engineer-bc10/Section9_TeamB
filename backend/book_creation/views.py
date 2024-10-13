@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from celery.result import AsyncResult
+from celery.exceptions import OperationalError
 
 from accounts.models import Child
 from .models import Book, StoryPrompt
@@ -49,11 +50,17 @@ class BookViewSet(viewsets.ModelViewSet):
         except Child.DoesNotExist:
             logger.error(f"Invalid child ID {child_id}")
             return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        task = create_book_task.delay(user.id, child.id)
-        logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
-        
-        return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+    
+        try:
+            task = create_book_task.delay(user.id, child.id)
+            logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
+            return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+        except OperationalError as e:
+            logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
+            return Response({"error": "タスクの作成に失敗しました。しばらくしてからもう一度お試しください。"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        except Exception as e:    
+            logger.error(f"予期せぬエラーが発生しました: {str(e)}")
+            return Response({"error": "予期せぬエラーが発生しました。"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['get'])
     def check_task_status(self, request):

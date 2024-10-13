@@ -69,12 +69,12 @@ const ChildInfoForm = () => {
       // 絵本生成リクエスト
       await createBook(token, childData.id);
 
-      setMessage("絵本生成中です。完了しましたらメールで通知します。");
+      setMessage("絵本を生成中です。完了しましたらメールでお知らせします。");
 
-      // 3秒後にホームページにリダイレクト
+      // 5秒後にホームページにリダイレクト
       setTimeout(() => {
         router.push("/home");
-      }, 3000);
+      }, 5000);
     } catch (error) {
       console.error("APIリクエスト中にエラーが発生しました:", error);
       setError(
