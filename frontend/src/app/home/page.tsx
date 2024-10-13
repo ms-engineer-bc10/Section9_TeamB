@@ -57,12 +57,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-200 to-beige-100 text-orange-900 py-8 px-4 relative overflow-hidden">
-      {/* 背景の装飾 */}
-      <div className="absolute top-10 left-10 w-32 h-32 bg-orange-300 rounded-full opacity-50 animate-pulse"></div>
-      <div className="absolute top-40 right-20 w-24 h-24 bg-beige-200 rounded-full opacity-50 animate-bounce"></div>
-      <div className="absolute bottom-20 left-1/4 w-40 h-20 bg-beige-300 rounded-full opacity-50 transform -skew-x-6 animate-float"></div>
-
       <header className="max-w-4xl mx-auto flex justify-between items-center mb-8 relative z-10">
+        {/* ヘッダーのオレンジの丸 */}
+        <div className="absolute top-5 -left-10 w-32 h-32 bg-orange-300 rounded-full opacity-50 animate-pulse"></div>
         <h1 className="text-5xl font-bold text-orange-600 font-comic">
           Tellry
         </h1>
