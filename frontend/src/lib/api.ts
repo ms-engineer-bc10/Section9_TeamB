@@ -73,6 +73,26 @@ export const createBook = async (token: string, childId: number) => {
   return response.json();
 };
 
+// 非同期処理のタスクの状態を確認するAPIリクエスト
+export const checkTaskStatus = async (token: string, taskId: string) => {
+  const response = await fetch(
+    `${apiUrl}/api/books/check_task_status/?task_id=${taskId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("タスク状態の確認に失敗しました");
+  }
+
+  return response.json();
+};
+
 // ユーザーに紐づく絵本をGETするリクエスト
 export const getUserBooks = async (token: string) => {
   const response = await fetch(`${apiUrl}/api/books/`, {
