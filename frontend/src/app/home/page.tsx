@@ -119,7 +119,7 @@ const Home = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
-            href="/children"
+            href="/plan"
             className="bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white rounded-2xl p-6 text-center transition-all transform hover:scale-105 hover:rotate-2 shadow-lg"
           >
             <PenTool size={64} className="mx-auto mb-4 animate-bounce" />

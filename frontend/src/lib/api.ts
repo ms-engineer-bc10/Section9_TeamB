@@ -126,6 +126,25 @@ export const downloadBookPDF = async (token: string, bookId: number) => {
   return response.blob();
 };
 
+// Stripe決済機能に遷移するAPIリクエスト
+export const createCheckoutSession = async (token: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/stripe/create-checkout-session/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("リクエストが失敗しました:", error);
+    throw error;
+  }
+};
+
 // 会員ステータスの確認リクエスト
 export const fetchMembershipStatus = async (idToken: string) => {
   try {
