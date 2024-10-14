@@ -6,6 +6,7 @@ import { PenTool, Book, MessageCircle, LogOut, Star } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { fetchMembershipStatus, getChild } from "@/lib/api";
 import { handleLogout, useRedirectIfNotAuthenticated } from "@/lib/auth";
+import Loading from "@/components/Loading";
 
 const Home = () => {
   const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
@@ -48,11 +49,7 @@ const Home = () => {
   useRedirectIfNotAuthenticated();
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <h1 className="text-2xl font-bold text-orange-600">Loading...</h1>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

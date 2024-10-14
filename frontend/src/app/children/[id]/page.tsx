@@ -5,6 +5,7 @@ import { getChildId, updateChild } from "@/lib/api";
 import ChildForm from "@/components/EditChild/ChildForm";
 import Header from "@/components/Header";
 import { useRedirectIfNotAuthenticated } from "@/lib/auth";
+import Loading from "@/components/Loading";
 
 export default function EditChild({ params }: { params: { id: string } }) {
   const [child, setChild] = useState(null);
@@ -90,23 +91,17 @@ export default function EditChild({ params }: { params: { id: string } }) {
 
   return (
     <>
-      <Header />
-      <div className="max-w-xl mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">入力情報を確認してください</h1>
-        {child ? (
-          <ChildForm
-            formData={formData}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-            showArrivalDate={showArrivalDate}
-            showBackgroundOther={showBackgroundOther}
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-            <h1 className="text-2xl font-bold text-orange-600">Loading...</h1>
-          </div>
-        )}
-      </div>
+      {child ? (
+        <ChildForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          showArrivalDate={showArrivalDate}
+          showBackgroundOther={showBackgroundOther}
+        />
+      ) : (
+        <Loading />
+      )}
     </>
   );
 }
