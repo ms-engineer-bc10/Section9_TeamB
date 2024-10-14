@@ -24,18 +24,20 @@ const ChildInfoForm = () => {
   const { register, handleSubmit, watch } = useForm<ChildFormData>({
     defaultValues: { gender: "no_answer" },
   });
-  const [step, setStep] = useState(1); // 現在のステップ
+  const [step, setStep] = useState(1);
   const router = useRouter();
   const swiperRef = useRef<any>(null);
   const selectedBackgroundType = watch("backgroundType");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   useRedirectIfNotAuthenticated();
 
   const onSubmit = async (data: ChildFormData) => {
     setIsLoading(true);
     setError(null);
+    setMessage(null);
     try {
       const currentUser = auth.currentUser;
 
@@ -67,8 +69,12 @@ const ChildInfoForm = () => {
       // 絵本生成リクエスト
       await createBook(token, childData.id);
 
-      // 正常に処理が完了した場合、ホームページにリダイレクト
-      router.push("/home");
+      setMessage("絵本を生成中です。完了しましたらメールでお知らせします。");
+
+      // 5秒後にホームページにリダイレクト
+      setTimeout(() => {
+        router.push("/home");
+      }, 5000);
     } catch (error) {
       console.error("APIリクエスト中にエラーが発生しました:", error);
       setError(
@@ -88,7 +94,7 @@ const ChildInfoForm = () => {
           {[...Array(TOTAL_STEPS)].map((_, index) => (
             <div
               key={index}
-              onClick={() => goToSlide(swiperRef, index, setStep)} // ドットをクリックで該当スライドへ移動
+              onClick={() => goToSlide(swiperRef, index, setStep)}
               className={`cursor-pointer w-3 h-3 rounded-full mx-1 ${
                 index + 1 === step ? "bg-orange-500" : "bg-gray-300"
               }`}
@@ -155,6 +161,7 @@ const ChildInfoForm = () => {
                     {isLoading ? "処理中..." : "完了"}
                   </button>
                   {error && <p className="text-red-500 mt-2">{error}</p>}
+                  {message && <p className="text-green-500 mt-2">{message}</p>}
                 </div>
               </SwiperSlide>
             </Swiper>

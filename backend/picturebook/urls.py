@@ -15,8 +15,8 @@ router.register(r'books', BookViewSet)
 router.register(r'story-prompts', StoryPromptViewSet)
 router.register(r'telling-records', TellingRecordViewSet)
 router.register(r'telling-reminders', TellingReminderViewSet)
-router.register(r'payments', PaymentViewSet)  # Add Payment viewset
-router.register(r'paid-services', PaidServiceViewSet)  # Add PaidService viewset
+router.register(r'payments', PaymentViewSet)
+router.register(r'paid-services', PaidServiceViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -25,6 +25,7 @@ urlpatterns = [
     path("stripe/", include("payments.urls")),
     path('api/books/create_book/', BookViewSet.as_view({'post': 'create_book'}), name='create-book'),
     path('api/books/<int:pk>/download-pdf/', BookViewSet.as_view({'get': 'download_pdf'}), name='book-download-pdf'),
+    path('api/books/check_task_status/', BookViewSet.as_view({'get': 'check_task_status'}), name='check-task-status'),  # 新しいエンドポイント
 ]
 
 if settings.DEBUG:

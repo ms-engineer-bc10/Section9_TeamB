@@ -1,10 +1,5 @@
-import os
 import logging
-import time
-from datetime import timedelta
-from io import BytesIO
-from django.conf import settings
-from django.http import HttpResponse, FileResponse
+from django.http import FileResponse
 from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -12,20 +7,18 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from PIL import Image
 from rest_framework.permissions import AllowAny
+from celery.result import AsyncResult
+from celery.exceptions import OperationalError
 
-from .models import Book, StoryPrompt, Page
+from accounts.models import Child
+from .models import Book, StoryPrompt
 from .serializers import BookSerializer, StoryPromptSerializer
-from accounts.models import Child, CustomUser
+from accounts.models import CustomUser
 from accounts.utils import verify_firebase_token
-from picturebook_generation.story_generator import generate_story, generate_book_title
-from picturebook_generation.image_generator import generate_images
-from picturebook_generation.pdf_generator import create_storybook_pdf
+from .tasks import create_book_task
 
-logger = logging.getLogger(__name__)
-book_logger = logging.getLogger('book_creation')
-openai_logger = logging.getLogger('openai_usage')
+logger = logging.getLogger('book_creation')
 
 @method_decorator(csrf_exempt, name='dispatch')
 class BookViewSet(viewsets.ModelViewSet):
@@ -49,122 +42,79 @@ class BookViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def create_book(self, request):
-        start_time = time.time()
         user = self.get_user_from_token(request)
         child_id = request.data.get('child_id')
         
         try:
             child = Child.objects.get(id=child_id, user=user)
         except Child.DoesNotExist:
-            book_logger.error(f"Invalid child ID {child_id}")
+            logger.error(f"Invalid child ID {child_id}")
             return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        pdf_path = None 
-        temp_image_paths = []
-        
+    
         try:
-            book_logger.info("ストーリー生成開始")
-            story_pages = generate_story(child)
-            book_logger.info("ストーリー生成完了")
-            for i, page in enumerate(story_pages, 1):
-                book_logger.info(f'Page {i}: {page[:100]}...')
-            
-            book_logger.info("タイトル生成開始")
-            book_title = generate_book_title(child)
-            book_logger.info(f"タイトル生成完了: {book_title}")
-            
-            book_logger.info("画像生成開始")
-            image_data_list = generate_images(story_pages, child, book_title)
-            book_logger.info("画像生成完了")
-            book_logger.info(f"生成された画像の数: {len(image_data_list)}")
-            
-            # BytesIOオブジェクトを一時的な画像ファイルとして保存
-            for i, image_data in enumerate(image_data_list):
-                if isinstance(image_data, BytesIO):
-                    temp_path = os.path.join(settings.MEDIA_ROOT, f'temp_image_{i}.png')
-                    image = Image.open(image_data)
-                    image.save(temp_path, 'PNG')
-                    temp_image_paths.append(temp_path)
-                    book_logger.info(f'Temporary image saved: {temp_path}')
-                else:
-                    book_logger.error(f'Unexpected image data type: {type(image_data)}')
-            
-            pdf_path = os.path.join(settings.MEDIA_ROOT, f'{book_title}.pdf')
-            book_logger.info("PDF生成開始")
-            pdf_content = create_storybook_pdf(temp_image_paths, story_pages, book_title, pdf_path)
-            book_logger.info(f"PDFを生成しました: {pdf_path}")
-            
-            book_logger.info("データベースへの保存開始")
-            book = Book.objects.create(
-                user=user,
-                child=child,
-                title=book_title,
-                cover_image_url=temp_image_paths[0] if temp_image_paths else "",
-                is_original=True,
-                pdf_file=pdf_content,
-                is_pdf_generated=True,
-                pdf_generated_at=timezone.now()
-            )
-            
-            for i, (content, image_path) in enumerate(zip(story_pages, temp_image_paths)):
-                Page.objects.create(
-                    book=book,
-                    page_number=i,
-                    content=content,
-                    image_url=image_path
-                )
-            book_logger.info("データベースへの保存")
-            
-            end_time = time.time()
-            total_time = end_time - start_time
-            time_delta = timedelta(seconds=total_time)
-            minutes, seconds = divmod(time_delta.seconds, 60)
-            book_logger.info(f"絵本の生成完了 - 合計時間: {minutes}分 {seconds}秒")
-            
-            serializer = self.get_serializer(book)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            task = create_book_task.delay(user.id, child.id)
+            logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
+            return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+        except OperationalError as e:
+            logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
+            return Response({"error": "タスクの作成に失敗しました。しばらくしてからもう一度お試しください。"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        except Exception as e:    
+            logger.error(f"予期せぬエラーが発生しました: {str(e)}")
+            return Response({"error": "予期せぬエラーが発生しました。"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'])
+    def check_task_status(self, request):
+        task_id = request.query_params.get('task_id')
+        if not task_id:
+            return Response({"error": "タスクIDが提供されていません"}, status=status.HTTP_400_BAD_REQUEST)
         
-        except Exception as e:
-            book_logger.error(f"Error in book creation: {str(e)}")
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
-            # 一時ファイルの削除
-            for path in temp_image_paths:
-                if os.path.exists(path):
-                    os.remove(path)
-                    book_logger.info(f"Removed temporary image file: {path}")
-            if pdf_path and os.path.exists(pdf_path):
-                os.remove(pdf_path)
-                book_logger.info(f"Removed temporary PDF file: {pdf_path}")
+        task_result = AsyncResult(task_id)
+        if task_result.state == 'SUCCESS':
+            response = {
+                'state': task_result.state,
+                'book_id': task_result.result.get('book_id'),
+                'log_info': task_result.result.get('log_info', {})
+            }
+        elif task_result.state != 'FAILURE':
+            response = {
+                'state': task_result.state,
+                'status': task_result.info.get('step', '')
+            }
+        else:
+            response = {
+                'state': task_result.state,
+                'status': str(task_result.info),
+            }
+        return Response(response)
 
     @action(detail=True, methods=['get'])
     def download_pdf(self, request, pk=None):
         try:
             book = self.get_object()
-            logger.info(f"Attempting to download PDF for book ID: {pk}")
+            logger.info(f"PDF のダウンロードを試みています。本のID: {pk}")
             
             if not book.pdf_file:
-                logger.warning(f"PDF not found for book ID: {pk}")
+                logger.warning(f"PDF が見つかりません。本のID: {pk}")
                 return Response({"error": "PDF not found"}, status=status.HTTP_404_NOT_FOUND)
 
             try:
                 response = FileResponse(book.pdf_file, content_type='application/pdf')
                 response['Content-Disposition'] = f'attachment; filename="{book.title}.pdf"'
             except Exception as e:
-                logger.error(f"Error reading PDF file for book ID {pk}: {str(e)}")
+                logger.error(f"PDF ファイルの読み込み中にエラーが発生しました。本のID {pk}: {str(e)}")
                 return Response({"error": "Error reading PDF file"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             book.last_downloaded_at = timezone.now()
             book.pdf_download_count += 1
             book.save()
 
-            logger.info(f"PDF downloaded successfully for book ID: {pk}")
+            logger.info(f"PDF のダウンロードが成功しました。本のID: {pk}")
             return response
         except Book.DoesNotExist:
-            logger.warning(f"Book not found with ID: {pk}")
+            logger.warning(f"本が見つかりません。ID: {pk}")
             return Response({"error": "Book not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            logger.error(f"Unexpected error downloading PDF for book ID {pk}: {str(e)}")
+            logger.error(f"PDF のダウンロード中に予期せぬエラーが発生しました。本のID {pk}: {str(e)}")
             return Response({"error": "An unexpected error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StoryPromptViewSet(viewsets.ModelViewSet):
