@@ -1,4 +1,4 @@
-import { apiUrl } from "@/lib/config";
+export const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 // 子ども情報をGETするAPIリクエスト
 export const getChild = async (token: string) => {
