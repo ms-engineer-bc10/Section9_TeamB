@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getChildId } from "@/lib/api"; // 子ども情報を取得する関数
+import { Home } from "lucide-react";
 
 const ChildDetail = () => {
   const [formData, setFormData] = useState({
@@ -47,9 +48,9 @@ const ChildDetail = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
-        <h1 className="text-2xl font-semibold mb-6 text-center">
+    <div className="min-h-screen bg-gradient-to-b from-orange-200 to-orange-100 py-8 px-4 relative overflow-hidden">
+      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 relative z-10">
+        <h1 className="text-4xl font-bold text-orange-600 font-comic mb-8 text-center">
           お子さまの情報
         </h1>
 
@@ -172,11 +173,12 @@ const ChildDetail = () => {
             <hr className="my-4" />
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 text-center">
             <button
               onClick={() => router.push("/home")}
-              className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 focus:outline-none shadow-md"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full inline-flex items-center transition-colors duration-300"
             >
+              <Home className="mr-2" size={20} />
               ホームに戻る
             </button>
           </div>
