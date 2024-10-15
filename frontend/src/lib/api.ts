@@ -1,5 +1,27 @@
 export const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
+// ユーザ－情報をPOSTするAPIリクエスト
+export const createUserInDjango = async (
+  email: string,
+  firebase_uid: string
+) => {
+  const response = await fetch(`${apiUrl}/api/users/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      firebase_uid,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || "Django APIへのリクエストに失敗しました");
+  }
+};
+
 // 子ども情報をGETするAPIリクエスト
 export const getChild = async (token: string) => {
   const response = await fetch(`${apiUrl}/api/children/`, {

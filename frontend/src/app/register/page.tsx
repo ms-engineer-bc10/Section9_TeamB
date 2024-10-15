@@ -1,10 +1,13 @@
 "use client";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { apiUrl } from "@/lib/config";
+import { createUserInDjango } from "@/lib/api";
 import { Inputs } from "@/types";
 import Link from "next/link";
 import { useRedirectIfAuthenticated } from "@/lib/auth";
@@ -23,7 +26,7 @@ const Register: React.FC = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {
-      // Firebaseでのユーザー作成
+      // Firebaseでユーザー作成
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -31,41 +34,29 @@ const Register: React.FC = () => {
       );
       const user = userCredential.user;
 
+      // 認証メールを送信
+      await sendEmailVerification(user);
+
       // ユーザー情報をDjangoに送信
-      const response = await fetch(`${apiUrl}/api/users/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          firebase_uid: user.uid,
-        }),
-      });
+      await createUserInDjango(user.email!, user.uid);
 
-      if (!response.ok) {
-        const data = await response.json();
-        // サーバーからのエラーメッセージの処理
-        if (data.error && data.error.includes("既に登録されています")) {
-          setError("email", {
-            type: "manual",
-            message: "既に登録されているメールアドレスです",
-          });
-        } else {
-          throw new Error("Django APIへのリクエストに失敗しました");
-        }
-      } else {
-        if (user) {
-          router.push("/children");
-        }
+      alert(
+        "認証メールが送信されました。メールを確認して認証を完了してください。"
+      );
 
-        reset();
-      }
+      reset();
+
+      router.push("/login");
     } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {
         setError("email", {
           type: "manual",
           message: "このメールアドレスは既に登録されています",
+        });
+      } else if (error.message.includes("既に登録されています")) {
+        setError("email", {
+          type: "manual",
+          message: "既に登録されているメールアドレスです",
         });
       } else {
         console.error("エラーが発生しました:", error);

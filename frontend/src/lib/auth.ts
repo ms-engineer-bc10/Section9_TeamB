@@ -14,14 +14,16 @@ export const handleLogout = async (router: ReturnType<typeof useRouter>) => {
   }
 };
 
-// ログインしているユーザーをリダイレクトするカスタムフック
+// ログインしているかつメールアドレス認証が完了しているユーザーをリダイレクトするカスタムフック
 export const useRedirectIfAuthenticated = () => {
   const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        router.push("/home");
+        if (user.emailVerified) {
+          router.push("/home");
+        }
       }
     });
 

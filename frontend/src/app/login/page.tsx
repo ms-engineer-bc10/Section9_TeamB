@@ -30,7 +30,14 @@ const Login: React.FC = () => {
       );
       const user = userCredential.user;
 
-      // ユーザーがログインに成功した場合にリダイレクト
+      if (!user.emailVerified) {
+        alert(
+          "メールアドレスの確認が完了していません。メールを確認して認証を完了してください。"
+        );
+        router.push("/verify-email");
+        return;
+      }
+
       if (user) {
         router.push("/home");
       }
