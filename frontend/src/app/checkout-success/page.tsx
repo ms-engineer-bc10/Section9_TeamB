@@ -27,7 +27,7 @@ export default function CheckoutSuccess() {
             .then((data) => {
               console.log(data);
               // POSTリクエストが成功した後に/homeにリダイレクト
-              router.push("/home");
+              router.push("/plan");
             })
             .catch((error) => console.error("Error:", error));
         })
