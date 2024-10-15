@@ -101,6 +101,15 @@ const Register: React.FC = () => {
               className="w-full px-3 py-2 border rounded-lg"
               {...register("password", {
                 required: "パスワードを入力してください",
+                minLength: {
+                  value: 8,
+                  message: "パスワードは8文字以上である必要があります",
+                },
+                pattern: {
+                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
+                  message:
+                    "パスワードは英大文字、英小文字、数字を含む必要があります",
+                },
               })}
               placeholder="パスワードを入力"
             />
@@ -115,7 +124,7 @@ const Register: React.FC = () => {
 
           <p className="mt-4 text-center text-sm">
             すでにアカウントをお持ちの方は{" "}
-            <Link href="/login" className="text-orange-700 hover:underline">
+            <Link href="/login" className="text-orange-500 hover:underline">
               こちら
             </Link>
             からログインしてください。

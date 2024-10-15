@@ -98,6 +98,11 @@ const Login: React.FC = () => {
               className="w-full px-3 py-2 border rounded-lg"
               {...register("password", {
                 required: "パスワードを入力してください",
+                pattern: {
+                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
+                  message:
+                    "パスワードは英大文字、英小文字、数字を含む必要があります",
+                },
               })}
               placeholder="パスワードを入力"
             />
