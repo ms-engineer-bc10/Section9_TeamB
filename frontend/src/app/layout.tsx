@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import AutoLogout from "@/components/AutoLogout";
 import BrowserCloseLogout from "@/components/BrowserCloseLogout";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Tellry",
@@ -17,9 +18,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <AutoLogout />
-        <BrowserCloseLogout />
-        {children}
+        <AuthProvider>
+          <AutoLogout />
+          <BrowserCloseLogout />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

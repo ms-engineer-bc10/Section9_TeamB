@@ -3,54 +3,42 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PenTool, Book, MessageCircle, LogOut, Star } from "lucide-react";
-import { auth } from "@/lib/firebase";
 import { fetchMembershipStatus, getChild } from "@/lib/api";
-import { handleLogout, useRedirectIfNotAuthenticated } from "@/lib/auth";
-import Loading from "@/components/Loading";
+import { handleLogout } from "@/lib/auth";
+import { auth } from "@/lib/firebase";
 
 const Home = () => {
   const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
   const [children, setChildren] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async (token: string) => {
-      try {
-        const data = await getChild(token);
-        setChildren(data);
-      } catch (error) {
-        console.error("Error fetching children data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
+    if (auth.currentUser) {
+      const fetchData = async (token: string) => {
         try {
-          const token = await user.getIdToken();
-          const membershipData = await fetchMembershipStatus(token);
-          setMembershipStatus(membershipData.status);
-          fetchData(token);
+          const data = await getChild(token);
+          setChildren(data);
+        } catch (error) {
+          console.error("Error fetching children data:", error);
+        }
+      };
+
+      const fetchMembership = async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (token) {
+            const membershipData = await fetchMembershipStatus(token);
+            setMembershipStatus(membershipData.status);
+            fetchData(token);
+          }
         } catch (error) {
           console.error("Error fetching token or membership status:", error);
-          setLoading(false);
         }
-      } else {
-        console.error("User is not authenticated");
-        setLoading(false);
-      }
-    });
+      };
 
-    return () => unsubscribe();
+      fetchMembership();
+    }
   }, []);
-
-  useRedirectIfNotAuthenticated();
-
-  if (loading) {
-    return <Loading />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-200 to-beige-100 text-orange-900 py-8 px-4 relative overflow-hidden">
