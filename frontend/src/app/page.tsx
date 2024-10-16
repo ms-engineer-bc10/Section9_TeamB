@@ -4,14 +4,47 @@ import React from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Book, FileText, Baby, Lightbulb, Heart, Clock } from "lucide-react";
+import { Star, Book, FileText, Baby, Lightbulb, Heart, Clock, ChevronDown } from "lucide-react";
 
 export default function HomePage() {
   const features = [
-    { title: "パーソナライズされた絵本", desc: "あなたのお子様にピッタリのストーリーを作ろう！", icon: <Book className="w-12 h-12 text-[#FF9999]" /> },
-    { title: "PDFで簡単保存", desc: "作った絵本をPDFで印刷しよう。", icon: <FileText className="w-12 h-12 text-[#99CCFF]" /> },
-    { title: "成長に合わせたお話", desc: "お子様の年齢に合わせたお話を選べます。", icon: <Baby className="w-12 h-12 text-[#FFCC99]" /> },
-    { title: "シンプルで楽しい操作", desc: "簡単操作で誰でも楽しめます。", icon: <Lightbulb className="w-12 h-12 text-[#99FF99]" /> },
+    { title: "パーソナライズされた絵本", desc: "あなたのお子様にピッタリのストーリーを作ろう！", icon: <Book className="w-12 h-12 text-[#4CAF50]" /> },
+    { title: "PDFで簡単保存", desc: "作った絵本をPDFで印刷しよう。", icon: <FileText className="w-12 h-12 text-[#4CAF50]" /> },
+    { title: "成長に合わせたお話", desc: "お子様の年齢に合わせたお話を選べます。", icon: <Baby className="w-12 h-12 text-[#4CAF50]" /> },
+    { title: "シンプルで楽しい操作", desc: "簡単操作で誰でも楽しめます。", icon: <Lightbulb className="w-12 h-12 text-[#4CAF50]" /> },
+  ];
+
+  const faqs = [
+    { question: "どんな年齢の子供向けですか？", answer: "主に1〜10歳のお子様向けですが、年齢に合わせたストーリーを提供しています。" },
+    { question: "絵本の作成にどのくらい時間がかかりますか？", answer: "基本的に15〜20分程度で作成できます。より詳細なカスタマイズを行う場合は、さらに時間がかかる場合があります。" },
+    { question: "作成した絵本を実際に印刷することはできますか？", answer: "はい、PDFでダウンロードして自宅で印刷できます。また、高品質印刷サービスも準備中です。" },
+  ];
+
+  const userVoices = [
+    {
+      name: "田中さん家族",
+      comment: "クリスマスの楽しさが伝わってきて、子供たちが大喜びでした！家族で読むのが恒例になりそうです。",
+      bookImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-Al78gCdXbEH9yF0gCimL93mmVwgP5K.png",
+      bookTitle: "みんなのドタバタクリスマス！",
+      ageRecommendation: "1〜5歳におすすめ",
+      giftRecommendation: "クリスマスプレゼントに"
+    },
+    {
+      name: "佐藤さん家族",
+      comment: "子供の誕生日に合わせて作りました。名前入りの絵本に子供が大喜び！特別な思い出になりました。",
+      bookImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-PrEvse0atDddUARolhyFJNkSUXGNiZ.png",
+      bookTitle: "あしたはだれのたんじょうび？",
+      ageRecommendation: "1〜5歳におすすめ",
+      giftRecommendation: "お誕生日のプレゼントに"
+    },
+    {
+      name: "鈴木さん家族",
+      comment: "想像力豊かなストーリーに子供たちが夢中になっています。寝る前の読み聞かせのお気に入りです。",
+      bookImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-c9pN0Rucfp043yNMhNuoM5TnEggxqv.png",
+      bookTitle: "ほしのゆめ",
+      ageRecommendation: "3〜8歳におすすめ",
+      giftRecommendation: "冒険の物語"
+    },
   ];
 
   return (
@@ -22,25 +55,21 @@ export default function HomePage() {
         <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Indie+Flower&family=Sawarabi+Gothic&display=swap" rel="stylesheet" />
       </Head>
 
-      <div className="bg-[#FFF3E0] font-playful min-h-screen" style={{ fontFamily: "'Sawarabi Gothic', sans-serif" }}>
+      <div className="bg-[#FFE4B5] font-playful min-h-screen" style={{ fontFamily: "'Sawarabi Gothic', sans-serif" }}>
         {/* ヘッダー */}
-        <header className="bg-[#FFD6E0] shadow-md p-4 rounded-b-3xl">
+        <header className="bg-[#FF8C00] shadow-md p-4 rounded-b-3xl">
           <div className="container mx-auto flex justify-between items-center">
-            <div className="text-4xl font-bold" style={{ fontFamily: "'Indie Flower', cursive" }}>
-              <span className="text-[#FF9999]">T</span>
-              <span className="text-[#99CCFF]">e</span>
-              <span className="text-[#FFCC99]">l</span>
-              <span className="text-[#99FF99]">l</span>
-              <span className="text-[#FF99CC]">r</span>
-              <span className="text-[#FFFF99]">y</span>
+            <div className="text-4xl font-bold text-white" style={{ fontFamily: "'Indie Flower', cursive" }}>
+              Tellry
             </div>
             <nav>
               <ul className="flex space-x-6">
-                <li><Link href="#home" className="text-[#FF9999] hover:text-[#FF7777] transition-colors duration-200 font-bold">HOME</Link></li>
-                <li><Link href="#features" className="text-[#99CCFF] hover:text-[#77AADD] transition-colors duration-200 font-bold">FEATURES</Link></li>
-                <li><Link href="#plan" className="text-[#FFCC99] hover:text-[#DDAA77] transition-colors duration-200 font-bold">PLAN</Link></li>
-                <li><Link href="#advice" className="text-[#FF99CC] hover:text-[#DD77AA] transition-colors duration-200 font-bold">ADVICE</Link></li>
-                <li><Link href="#contact" className="text-[#99FF99] hover:text-[#77DD77] transition-colors duration-200 font-bold">CONTACT</Link></li>
+                <li><Link href="#home" className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold">HOME</Link></li>
+                <li><Link href="#features" className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold">FEATURES</Link></li>
+                <li><Link href="#plan" className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold">PLAN</Link></li>
+                <li><Link href="#storytelling" className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold">STORYTELLING</Link></li>
+                <li><Link href="#advice" className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold">ADVICE</Link></li>
+                <li><Link href="#contact" className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold">CONTACT</Link></li>
               </ul>
             </nav>
           </div>
@@ -50,51 +79,29 @@ export default function HomePage() {
         <section id="home" className="py-12 text-center relative overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="bg-white rounded-3xl p-8 shadow-lg relative">
- 
               <div className="relative z-10">
-                <h1 className="text-4xl font-bold mb-6" style={{ fontFamily: "'Caveat', cursive" }}>
-                  <span className="text-[#FF9999]">お</span>
-                  <span className="text-[#99CCFF]">子</span>
-                  <span className="text-[#FFCC99]">さ</span>
-                  <span className="text-[#99FF99]">ま</span>
-                  <span className="text-[#FF99CC]">に</span>
-                  <span className="text-[#FFFF99]">家</span>
-                  <span className="text-[#FF9999]">族</span>
-                  <span className="text-[#99CCFF]">の</span>
-                  <span className="text-[#FFCC99]">ス</span>
-                  <span className="text-[#99FF99]">ト</span>
-                  <span className="text-[#FF99CC]">ー</span>
-                  <span className="text-[#FFFF99]">リ</span>
-                  <span className="text-[#FF9999]">ー</span>
-                  <span className="text-[#99CCFF]">を</span>
-                  <span className="text-[#FFCC99]">お</span>
-                  <span className="text-[#99FF99]">話</span>
-                  <span className="text-[#FF99CC]">し</span>
-                  <span className="text-[#FFFF99]">ま</span>
-                  <span className="text-[#FF9999]">し</span>
-                  <span className="text-[#99CCFF]">ょ</span>
-                  <span className="text-[#FFCC99]">う</span>
-                  <span className="text-[#99FF99]">！</span>
+                <h1 className="text-4xl font-bold mb-6 text-[#FF8C00]" style={{ fontFamily: "'Caveat', cursive" }}>
+                  お子さまに家族のストーリーをお話しましょう！
                 </h1>
                 <p className="text-xl mb-8 text-[#444444] font-bold">
-                  オリジナルの家族の物語が簡単に作成できます！
+                  養子縁組、里親など複雑な背景をもつお子さまにオリジナルな真実告知ができる絵本サービスです
                 </p>
                 <div className="flex justify-center items-center mb-8">
                   <Image
-                    src="https://i.imgur.com/9XOH71a.jpeg"
-                    alt="ヒーローセクションの背景"
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-dNILutnqSdD3o6RhHsms0OofVg6uD4.png" 
+                    alt="家族で読書"
                     width={400}
                     height={300}
                     className="object-cover rounded-3xl shadow-lg"
                   />
                   <div className="ml-8">
                     <Link href="/register">
-                      <button className="bg-[#FF9999] text-white px-10 py-5 rounded-full text-xl hover:bg-[#FF7777] transition-all duration-200 transform hover:scale-105 shadow-lg">
+                      <button className="bg-[#FF8C00] text-white px-10 py-5 rounded-full text-xl hover:bg-[#FF7F00] transition-all duration-200 transform hover:scale-105 shadow-lg">
                         今すぐはじめよう！
                       </button>
                     </Link>
                     <div className="mt-4">
-                      <Link href="/login" className="text-[#99CCFF] text-sm hover:underline">登録済みの方はここちらからログイン</Link>
+                      <Link href="/login" className="text-[#FF8C00] text-sm hover:underline">登録済みの方はここちらからログイン</Link>
                     </div>
                   </div>
                 </div>
@@ -104,16 +111,16 @@ export default function HomePage() {
         </section>
 
         {/* 特徴セクション */}
-        <section id="features" className="py-16 bg-[#E6F3FF] rounded-3xl mx-4">
+        <section id="features" className="py-16 bg-[#E0F2F1] rounded-3xl mx-4">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-[#99CCFF] mb-10" style={{ fontFamily: "'Caveat', cursive" }}>FEATURES</h2>
+            <h2 className="text-3xl font-bold text-center text-[#4CAF50] mb-10" style={{ fontFamily: "'Caveat', cursive" }}>FEATURES</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
-                <div key={index} className="bg-white p-6 rounded-3xl shadow-md hover:shadow-lg transition-shadow border-4 border-dashed border-[#FFCC99]">
+                <div key={index} className="bg-white p-6 rounded-3xl shadow-md hover:shadow-lg transition-shadow border-4 border-dashed border-[#4CAF50]">
                   <div className="flex justify-center mb-4">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-semibold text-[#FF9999] mb-2">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold text-[#4CAF50] mb-2">{feature.title}</h3>
                   <p className="text-[#444444] font-bold">{feature.desc}</p>
                 </div>
               ))}
@@ -122,25 +129,25 @@ export default function HomePage() {
         </section>
 
         {/* 料金プラン */}
-        <section id="plan" className="py-16 bg-[#FFF5E6] rounded-3xl mx-4 mt-8">
+        <section id="plan" className="py-16 bg-[#FFDAB9] rounded-3xl mx-4 mt-8">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12 text-[#FFCC99]" style={{ fontFamily: "'Caveat', cursive" }}>PLAN</h2>
+            <h2 className="text-3xl font-bold text-center mb-12 text-[#FF8C00]" style={{ fontFamily: "'Caveat', cursive" }}>PLAN</h2>
             <div className="flex flex-wrap justify-center gap-8">
               {/* フリープラン */}
               <div 
                 className="bg-white p-8 rounded-3xl shadow-lg max-w-sm w-full cursor-pointer transition-all duration-200"
                 onClick={() => {/* Add your click handler here */}}
                 style={{ border: '4px solid transparent' }}
-                onMouseEnter={(e) => e.currentTarget.style.border = '4px solid #FF9966'}
+                onMouseEnter={(e) => e.currentTarget.style.border = '4px solid #FF8C00'}
                 onMouseLeave={(e) => e.currentTarget.style.border = '4px solid transparent'}
               >
-                <h3 className="text-2xl font-bold mb-4 text-center text-[#FF9999]">フリープラン</h3>
+                <h3 className="text-2xl font-bold mb-4 text-center text-[#FF8C00]">フリープラン</h3>
                 <ul className="list-none p-0 mb-6">
                   <li className="mb-2 text-[#555555] text-lg font-bold">✨ 月1冊まで絵本作成</li>
-                  <li className="mb-2 text-[#555555]] text-lg font-bold">🎨 基本テンプレート利用可能</li>
-                  <li className="mb-2 text-[#555555]] text-lg font-bold">📁 PDFで簡単保存</li>
+                  <li className="mb-2 text-[#555555] text-lg font-bold">🎨 基本テンプレート利用可能</li>
+                  <li className="mb-2 text-[#555555] text-lg font-bold">📁 PDFで簡単保存</li>
                 </ul>
-                <button className="w-full bg-[#FFCC99] text-white py-2 rounded-full hover:bg-[#FFB366] transition-colors">
+                <button className="w-full bg-[#FF8C00] text-white py-2 rounded-full hover:bg-[#FF7F00] transition-colors">
                   さっそく無料トライ！
                 </button>
               </div>
@@ -149,13 +156,13 @@ export default function HomePage() {
                 className="bg-white p-8 rounded-3xl shadow-lg max-w-sm w-full cursor-pointer transition-all duration-200 relative"
                 onClick={() => {/* Add your click handler here */}}
                 style={{ border: '4px solid transparent' }}
-                onMouseEnter={(e) => e.currentTarget.style.border = '4px solid #FF9966'}
+                onMouseEnter={(e) => e.currentTarget.style.border = '4px solid #FF8C00'}
                 onMouseLeave={(e) => e.currentTarget.style.border = '4px solid transparent'}
               >
-                <div className="absolute -top-5 -right-5 bg-[#FFCC99] text-white px-4 py-2 rounded-full transform rotate-12 shadow-md">
+                <div className="absolute -top-5 -right-5 bg-[#FF8C00] text-white px-4 py-2 rounded-full transform rotate-12 shadow-md">
                   おすすめはこちら！
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-center text-[#99CCFF]">スタンダードプラン</h3>
+                <h3 className="text-2xl font-bold mb-4 text-center text-[#FF8C00]">スタンダードプラン</h3>
                 <ul className="list-none p-0 mb-6">
                   <li className="mb-2 text-[#555555] text-lg font-bold">🌟 無制限の絵本作成</li>
                   <li className="mb-2 text-[#555555] text-lg font-bold">🎨 完全オリジナルストーリー</li>
@@ -163,7 +170,7 @@ export default function HomePage() {
                   <li className="mb-2 text-[#999999] text-lg font-bold">🎤 音声ナレーション機能(現在準備中)</li>
                 </ul>
               <Link href="http://localhost:3000/register">
-                <button className="w-full bg-[#99CCFF] text-white py-2 rounded-full hover:bg-[#66B2FF] transition-colors">
+                <button className="w-full bg-[#FF8C00] text-white py-2 rounded-full hover:bg-[#FF7F00] transition-colors">
                   今すぐはじめる
                 </button>
               </Link>
@@ -172,13 +179,33 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* アドバイスセクション（近日公開） */}
-        <section id="advice" className="py-16 bg-[#FFF0F5] rounded-3xl mx-4 mt-8">
+        {/* StoryTelling セクション */}
+        
+        <section id="storytelling" className="py-16 bg-[#E0F2F1] rounded-3xl mx-4 mt-8">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12 text-[#FF99CC]" style={{ fontFamily: "'Caveat', cursive" }}>ADVICE</h2>
+            <h2 className="text-3xl font-bold text-center mb-12 text-[#4CAF50]" style={{ fontFamily: "'Caveat', cursive" }}>STORYTELLING</h2>
+            <div className="bg-white p-8 rounded-3xl shadow-lg">
+              <h3 className="text-2xl font-bold mb-4 text-[#8D6E63]">真実告知とは？</h3>
+              <p className="text-[#444444] text-lg font-bold mb-4">
+                
+                真実告知とは、「私は、あなたの本当の親じゃないんだよ」と、伝えることではありません。
+                お子さんに伝えていただきたいことは、「お父さんとお母さんは結婚して、そして子どもがほしいと願った。一生懸命努力したけど、子どもが生まれなかった。
+                それでも子どもの親になりたくて、神様に毎日毎日お願いをしていたら、こんなに可愛いあなたが、私たちの子になってくれたんだよ」と奇跡と愛をお子さんに伝えることです。
+              </p>
+              <p className="text-[#444444] text-lg font-bold">
+                真実告知を家族の絆をさらに深め愛情を伝えるきっかけに、絵本を通じてサポートしていきたい、私たちのねがいです。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* アドバイスセクション（近日公開） */}
+        <section id="advice" className="py-16 bg-[#FFDAB9] rounded-3xl mx-4 mt-8">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12 text-[#FF8C00]" style={{ fontFamily: "'Caveat', cursive" }}>ADVICE</h2>
             <div className="bg-white p-8 rounded-3xl shadow-lg text-center">
-              <Clock className="w-16 h-16 text-[#FF99CC] mx-auto mb-4" />
-              <h3 className="text-2xl font-bold mb-4 text-[#FF99CC]">近日公開！</h3>
+              <Clock className="w-16 h-16 text-[#FF8C00] mx-auto mb-4" />
+              <h3 className="text-2xl font-bold mb-4 text-[#FF8C00]">コンテンツ開発中！</h3>
               <p className="text-[#444444] text-lg font-bold mb-4">
                 保護者向けガイダンス・アドバイスセクションは現在準備中です。
               </p>
@@ -190,31 +217,75 @@ export default function HomePage() {
                 <li className="text-[#444444] text-lg font-bold">🧒 学童期の自尊心の育て方</li>
                 <li className="text-[#444444] text-lg font-bold">🧑 思春期の子どもとの向き合い方</li>
               </ul>
-              <button className="mt-8 bg-[#FF99CC] text-white px-6  py-2 rounded-full hover:bg-[#FF77AA] transition-colors">
+              <button className="mt-8 bg-[#FF8C00] text-white px-6 py-2 rounded-full hover:bg-[#FF7F00] transition-colors">
                 公開をお知らせ
               </button>
             </div>
           </div>
         </section>
 
+        {/* FAQ セクション */}
+        <section id="faq" className="py-16 bg-[#E0F2F1] rounded-3xl mx-4 mt-8">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12 text-[#4CAF50]" style={{ fontFamily: "'Caveat', cursive" }}>FAQ</h2>
+            <div className="space-y-6">
+              {faqs.map((faq, index) => (
+                <div key={index} className="bg-white p-6 rounded-3xl shadow-md">
+                  <h3 className="text-xl font-bold mb-2 text-[#4CAF50]">{faq.question}</h3>
+                  <p className="text-[#444444]">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <button className="bg-[#4CAF50] text-white px-6 py-2 rounded-full hover:bg-[#45a049] transition-colors inline-flex items-center">
+                全てのFAQを見る
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* User's Voice セクション */}
+        <section id="users-voice" className="py-16 bg-[#FFDAB9] rounded-3xl mx-4 mt-8">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12 text-[#FF8C00]" style={{ fontFamily: "'Caveat', cursive" }}>User's Voice</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {userVoices.map((voice, index) => (
+                <div key={index} className="bg-white p-6 rounded-3xl shadow-md">
+                  <Image
+                    src={voice.bookImage}
+                    alt={voice.bookTitle}
+                    width={200}
+                    height={200}
+                    className="mx-auto mb-4 rounded-lg"
+                  />
+                  <h3 className="text-xl font-bold mb-2 text-[#FF8C00]">{voice.name}</h3>
+                  <p className="text-[#444444] mb-4">{voice.comment}</p>
+                  <p className="text-[#8D6E63] font-bold">{voice.bookTitle}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* コンタクトフォーム */}
-        <section id="contact" className="py-12 bg-[#F0FFF0] rounded-3xl mx-4 mt-8">
+        <section id="contact" className="py-12 bg-[#E0F2F1] rounded-3xl mx-4 mt-8">
           <div className="container mx-auto px-4 max-w-md">
-            <h2 className="text-3xl font-bold text-center mb-8 text-[#99FF99]" style={{ fontFamily: "'Caveat', cursive" }}>CONTACT</h2>
+            <h2 className="text-3xl font-bold text-center mb-8 text-[#4CAF50]" style={{ fontFamily: "'Caveat', cursive" }}>CONTACT</h2>
             <form className="space-y-4">
               <div>
                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-[#444444]">お名前</label>
-                <input type="text" id="name" className="w-full px-3 py-2 border border-[#99FF99] rounded-full shadow-sm focus:outline-none focus:ring-[#99FF99] focus:border-[#99FF99]" required />
+                <input type="text" id="name" className="w-full px-3 py-2 border border-[#4CAF50] rounded-full shadow-sm focus:outline-none focus:ring-[#4CAF50] focus:border-[#4CAF50]" required />
               </div>
               <div>
                 <label htmlFor="email" className="block mb-2 text-sm font-medium text-[#444444]">メールアドレス</label>
-                <input type="email" id="email" className="w-full px-3 py-2 border border-[#99FF99] rounded-full shadow-sm focus:outline-none focus:ring-[#99FF99] focus:border-[#99FF99]" required />
+                <input type="email" id="email" className="w-full px-3 py-2 border border-[#4CAF50] rounded-full shadow-sm focus:outline-none focus:ring-[#4CAF50] focus:border-[#4CAF50]" required />
               </div>
               <div>
                 <label htmlFor="message" className="block mb-2 text-sm font-medium text-[#444444]">メッセージ</label>
-                <textarea id="message" className="w-full px-3 py-2 border border-[#99FF99] rounded-3xl shadow-sm focus:outline-none focus:ring-[#99FF99] focus:border-[#99FF99]" rows="4" required></textarea>
+                <textarea id="message" className="w-full px-3 py-2 border border-[#4CAF50] rounded-3xl shadow-sm focus:outline-none focus:ring-[#4CAF50] focus:border-[#4CAF50]" rows="4" required></textarea>
               </div>
-              <button type="submit" className="w-full bg-[#99FF99] text-white py-2 rounded-full hover:bg-[#66FF66] transition-colors">
+              <button type="submit" className="w-full bg-[#4CAF50] text-white py-2 rounded-full hover:bg-[#45a049] transition-colors">
                 送信する
               </button>
             </form>
@@ -222,18 +293,17 @@ export default function HomePage() {
         </section>
 
         {/* フッター */}
-        <footer className="bg-[#FFD6E0] text-[#444444] py-8 rounded-t-3xl mt-8">
+        <footer className="bg-[#FF8C00] text-white py-8 rounded-t-3xl mt-8">
           <div className="container mx-auto text-center px-4">
             <p className="font-bold">&copy; 2024 Tellry. All rights reserved.</p>
             <div className="mt-4">
-              <Link href="#" className="mx-2 hover:text-[#FF9999] transition-colors duration-200 font-bold">Facebook</Link>
-              <Link href="#" className="mx-2 hover:text-[#99CCFF] transition-colors duration-200 font-bold">Twitter</Link>
-              <Link href="#" className="mx-2 hover:text-[#FFCC99] transition-colors duration-200 font-bold">Instagram</Link>
+              <Link href="#" className="mx-2 hover:text-[#FFE4B5] transition-colors duration-200 font-bold">Facebook</Link>
+              <Link href="#" className="mx-2 hover:text-[#FFE4B5] transition-colors duration-200 font-bold">Twitter</Link>
+              <Link href="#" className="mx-2 hover:text-[#FFE4B5] transition-colors duration-200 font-bold">Instagram</Link>
             </div>
           </div>
         </footer>
       </div>
-
     </>
   );
 }
