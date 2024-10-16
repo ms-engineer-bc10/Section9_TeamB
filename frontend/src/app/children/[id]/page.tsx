@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getChildId, updateChild } from "@/lib/api";
+import { getChildId, updateChild, createBook } from "@/lib/api";
 import ChildForm from "@/components/EditChild/ChildForm";
-import Header from "@/components/Header";
+import { auth } from "@/lib/firebase";
 import { useRedirectIfNotAuthenticated } from "@/lib/auth";
+import Loading from "@/components/Loading";
 
 export default function EditChild({ params }: { params: { id: string } }) {
   const [child, setChild] = useState(null);
@@ -24,6 +25,9 @@ export default function EditChild({ params }: { params: { id: string } }) {
   });
   const [showArrivalDate, setShowArrivalDate] = useState(true);
   const [showBackgroundOther, setShowBackgroundOther] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -78,35 +82,63 @@ export default function EditChild({ params }: { params: { id: string } }) {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    // 子ども情報をPUT
-    const response = await updateChild(params.id, formData);
+    setIsLoading(true);
+    setError(null);
+    setMessage(null);
 
-    if (response.ok) {
-      router.push("/home");
-    } else {
-      alert("Error updating child.");
+    try {
+      const currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        console.error("ユーザーがログインしていません");
+        return;
+      }
+
+      const token = await currentUser.getIdToken(true);
+
+      // PUTで子ども情報を更新
+      const response = await updateChild(params.id, formData);
+
+      if (!response.ok) {
+        throw new Error("子ども情報の更新に失敗しました。");
+      }
+
+      // 絵本生成リクエスト
+      await createBook(token, Number(params.id));
+
+      // 絵本生成中のメッセージを表示
+      setMessage("絵本を生成中です。完了しましたらメールでお知らせします。");
+
+      // 5秒後にホームにリダイレクト
+      setTimeout(() => {
+        router.push("/home");
+      }, 5000);
+    } catch (error) {
+      console.error("APIリクエスト中にエラーが発生しました:", error);
+      setError(
+        error instanceof Error ? error.message : "予期せぬエラーが発生しました"
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
-      <Header />
-      <div className="max-w-xl mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">入力情報を確認してください</h1>
-        {child ? (
-          <ChildForm
-            formData={formData}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-            showArrivalDate={showArrivalDate}
-            showBackgroundOther={showBackgroundOther}
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-            <h1 className="text-2xl font-bold text-orange-600">Loading...</h1>
-          </div>
-        )}
-      </div>
+      {child ? (
+        <ChildForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          showArrivalDate={showArrivalDate}
+          showBackgroundOther={showBackgroundOther}
+          isLoading={isLoading}
+          error={error}
+          message={message}
+        />
+      ) : (
+        <Loading />
+      )}
     </>
   );
 }

@@ -5,6 +5,15 @@ import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+export const handleLogout = async (router: ReturnType<typeof useRouter>) => {
+  try {
+    await auth.signOut(); // Firebaseからログアウト
+    router.push("/login"); // ログインページへリダイレクト
+  } catch (error) {
+    console.error("Error logging out:", error);
+  }
+};
+
 // ログインしているユーザーをリダイレクトするカスタムフック
 export const useRedirectIfAuthenticated = () => {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import { apiUrl } from "@/lib/config";
+export const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 // 子ども情報をGETするAPIリクエスト
 export const getChild = async (token: string) => {
@@ -73,6 +73,26 @@ export const createBook = async (token: string, childId: number) => {
   return response.json();
 };
 
+// 非同期処理のタスクの状態を確認するAPIリクエスト
+export const checkTaskStatus = async (token: string, taskId: string) => {
+  const response = await fetch(
+    `${apiUrl}/api/books/check_task_status/?task_id=${taskId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("タスク状態の確認に失敗しました");
+  }
+
+  return response.json();
+};
+
 // ユーザーに紐づく絵本をGETするリクエスト
 export const getUserBooks = async (token: string) => {
   const response = await fetch(`${apiUrl}/api/books/`, {
@@ -104,6 +124,25 @@ export const downloadBookPDF = async (token: string, bookId: number) => {
   }
 
   return response.blob();
+};
+
+// Stripe決済機能に遷移するAPIリクエスト
+export const createCheckoutSession = async (token: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/stripe/create-checkout-session/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("リクエストが失敗しました:", error);
+    throw error;
+  }
 };
 
 // 会員ステータスの確認リクエスト

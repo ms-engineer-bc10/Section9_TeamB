@@ -1,29 +1,51 @@
-import Link from "next/link";
-import CheckoutButton from "../../components/stripe/CheckoutButton";
+"use client";
+import Loading from "@/components/Loading";
+import LightPlan from "@/components/plan/LightPlan";
+import StandardPlan from "@/components/plan/StandardPlan";
+import { fetchMembershipStatus } from "@/lib/api";
+import { auth } from "@/lib/firebase";
+import React, { useEffect, useState } from "react";
 
 const Plan = () => {
+  const [loading, setLoading] = useState(true);
+  const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const token = await user.getIdToken();
+          const membershipData = await fetchMembershipStatus(token);
+          setMembershipStatus(membershipData.status);
+        } catch (error) {
+          console.error("Error fetching token or membership status:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        console.error("User is not authenticated");
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-2xl font-bold mb-8">プラン選択</h1>
-
-      <div className="flex flex-col items-center space-y-4">
-        <div className="p-4 border border-black rounded-lg w-64 text-center">
-          <h2 className="text-xl font-semibold">有料プラン</h2>
-          <p>有料プランの詳細説明がここに入ります。</p>
-          <CheckoutButton />
-        </div>
-
-        <div className="p-4 border border-black rounded-lg w-64 text-center">
-          <h2 className="text-xl font-semibold">無料プラン</h2>
-          <p>無料プランの詳細説明がここに入ります。</p>
-          <Link href="/message">
-            <p className="mt-4 block bg-blue-500 text-white py-2 px-4 rounded">
-              無料プランへ
-            </p>
-          </Link>
-        </div>
-      </div>
+    <div>
+      {membershipStatus === "standard" ? (
+        <StandardPlan />
+      ) : membershipStatus === "light" ? (
+        <LightPlan />
+      ) : (
+        <Loading />
+      )}
     </div>
   );
 };
+
 export default Plan;
