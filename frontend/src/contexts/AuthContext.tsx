@@ -14,6 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  let timeout: NodeJS.Timeout;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -22,6 +23,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const startTimeout = () => {
+      timeout = setTimeout(logout, 15 * 60 * 1000); // 15分でタイムアウト
+    };
+
+    const resetTimeout = () => {
+      clearTimeout(timeout);
+      startTimeout();
+    };
+
+    window.onload = resetTimeout;
+    window.onmousemove = resetTimeout;
+    window.onkeydown = resetTimeout;
+
+    return () => {
+      clearTimeout(timeout);
+      window.onload = null;
+      window.onmousemove = null;
+      window.onkeydown = null;
+    };
   }, []);
 
   const logout = async () => {
