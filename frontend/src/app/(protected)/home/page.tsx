@@ -5,40 +5,39 @@ import { useRouter } from "next/navigation";
 import { PenTool, Book, MessageCircle, LogOut, Star } from "lucide-react";
 import { fetchMembershipStatus, getChild } from "@/lib/api";
 import { handleLogout } from "@/lib/auth";
-import { auth } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Home = () => {
+  const { user } = useAuth();
   const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
   const [children, setChildren] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
-    if (auth.currentUser) {
-      const fetchData = async (token: string) => {
-        try {
-          const data = await getChild(token);
-          setChildren(data);
-        } catch (error) {
-          console.error("Error fetching children data:", error);
-        }
-      };
+    const fetchData = async (token: string) => {
+      try {
+        const data = await getChild(token);
+        setChildren(data);
+      } catch (error) {
+        console.error("Error fetching children data:", error);
+      }
+    };
 
-      const fetchMembership = async () => {
-        try {
-          const token = await auth.currentUser?.getIdToken();
-          if (token) {
-            const membershipData = await fetchMembershipStatus(token);
-            setMembershipStatus(membershipData.status);
-            fetchData(token);
-          }
-        } catch (error) {
-          console.error("Error fetching token or membership status:", error);
+    const fetchMembership = async () => {
+      try {
+        if (user) {
+          const token = await user.getIdToken();
+          const membershipData = await fetchMembershipStatus(token);
+          setMembershipStatus(membershipData.status);
+          fetchData(token);
         }
-      };
+      } catch (error) {
+        console.error("Error fetching token or membership status:", error);
+      }
+    };
 
-      fetchMembership();
-    }
-  }, []);
+    fetchMembership();
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-200 to-beige-100 text-orange-900 py-8 px-4 relative overflow-hidden">
@@ -50,7 +49,7 @@ const Home = () => {
         </h1>
         <div className="flex items-center space-x-4">
           <span className="text-sm bg-white px-3 py-1 rounded-full shadow-md">
-            {auth.currentUser?.email || "user@example.com"}
+            {user?.email || "user@example.com"}
           </span>
           <button
             onClick={() => handleLogout(router)}
@@ -64,7 +63,7 @@ const Home = () => {
       <main className="max-w-4xl mx-auto relative z-10">
         <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8 transform hover:scale-105 transition-transform">
           <h2 className="text-3xl font-semibold mb-4 font-comic">
-            ようこそ、{auth.currentUser?.email?.split("@")[0]}さん！
+            ようこそ、{user?.email?.split("@")[0]}さん！
           </h2>
           <p className="mb-2">
             会員ステータス:{" "}

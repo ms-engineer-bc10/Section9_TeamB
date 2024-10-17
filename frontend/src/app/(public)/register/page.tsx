@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { createUserInDjango } from "@/lib/api";
 import { Inputs } from "@/types";
 import Link from "next/link";
-import { useRedirectIfAuthenticated } from "@/lib/auth";
 
 const Register: React.FC = () => {
   const router = useRouter();
@@ -21,8 +20,6 @@ const Register: React.FC = () => {
     setError,
     formState: { errors },
   } = useForm<Inputs>();
-
-  useRedirectIfAuthenticated();
 
   const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {

@@ -1,20 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import { getChild } from "@/lib/api";
 import Link from "next/link";
-import { onAuthStateChanged } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import { useRedirectIfNotAuthenticated } from "@/lib/auth";
 import { Book, Home, Star } from "lucide-react";
 import Loading from "@/components/Loading";
 
 const Page = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useRedirectIfNotAuthenticated();
 
   useEffect(() => {
     const fetchData = async (token: string) => {
@@ -28,24 +25,18 @@ const Page = () => {
       }
     };
 
-    // Firebase認証状態の変化を監視
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const token = await user.getIdToken(); // Firebaseユーザートークンを取得
-          fetchData(token); // 子ども情報を取得
-        } catch (error) {
+    if (user) {
+      user
+        .getIdToken()
+        .then(fetchData)
+        .catch((error: any) => {
           console.error("Error fetching token:", error);
           setLoading(false);
-        }
-      } else {
-        console.error("User is not authenticated");
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
 
   if (loading) {
     return <Loading />;

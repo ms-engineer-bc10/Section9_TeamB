@@ -167,6 +167,29 @@ export const createCheckoutSession = async (token: string) => {
   }
 };
 
+// payments、paid_service情報をPOSTするAPIリクエスト
+export const postPayment = async (idToken: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/api/payments/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to post payment");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    console.error("Error:", error.message || error);
+    throw error;
+  }
+};
+
 // 会員ステータスの確認リクエスト
 export const fetchMembershipStatus = async (idToken: string) => {
   try {

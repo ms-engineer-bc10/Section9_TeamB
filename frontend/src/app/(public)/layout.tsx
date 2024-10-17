@@ -14,7 +14,9 @@ export default function PublicLayout({
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/home");
+      if (user.emailVerified) {
+        router.push("/home");
+      }
     }
   }, [user, loading, router]);
 

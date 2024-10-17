@@ -1,8 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getChildId } from "@/lib/api"; // 子ども情報を取得する関数
+import { getChildId } from "@/lib/api";
 import { Home } from "lucide-react";
+import Loading from "@/components/Loading";
 
 const ChildDetail = () => {
   const [formData, setFormData] = useState({
@@ -21,17 +22,16 @@ const ChildDetail = () => {
   });
 
   const [loading, setLoading] = useState(true);
-  const params = useParams(); // next/navigationのuseParamsを使用
+  const params = useParams();
   const router = useRouter();
 
-  // 型ガードでparams.idをstringに変換
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   useEffect(() => {
     const fetchChildData = async () => {
       if (id) {
         try {
-          const data = await getChildId(id); // 子ども情報をAPIから取得
+          const data = await getChildId(id);
           setFormData(data);
         } catch (error) {
           console.error("Error fetching child data:", error);
@@ -44,7 +44,7 @@ const ChildDetail = () => {
   }, [id]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (

@@ -6,7 +6,6 @@ import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Inputs } from "@/types";
 import Link from "next/link";
-import { useRedirectIfAuthenticated } from "@/lib/auth";
 
 const Login: React.FC = () => {
   const router = useRouter();
@@ -17,8 +16,6 @@ const Login: React.FC = () => {
     reset,
     formState: { errors },
   } = useForm<Inputs>();
-
-  useRedirectIfAuthenticated();
 
   const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {

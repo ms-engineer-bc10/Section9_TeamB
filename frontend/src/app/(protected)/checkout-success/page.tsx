@@ -1,43 +1,35 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
+import { postPayment } from "@/lib/api"; // api.tsから関数をインポート
 
 export default function CheckoutSuccess() {
   const router = useRouter();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (!currentUser) {
-        console.error("ユーザーがログインしていません");
-        return;
-      }
+    if (!user) {
+      console.error("ユーザーがログインしていません");
+      return;
+    }
 
-      currentUser
-        .getIdToken(true)
-        .then(function (idToken) {
-          fetch(`http://localhost:8000/api/payments/`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${idToken}`,
-            },
+    user
+      .getIdToken(true)
+      .then((idToken: string) => {
+        postPayment(idToken)
+          .then((data) => {
+            console.log(data);
+            router.push("/plan");
           })
-            .then((response) => response.json())
-            .then((data) => {
-              console.log(data);
-              // POSTリクエストが成功した後に/homeにリダイレクト
-              router.push("/plan");
-            })
-            .catch((error) => console.error("Error:", error));
-        })
-        .catch((error) => {
-          console.error("IDトークンの取得に失敗しました:", error);
-        });
-    });
-
-    return () => unsubscribe();
-  }, [router]);
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      })
+      .catch((error: any) => {
+        console.error("IDトークンの取得に失敗しました:", error);
+      });
+  }, [user, router]);
 
   return (
     <div className="flex items-center justify-center h-screen">

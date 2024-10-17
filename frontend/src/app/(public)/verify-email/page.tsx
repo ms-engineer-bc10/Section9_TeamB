@@ -2,24 +2,22 @@
 import { useEffect, useState } from "react";
 import { sendEmailVerification } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
-import { useRedirectIfAuthenticated } from "@/lib/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 const VerifyEmailPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useRedirectIfAuthenticated();
-
   // 認証メールを再送信する関数
   const handleResendVerificationEmail = async () => {
-    if (auth.currentUser) {
+    if (user) {
       setIsSending(true);
       setError(null);
       try {
-        await sendEmailVerification(auth.currentUser);
+        await sendEmailVerification(user);
         setIsSent(true);
       } catch (error) {
         setError("認証メールの再送信に失敗しました。再度お試しください。");
@@ -31,10 +29,10 @@ const VerifyEmailPage = () => {
   };
 
   useEffect(() => {
-    if (auth.currentUser && auth.currentUser.emailVerified) {
+    if (user && user.emailVerified) {
       router.push("/home");
     }
-  }, [router]);
+  }, [user, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
