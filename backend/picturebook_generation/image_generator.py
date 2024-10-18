@@ -26,7 +26,7 @@ def generate_images(story_pages, child, book_title):
     
     try:
         # 表紙の生成
-        cover_prompt = f"『{book_title}』というタイトルの子ども向け絵本の表紙を作成してください。タイトル『{book_title}』は表紙の中央上部に大きく、太く、はっきりとした文字で表示してください。文字が見やすくなるようにしてください。元気で明るい目をした{child.gender}の子ども{child.name}を描いてください。絵は、柔らかくて親しみやすい雰囲気にしてください。絵本らしいデザインであることを確認してください。"
+        cover_prompt = f"『{book_title}』というタイトルの子ども向け絵本の表紙を作成してください。タイトル『{book_title}』は表紙の中央上部に大きく、太く、はっきりとした日本語（ひらがな）で表示してください。英語や他の言語は使用せず、必ずひらがなで表示してください。文字が見やすくなるようにしてください。絵は、柔らかくて親しみやすい雰囲気にしてください。絵本らしいデザインであることを確認してください。"
         cover_image = generate_single_image(cover_prompt, is_cover=True)
         images.append(cover_image)
         
@@ -43,8 +43,8 @@ def generate_images(story_pages, child, book_title):
 
 def generate_single_image(prompt, is_cover=False):
     if not is_cover:
-        prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。純粋に視覚的な要素のみで構成してください。"
-        prompt += "また、1枚目の画像のテイストに2枚目以降は同じスタイルにしてください。"
+        prompt += " 重要: この画像には一切のテキスト、文字、記号を含まないでください。英文も表示しないでください。純粋にイラストの要素のみで構成してください。"
+        prompt += "また、1枚目の画像のテイストに合わせて、2枚目以降は同じテイストにしてください。キャラクターの髪型や服装も同じにしてください。"
     
     response = client.images.generate(
         prompt=prompt,
