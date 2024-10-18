@@ -29,22 +29,7 @@ def create_storybook_pdf(images, story_pages, title, output_path=None):
 
     # 表紙の作成
     cover_image = images[0]
-    pil_img = Image.open(cover_image)
-    img_width, img_height = pil_img.size
-    aspect = img_height / float(img_width)
-    
-    # 表紙画像をA4横サイズに合わせる
-    if aspect > page_height / page_width:  # 画像が縦長の場合
-        img_width = page_width
-        img_height = img_width * aspect
-        y_offset = (page_height - img_height) / 2
-        c.drawImage(cover_image, 0, y_offset, width=img_width, height=img_height)
-    else:  # 画像が横長の場合
-        img_height = page_height
-        img_width = img_height / aspect
-        x_offset = (page_width - img_width) / 2
-        c.drawImage(cover_image, x_offset, 0, width=img_width, height=img_height)
-
+    c.drawImage(cover_image, 0, 0, width=page_width, height=page_height)
     c.showPage()
 
     # ストーリーページの作成

@@ -49,22 +49,22 @@ def generate_single_image(prompt, is_cover=False):
     response = client.images.generate(
         prompt=prompt,
         n=1,
-        size="1024x1024",
+        size="1792x1024",
         model="dall-e-3",
         quality="standard",
         style="vivid",
     )
     
     image_type = "表紙" if is_cover else "内容ページ"
-    openai_logger.info(f"DALL-E API使用: タイプ={image_type}, プロンプト文字数={len(prompt)}, 生成画像数=1, サイズ=1024x1024")
+    openai_logger.info(f"DALL-E API使用: タイプ={image_type}, プロンプト文字数={len(prompt)}, 生成画像数=1, サイズ=1792x1024")
     
     image_url = response.data[0].url
     image_response = requests.get(image_url)
     image = Image.open(BytesIO(image_response.content))
     
     if is_cover:
-        # 表紙のサイズ調整（A4縦置き）
-        a4_width, a4_height = 210, 297  # A4サイズ（mm）
+        # 表紙のサイズ調整（A4横置き）
+        a4_width, a4_height = 297, 210  # A4サイズ（mm）
         image = image.resize((a4_width, a4_height), Image.LANCZOS)
     else:
         # ストーリーページのアスペクト比調整（16:9）
