@@ -14,6 +14,7 @@ from .models import Book, Page
 from picturebook_generation.story_generator import generate_story, generate_book_title
 from picturebook_generation.image_generator import generate_images
 from picturebook_generation.pdf_generator import create_storybook_pdf
+from utils.email_sender import send_book_completion_email
 
 logger = logging.getLogger('book_creation')
 
@@ -112,16 +113,11 @@ def create_book_task(self, user_id, child_id):
         
         # メール通知を送信
         user = CustomUser.objects.get(id=user_id)
-        subject = f"Tellryの絵本PDFが生成されました"
-        message = f"Tellryをご利用いただきありがとうございます。あなたの絵本「{book_title}」のPDFが生成されました。アプリケーションにログインするとダウンロードいただけます。"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = [user.email]
         
-        try:
-            send_mail(subject, message, from_email, recipient_list)
+        if send_book_completion_email(user.email, book_title):
             logger.info(f"メール通知を送信しました。ユーザーID: {user_id}")
-        except Exception as e:
-            logger.error(f"メール送信中にエラーが発生しました: {str(e)}")
+        else:
+            logger.error(f"メール通知の送信に失敗しました。ユーザーID: {user_id}")
 
         return {'book_id': book.id, 'log_info': log_info}
     except Exception as e:
