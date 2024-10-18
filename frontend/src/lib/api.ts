@@ -1,5 +1,27 @@
 export const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
+// ユーザ－情報をPOSTするAPIリクエスト
+export const createUserInDjango = async (
+  email: string,
+  firebase_uid: string
+) => {
+  const response = await fetch(`${apiUrl}/api/users/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      firebase_uid,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || "Django APIへのリクエストに失敗しました");
+  }
+};
+
 // 子ども情報をGETするAPIリクエスト
 export const getChild = async (token: string) => {
   const response = await fetch(`${apiUrl}/api/children/`, {
@@ -141,6 +163,29 @@ export const createCheckoutSession = async (token: string) => {
     return data;
   } catch (error) {
     console.error("リクエストが失敗しました:", error);
+    throw error;
+  }
+};
+
+// payments、paid_service情報をPOSTするAPIリクエスト
+export const postPayment = async (idToken: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/api/payments/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to post payment");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    console.error("Error:", error.message || error);
     throw error;
   }
 };

@@ -1,56 +1,63 @@
 "use client";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { createUserInDjango } from "@/lib/api";
 import { Inputs } from "@/types";
 import Link from "next/link";
-import { useRedirectIfAuthenticated } from "@/lib/auth";
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const router = useRouter();
   const {
     register,
     handleSubmit,
-    setError,
     reset,
+    setError,
     formState: { errors },
   } = useForm<Inputs>();
 
-  useRedirectIfAuthenticated();
-
   const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {
-      // Firebaseでのログイン処理
-      const userCredential = await signInWithEmailAndPassword(
+      // Firebaseでユーザー作成
+      const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
       const user = userCredential.user;
 
-      // ユーザーがログインに成功した場合にリダイレクト
-      if (user) {
-        router.push("/home");
-      }
+      // 認証メールを送信
+      await sendEmailVerification(user);
+
+      // ユーザー情報をDjangoに送信
+      await createUserInDjango(user.email!, user.uid);
+
+      alert(
+        "認証メールが送信されました。メールを確認して認証を完了してください。"
+      );
 
       reset();
+
+      router.push("/login");
     } catch (error: any) {
-      // Firebaseのエラーハンドリング
-      if (error.code === "auth/user-not-found") {
+      if (error.code === "auth/email-already-in-use") {
         setError("email", {
           type: "manual",
-          message: "このメールアドレスは登録されていません",
+          message: "このメールアドレスは既に登録されています",
         });
-      } else if (error.code === "auth/wrong-password") {
-        setError("password", {
+      } else if (error.message.includes("既に登録されています")) {
+        setError("email", {
           type: "manual",
-          message: "パスワードが間違っています",
+          message: "既に登録されているメールアドレスです",
         });
       } else {
         console.error("エラーが発生しました:", error);
-        alert("ログインに失敗しました");
+        alert("登録に失敗しました");
       }
     }
   };
@@ -62,7 +69,7 @@ const Login: React.FC = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="w-full max-w-md bg-white p-8 shadow-md"
         >
-          <h2 className="text-2xl font-bold mb-6 text-center">ログイン</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">新規登録</h2>
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
@@ -91,6 +98,15 @@ const Login: React.FC = () => {
               className="w-full px-3 py-2 border rounded-lg"
               {...register("password", {
                 required: "パスワードを入力してください",
+                minLength: {
+                  value: 8,
+                  message: "パスワードは8文字以上である必要があります",
+                },
+                pattern: {
+                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
+                  message:
+                    "パスワードは英大文字、英小文字、数字を含む必要があります",
+                },
               })}
               placeholder="パスワードを入力"
             />
@@ -100,15 +116,15 @@ const Login: React.FC = () => {
             type="submit"
             className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600"
           >
-            ログイン
+            登録
           </button>
 
           <p className="mt-4 text-center text-sm">
-            アカウントをお持ちでない方は{" "}
-            <Link href="/register" className="text-orange-500 hover:underline">
+            すでにアカウントをお持ちの方は{" "}
+            <Link href="/login" className="text-orange-500 hover:underline">
               こちら
             </Link>
-            から登録してください。
+            からログインしてください。
           </p>
         </form>
       </div>
@@ -116,4 +132,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;

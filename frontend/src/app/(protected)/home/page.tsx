@@ -3,15 +3,14 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PenTool, Book, MessageCircle, LogOut, Star } from "lucide-react";
-import { auth } from "@/lib/firebase";
 import { fetchMembershipStatus, getChild } from "@/lib/api";
-import { handleLogout, useRedirectIfNotAuthenticated } from "@/lib/auth";
-import Loading from "@/components/Loading";
+import { handleLogout } from "@/lib/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Home = () => {
+  const { user } = useAuth();
   const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
   const [children, setChildren] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -21,36 +20,24 @@ const Home = () => {
         setChildren(data);
       } catch (error) {
         console.error("Error fetching children data:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
+    const fetchMembership = async () => {
+      try {
+        if (user) {
           const token = await user.getIdToken();
           const membershipData = await fetchMembershipStatus(token);
           setMembershipStatus(membershipData.status);
           fetchData(token);
-        } catch (error) {
-          console.error("Error fetching token or membership status:", error);
-          setLoading(false);
         }
-      } else {
-        console.error("User is not authenticated");
-        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching token or membership status:", error);
       }
-    });
+    };
 
-    return () => unsubscribe();
-  }, []);
-
-  useRedirectIfNotAuthenticated();
-
-  if (loading) {
-    return <Loading />;
-  }
+    fetchMembership();
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-200 to-beige-100 text-orange-900 py-8 px-4 relative overflow-hidden">
@@ -62,7 +49,7 @@ const Home = () => {
         </h1>
         <div className="flex items-center space-x-4">
           <span className="text-sm bg-white px-3 py-1 rounded-full shadow-md">
-            {auth.currentUser?.email || "user@example.com"}
+            {user?.email || "user@example.com"}
           </span>
           <button
             onClick={() => handleLogout(router)}
@@ -76,7 +63,7 @@ const Home = () => {
       <main className="max-w-4xl mx-auto relative z-10">
         <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8 transform hover:scale-105 transition-transform">
           <h2 className="text-3xl font-semibold mb-4 font-comic">
-            ようこそ、{auth.currentUser?.email?.split("@")[0]}さん！
+            ようこそ、{user?.email?.split("@")[0]}さん！
           </h2>
           <p className="mb-2">
             会員ステータス:{" "}

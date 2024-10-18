@@ -1,75 +1,60 @@
 "use client";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { apiUrl } from "@/lib/config";
 import { Inputs } from "@/types";
 import Link from "next/link";
-import { useRedirectIfAuthenticated } from "@/lib/auth";
 
-const Register: React.FC = () => {
+const Login: React.FC = () => {
   const router = useRouter();
   const {
     register,
     handleSubmit,
-    reset,
     setError,
+    reset,
     formState: { errors },
   } = useForm<Inputs>();
 
-  useRedirectIfAuthenticated();
-
   const onSubmit: SubmitHandler<Inputs> = async ({ email, password }) => {
     try {
-      // Firebaseでのユーザー作成
-      const userCredential = await createUserWithEmailAndPassword(
+      // Firebaseでのログイン処理
+      const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
       const user = userCredential.user;
 
-      // ユーザー情報をDjangoに送信
-      const response = await fetch(`${apiUrl}/api/users/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          firebase_uid: user.uid,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        // サーバーからのエラーメッセージの処理
-        if (data.error && data.error.includes("既に登録されています")) {
-          setError("email", {
-            type: "manual",
-            message: "既に登録されているメールアドレスです",
-          });
-        } else {
-          throw new Error("Django APIへのリクエストに失敗しました");
-        }
-      } else {
-        if (user) {
-          router.push("/children");
-        }
-
-        reset();
+      if (!user.emailVerified) {
+        alert(
+          "メールアドレスの確認が完了していません。メールを確認して認証を完了してください。"
+        );
+        router.push("/verify-email");
+        return;
       }
+
+      if (user) {
+        router.push("/home");
+      }
+
+      reset();
     } catch (error: any) {
-      if (error.code === "auth/email-already-in-use") {
+      // Firebaseのエラーハンドリング
+      if (error.code === "auth/user-not-found") {
         setError("email", {
           type: "manual",
-          message: "このメールアドレスは既に登録されています",
+          message: "このメールアドレスは登録されていません",
+        });
+      } else if (error.code === "auth/wrong-password") {
+        setError("password", {
+          type: "manual",
+          message: "パスワードが間違っています",
         });
       } else {
         console.error("エラーが発生しました:", error);
-        alert("登録に失敗しました");
+        alert("ログインに失敗しました");
       }
     }
   };
@@ -81,7 +66,7 @@ const Register: React.FC = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="w-full max-w-md bg-white p-8 shadow-md"
         >
-          <h2 className="text-2xl font-bold mb-6 text-center">新規登録</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">ログイン</h2>
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
@@ -110,6 +95,11 @@ const Register: React.FC = () => {
               className="w-full px-3 py-2 border rounded-lg"
               {...register("password", {
                 required: "パスワードを入力してください",
+                pattern: {
+                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
+                  message:
+                    "パスワードは英大文字、英小文字、数字を含む必要があります",
+                },
               })}
               placeholder="パスワードを入力"
             />
@@ -119,15 +109,15 @@ const Register: React.FC = () => {
             type="submit"
             className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600"
           >
-            登録
+            ログイン
           </button>
 
           <p className="mt-4 text-center text-sm">
-            すでにアカウントをお持ちの方は{" "}
-            <Link href="/login" className="text-orange-700 hover:underline">
+            アカウントをお持ちでない方は{" "}
+            <Link href="/register" className="text-orange-500 hover:underline">
               こちら
             </Link>
-            からログインしてください。
+            から登録してください。
           </p>
         </form>
       </div>
@@ -135,4 +125,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register;
+export default Login;

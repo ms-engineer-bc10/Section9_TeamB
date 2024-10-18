@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getChildId, updateChild, createBook } from "@/lib/api";
 import ChildForm from "@/components/EditChild/ChildForm";
-import { auth } from "@/lib/firebase";
-import { useRedirectIfNotAuthenticated } from "@/lib/auth";
+import { useAuth } from "@/contexts/AuthContext";
 import Loading from "@/components/Loading";
 
 export default function EditChild({ params }: { params: { id: string } }) {
+  const { user } = useAuth();
   const [child, setChild] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -30,8 +30,6 @@ export default function EditChild({ params }: { params: { id: string } }) {
   const [message, setMessage] = useState<string | null>(null);
 
   const router = useRouter();
-
-  useRedirectIfNotAuthenticated();
 
   useEffect(() => {
     if (params.id) {
@@ -87,14 +85,12 @@ export default function EditChild({ params }: { params: { id: string } }) {
     setMessage(null);
 
     try {
-      const currentUser = auth.currentUser;
-
-      if (!currentUser) {
+      if (!user) {
         console.error("ユーザーがログインしていません");
         return;
       }
 
-      const token = await currentUser.getIdToken(true);
+      const token = await user.getIdToken(true); // トークンを取得
 
       // PUTで子ども情報を更新
       const response = await updateChild(params.id, formData);

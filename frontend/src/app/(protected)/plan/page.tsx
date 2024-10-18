@@ -3,15 +3,16 @@ import Loading from "@/components/Loading";
 import LightPlan from "@/components/plan/LightPlan";
 import StandardPlan from "@/components/plan/StandardPlan";
 import { fetchMembershipStatus } from "@/lib/api";
-import { auth } from "@/lib/firebase";
 import React, { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Plan = () => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const fetchMembership = async () => {
       if (user) {
         try {
           const token = await user.getIdToken();
@@ -23,13 +24,12 @@ const Plan = () => {
           setLoading(false);
         }
       } else {
-        console.error("User is not authenticated");
         setLoading(false);
       }
-    });
+    };
 
-    return () => unsubscribe();
-  }, []);
+    fetchMembership();
+  }, [user]);
 
   if (loading) {
     return <Loading />;

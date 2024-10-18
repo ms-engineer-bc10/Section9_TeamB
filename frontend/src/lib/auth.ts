@@ -13,33 +13,3 @@ export const handleLogout = async (router: ReturnType<typeof useRouter>) => {
     console.error("Error logging out:", error);
   }
 };
-
-// ログインしているユーザーをリダイレクトするカスタムフック
-export const useRedirectIfAuthenticated = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push("/home");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-};
-
-// ログインしていないユーザーをリダイレクトするカスタムフック
-export const useRedirectIfNotAuthenticated = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push("/");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-};

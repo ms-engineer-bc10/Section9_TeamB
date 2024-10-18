@@ -6,7 +6,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
 import { nextStep, prevStep, goToSlide } from "@/utils/swiperControls";
 import { ChildFormData, genderMap, backgroundTypeMap } from "@/types";
-import { auth } from "@/lib/firebase";
 import { createChild, createBook } from "@/lib/api";
 import { Slide1 } from "@/components/childSlides/Slide1";
 import { Slide2 } from "@/components/childSlides/Slide2";
@@ -15,7 +14,7 @@ import { Slide4 } from "@/components/childSlides/Slide4";
 import { Slide5 } from "@/components/childSlides/Slide5";
 import { Slide6 } from "@/components/childSlides/Slide6";
 import { Slide7 } from "@/components/childSlides/Slide7";
-import { useRedirectIfNotAuthenticated } from "@/lib/auth";
+import { useAuth } from "@/contexts/AuthContext";
 import { ChevronLeft, ChevronRight, Home, Send, Sparkles } from "lucide-react";
 
 const TOTAL_STEPS = 8;
@@ -31,22 +30,20 @@ const ChildInfoForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-
-  useRedirectIfNotAuthenticated();
+  const { user } = useAuth();
 
   const onSubmit = async (data: ChildFormData) => {
     setIsLoading(true);
     setError(null);
     setMessage(null);
-    try {
-      const currentUser = auth.currentUser;
 
-      if (!currentUser) {
+    try {
+      if (!user) {
         console.error("ユーザーがログインしていません");
         return;
       }
 
-      const token = await currentUser.getIdToken(true);
+      const token = await user.getIdToken(true);
 
       const postData = {
         name: data.name,

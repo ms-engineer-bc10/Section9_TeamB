@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getChild, getUserBooks, downloadBookPDF } from "@/lib/api";
-import { useRedirectIfNotAuthenticated } from "@/lib/auth";
-import { auth } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 import { Book, Download, Home } from "lucide-react";
 import { Book as BookType } from "@/types";
 import Loading from "@/components/Loading";
@@ -15,17 +14,15 @@ interface Child {
 }
 
 export default function BookDownloadPage() {
+  const { user } = useAuth();
   const [children, setChildren] = useState<Child[]>([]);
   const [books, setBooks] = useState<BookType[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useRedirectIfNotAuthenticated();
-
   useEffect(() => {
     const fetchChildren = async () => {
-      const user = auth.currentUser;
       if (user) {
         try {
           const token = await user.getIdToken();
@@ -40,31 +37,27 @@ export default function BookDownloadPage() {
     };
 
     fetchChildren();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const fetchBooks = async () => {
-      if (selectedChildId) {
-        const user = auth.currentUser;
-        if (user) {
-          try {
-            const token = await user.getIdToken();
-            const fetchedBooks = await getUserBooks(token);
-            setBooks(
-              fetchedBooks.filter((book: any) => book.child === selectedChildId)
-            );
-          } catch (error) {
-            console.error("Error fetching books:", error);
-          }
+      if (selectedChildId && user) {
+        try {
+          const token = await user.getIdToken();
+          const fetchedBooks = await getUserBooks(token);
+          setBooks(
+            fetchedBooks.filter((book: any) => book.child === selectedChildId)
+          );
+        } catch (error) {
+          console.error("Error fetching books:", error);
         }
       }
     };
 
     fetchBooks();
-  }, [selectedChildId]);
+  }, [selectedChildId, user]);
 
   const handleDownload = async (bookId: number) => {
-    const user = auth.currentUser;
     if (user) {
       try {
         const token = await user.getIdToken();
