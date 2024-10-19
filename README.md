@@ -9,6 +9,8 @@
 ### バックエンド
 - Django (Python)
 - Django REST Framework
+- Celery
+- Redis
 
 ### データベース
 - PostgreSQL
