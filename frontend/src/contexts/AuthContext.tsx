@@ -1,6 +1,11 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 interface AuthContextType {
@@ -17,12 +22,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   let timeout: NodeJS.Timeout;
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          setUser(user);
+          setLoading(false);
+        });
 
-    return () => unsubscribe();
+        return unsubscribe;
+      })
+      .catch((error) => {
+        console.error("セッション持続性の設定中にエラーが発生しました:", error);
+      });
   }, []);
 
   useEffect(() => {
