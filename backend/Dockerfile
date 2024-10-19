@@ -1,5 +1,9 @@
 FROM python:3.10
 
+# 環境変数の設定
+ENV PYTHONIOENCODING=utf-8
+ENV LANG=C.UTF-8
+
 WORKDIR /app
 
 COPY requirements.txt .

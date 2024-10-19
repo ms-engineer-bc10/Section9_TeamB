@@ -23,18 +23,14 @@ def send_email(to_email, subject, message):
         return False
 
 def send_book_completion_email(user_email, book_title):
-    """
-    Send a notification email when a book is generated.
-    """
     subject = f"Tellryの絵本PDFが生成されました"
     message = f"""
     Tellryをご利用いただきありがとうございます。
     あなたが作成された絵本「{book_title}」のPDFが生成されました。
     サービスページにログインすると、PDFをダウンロードいただけます。
-    
     https://tellry.net
     Tellry運営チーム
-    """
+    """.strip()  
     return send_email(user_email, subject, message)
 
 # リマインダー機能は今後実装予定
