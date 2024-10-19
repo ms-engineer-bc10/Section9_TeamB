@@ -5,10 +5,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 def send_email(to_email, subject, message):
-    """
-    Generic email sending function.
-    """
     try:
+        
+        # メッセージ内の全角スペースを半角スペースに置換(エラー対応として)
+        message = message.replace('\xa0', ' ')
+        
         send_mail(
             subject,
             message,
