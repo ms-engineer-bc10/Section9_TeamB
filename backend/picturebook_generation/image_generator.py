@@ -39,17 +39,20 @@ def generate_images(story_pages, child, book_title):
         images.append(cover_image)
         
         # ストーリーページの生成
-        for page_content in story_pages:
+        for i, page_content in enumerate(story_pages, start=1):
             prompt = f"""
-            子ども向け絵本の見開きページのイラストを作成してください。以下の指示を厳密に守ってください：
-            1. {page_content}の内容を視覚的に表現してください。
-            2. {main_character_prompt}このキャラクターを必ず含め、キャラクターの髪型や服装は常に同じにしてください。
+            子ども向け絵本の{i}ページ目のイラストを作成してください。以下の指示を厳密に守ってください：
+            1. このページの内容: {page_content}
+               この内容を視覚的に表現してください。
+            2. {main_character_prompt}
+               このキャラクターを必ず含め、キャラクターの髪型や服装は常に同じにしてください。
             3. 画像には一切のテキスト、文字、記号を含めないでください。純粋にイラストのみで構成してください。
             4. 広い横長のフォーマットで描いてください。
             5. {style_prompt}
             6. 前のページのイラストと一貫性を持たせ、同じテイストやスタイルを維持してください。
             7. 英語や数字などの文字は一切使用しないでください。
-            8. この指示自体を画像に含めないでください。純粋にイラストのみを生成してください
+            8. この指示自体を画像に含めないでください。純粋にイラストのみを生成してください。
+            9. ストーリーの進行に合わせて、場面や登場人物の動きを適切に変化させてください。
             """
             page_image = generate_single_image(prompt)
             images.append(page_image)
