@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 import stripe
 from .models import Payment, PaidService
 from .serializers import PaymentSerializer, PaidServiceSerializer
+from accounts.decorators import firebase_token_required
 from accounts.utils import verify_firebase_token
 from accounts.models import CustomUser
 from rest_framework.decorators import api_view
@@ -20,31 +21,22 @@ YOUR_DOMAIN = "http://localhost:3000"
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
-    permission_classes = [AllowAny]
 
+    @firebase_token_required
     def create(self, request, *args, **kwargs):
-        # Firebaseトークンの検証
-        auth_header = request.headers.get('Authorization')
-        if not auth_header:
-            return Response({"error": "Authorization header missing"}, status=status.HTTP_400_BAD_REQUEST)
-
-        decoded_token = verify_firebase_token(auth_header)
-        if not decoded_token:
-            return Response({"error": "Invalid or expired Firebase token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # `firebase_uid`を使用してユーザーを特定
-        firebase_uid = decoded_token.get('user_id')
-        user = CustomUser.objects.filter(firebase_uid=firebase_uid).first()
-        if not user:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
+        # デコレーターによって検証されたユーザー情報を使用
+        firebase_uid = request.firebase_user['uid']
+        
+        # ユーザーを取得または作成
+        user, created = CustomUser.objects.get_or_create(firebase_uid=firebase_uid)
+        
         # PaidServiceの作成
         paid_service_data = {
             "user": user,
             "start_date": timezone.now(),
             "end_date": timezone.now() + timezone.timedelta(days=30),
             "status": "active",  # 固定値
-            "service_type": "premium",  # 固定値
+            "service_type": "standard",
             "creation_limit": 10,  # 固定値
             "books_created": 0,  # 固定値
             "last_reset_date": timezone.now()  # 固定値
@@ -56,7 +48,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
             "user": user.id,
             "stripe_uid": "test_stripe_uid",  # StripeのUIDは仮の値
             "paid_service": paid_service.id,  # 作成されたPaidServiceのID
-            "amount": 100.00,  # 仮の金額
+            "amount": 980.00, 
             "payment_method": "credit_card",  # 仮の支払い方法
             "status": "paid",  # 仮のステータス
             "payment_date": timezone.now(),
@@ -76,6 +68,20 @@ class PaymentViewSet(viewsets.ModelViewSet):
 class PaidServiceViewSet(viewsets.ModelViewSet):
     queryset = PaidService.objects.all()
     serializer_class = PaidServiceSerializer
+
+    @firebase_token_required
+    def list(self, request, *args, **kwargs):
+        firebase_uid = request.firebase_user['uid']
+        user = CustomUser.objects.filter(firebase_uid=firebase_uid).first()
+
+        if not user:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # 該当ユーザーに紐づくPaidServiceを取得
+        queryset = PaidService.objects.filter(user=user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 
 @csrf_exempt
