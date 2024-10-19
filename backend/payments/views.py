@@ -29,19 +29,35 @@ class PaymentViewSet(viewsets.ModelViewSet):
         
         # ユーザーを取得または作成
         user, created = CustomUser.objects.get_or_create(firebase_uid=firebase_uid)
-        
-        # PaidServiceの作成
+
+        # 既存のPaidServiceを確認
+        existing_service = PaidService.objects.filter(user=user).order_by('-end_date').first()
+    
+        # 既存のサービスがあり、かつ有効期限が過ぎていない場合、そのまま使用
+        if existing_service and existing_service.end_date > timezone.now():
+            return Response({'detail': 'Service is still active.'}, status=status.HTTP_400_BAD_REQUEST)
+
+       # 既存のサービスが有効期限を過ぎている、または作成回数が10回を超えている場合、新しいサービスを作成
         paid_service_data = {
             "user": user,
             "start_date": timezone.now(),
             "end_date": timezone.now() + timezone.timedelta(days=30),
             "status": "active",  # 固定値
             "service_type": "standard",
-            "creation_limit": 10,  # 固定値
-            "books_created": 0,  # 固定値
-            "last_reset_date": timezone.now()  # 固定値
+            "creation_limit": 10,
+            "books_created": 0,
+            "last_reset_date": timezone.now()
         }
-        paid_service = PaidService.objects.create(**paid_service_data)
+
+        if existing_service:
+            # 既存のサービスを更新
+            for key, value in paid_service_data.items():
+                setattr(existing_service, key, value)
+            existing_service.save()
+            paid_service = existing_service
+        else:
+            # 新しいサービスを作成
+            paid_service = PaidService.objects.create(**paid_service_data)
 
         # 支払い情報の仮の値を設定
         payment_data = {

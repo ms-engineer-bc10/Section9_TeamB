@@ -96,7 +96,7 @@ class BookViewSet(viewsets.ModelViewSet):
             task = create_book_task.delay(user.id, child.id)
             logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
 
-            # books_created を1増やして保存
+            # books_created を1増やして保存（絵本の作成が終わってから+1されるのが理想）
             paid_service.books_created += 1
             paid_service.save()
 

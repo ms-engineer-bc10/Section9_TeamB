@@ -205,7 +205,6 @@ export const getPaidServices = async (token: string) => {
     }
 
     const paidServices = await response.json();
-    console.log("Paid services response:", paidServices); // APIレスポンスを確認
     return paidServices;
   } catch (error) {
     console.error("Error fetching paid services:", error);
