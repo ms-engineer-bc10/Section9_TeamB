@@ -96,9 +96,6 @@ class BookViewSet(viewsets.ModelViewSet):
                 task = create_book_task.delay(user.id, child.id)
                 logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
 
-                paid_service.books_created += 1   # 本当は絵本作成の全タスクが終わってから+1されるのが理想
-                paid_service.save()
-
                 return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
             except OperationalError as e:
                 logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
