@@ -20,6 +20,9 @@ export default function BookDownloadPage() {
   const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const [downloadingBookId, setDownloadingBookId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchChildren = async () => {
@@ -60,6 +63,7 @@ export default function BookDownloadPage() {
   const handleDownload = async (bookId: number) => {
     if (user) {
       try {
+        setDownloadingBookId(bookId);
         const token = await user.getIdToken();
         const pdfBlob = await downloadBookPDF(token, bookId);
         const url = window.URL.createObjectURL(pdfBlob);
@@ -71,6 +75,8 @@ export default function BookDownloadPage() {
         window.URL.revokeObjectURL(url);
       } catch (error) {
         console.error("Error downloading PDF:", error);
+      } finally {
+        setDownloadingBookId(null);
       }
     }
   };
@@ -131,10 +137,24 @@ export default function BookDownloadPage() {
                   </div>
                   <button
                     onClick={() => handleDownload(book.id)}
-                    className="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition-colors duration-300 flex items-center font-comic hover:scale-105"
+                    disabled={downloadingBookId === book.id}
+                    className={`bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition-colors duration-300 flex items-center font-comic hover:scale-105 ${
+                      downloadingBookId === book.id
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
                   >
-                    <Download className="mr-2" size={20} />
-                    ダウンロード
+                    {downloadingBookId === book.id ? (
+                      <>
+                        <span className="animate-spin mr-2">&#9696;</span>
+                        ダウンロード中...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="mr-2" size={20} />
+                        ダウンロード
+                      </>
+                    )}
                   </button>
                 </div>
               ))}
