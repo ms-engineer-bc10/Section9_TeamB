@@ -200,7 +200,7 @@ export default function HomePage() {
                         href="/login"
                         className="text-[#FF8C00] text-sm hover:underline"
                       >
-                        登録済みの方はここちらからログイン
+                        登録済みの方はこちらからログイン
                       </Link>
                     </div>
                   </div>
