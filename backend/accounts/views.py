@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 from accounts.models import CustomUser, Child
 from accounts.serializers import CustomUserSerializer, ChildSerializer
-from accounts.utils import verify_firebase_token
+from accounts.decorators import firebase_token_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.exceptions import ValidationError, PermissionDenied
@@ -52,19 +52,9 @@ class ChildViewSet(viewsets.ModelViewSet):
     serializer_class = ChildSerializer
     permission_classes = [AllowAny]  # 一時的に全てのリクエストを許可
 
-
+    @firebase_token_required
     def list(self, request, *args, **kwargs):
-        id_token = request.headers.get('Authorization')
-        
-        if not id_token:
-            return Response({"error": "Authorizationヘッダーがありません"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_info = verify_firebase_token(id_token)
-        
-        if user_info is None:
-            return Response({"error": "Invalid or expired token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        firebase_uid = user_info['uid']
+        firebase_uid = request.firebase_user['uid']
         try:
             user = CustomUser.objects.get(firebase_uid=firebase_uid)
         except CustomUser.DoesNotExist:
@@ -75,18 +65,9 @@ class ChildViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(children, many=True)
         return Response(serializer.data)
 
+    @firebase_token_required
     def create(self, request, *args, **kwargs):
-        id_token = request.headers.get('Authorization')
-        
-        if not id_token:
-            return Response({"error": "Authorizationヘッダーがありません"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_info = verify_firebase_token(id_token)
-        
-        if user_info is None:
-            return Response({"error": "Invalid or expired token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        firebase_uid = user_info['uid']
+        firebase_uid = request.firebase_user['uid']
         user, created = CustomUser.objects.get_or_create(firebase_uid=firebase_uid)
 
         serializer = self.get_serializer(data=request.data)

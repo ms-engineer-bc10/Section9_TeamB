@@ -15,7 +15,9 @@ from accounts.models import Child
 from .models import Book, StoryPrompt
 from .serializers import BookSerializer, StoryPromptSerializer
 from accounts.models import CustomUser
+from accounts.decorators import firebase_token_required
 from accounts.utils import verify_firebase_token
+from payments.models import PaidService
 from .tasks import create_book_task
 
 logger = logging.getLogger('book_creation')
@@ -40,6 +42,35 @@ class BookViewSet(viewsets.ModelViewSet):
             raise ValidationError("User not found")
         return user
 
+    @firebase_token_required
+    def list(self, request, *args, **kwargs):
+        # デコレーターを通して検証されたユーザー情報を取得
+        firebase_uid = request.firebase_user['uid']
+        user = CustomUser.objects.filter(firebase_uid=firebase_uid).first()
+
+        if not user:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # 認証済みのユーザーに関連する本のリストを取得
+        queryset = Book.objects.filter(user=user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @firebase_token_required
+    def retrieve(self, request, *args, **kwargs):
+        firebase_uid = request.firebase_user['uid']
+        user = CustomUser.objects.filter(firebase_uid=firebase_uid).first()
+        
+        if not user:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        book = self.get_object()
+        if book.user != user:
+            raise PermissionDenied("このBookにアクセスする権限がありません。")
+
+        serializer = self.get_serializer(book)
+        return Response(serializer.data)
+
     @action(detail=False, methods=['post'])
     def create_book(self, request):
         user = self.get_user_from_token(request)
@@ -51,16 +82,42 @@ class BookViewSet(viewsets.ModelViewSet):
             logger.error(f"Invalid child ID {child_id}")
             return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
     
-        try:
-            task = create_book_task.delay(user.id, child.id)
-            logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
-            return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
-        except OperationalError as e:
-            logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
-            return Response({"error": "タスクの作成に失敗しました。しばらくしてからもう一度お試しください。"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        except Exception as e:    
-            logger.error(f"予期せぬエラーが発生しました: {str(e)}")
-            return Response({"error": "予期せぬエラーが発生しました。"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # PaidServiceのチェック
+        paid_service = PaidService.objects.filter(user=user).first()
+
+        if paid_service:
+            if paid_service.end_date < timezone.now():
+                return Response({"error": "スタンダードプランの有効期限が切れています"}, status=status.HTTP_403_FORBIDDEN)
+
+            if paid_service.books_created >= paid_service.creation_limit:
+                return Response({"error": "絵本の作成上限に達しました"}, status=status.HTTP_403_FORBIDDEN)
+
+            try:
+                task = create_book_task.delay(user.id, child.id)
+                logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
+
+                return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+            except OperationalError as e:
+                logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
+                return Response({"error": "タスクの作成に失敗しました。しばらくしてからもう一度お試しください。"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            except Exception as e:
+                logger.error(f"予期せぬエラーが発生しました: {str(e)}")
+                return Response({"error": "予期せぬエラーが発生しました。"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # PaidServiceが存在しない場合
+        else:
+            try:
+                task = create_book_task.delay(user.id, child.id)
+                logger.info(f"トライアル絵本作成タスクを開始しました。タスクID: {task.id}")
+            
+                return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+            except OperationalError as e:
+                logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
+                return Response({"error": "タスクの作成に失敗しました。しばらくしてからもう一度お試しください。"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            except Exception as e:
+                logger.error(f"予期せぬエラーが発生しました: {str(e)}")
+                return Response({"error": "予期せぬエラーが発生しました。"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     @action(detail=False, methods=['get'])
     def check_task_status(self, request):
@@ -87,6 +144,7 @@ class BookViewSet(viewsets.ModelViewSet):
             }
         return Response(response)
 
+    @firebase_token_required
     @action(detail=True, methods=['get'])
     def download_pdf(self, request, pk=None):
         try:

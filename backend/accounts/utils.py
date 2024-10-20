@@ -17,7 +17,6 @@ def verify_firebase_token(id_token):
         print(f"受け取ったトークン: {id_token}")
         
         id_token = extract_token(id_token)
-        print(f"'Bearer ' プレフィックス削除後のトークン: {id_token}")
 
         # トークンの検証
         decoded_token = auth.verify_id_token(id_token)

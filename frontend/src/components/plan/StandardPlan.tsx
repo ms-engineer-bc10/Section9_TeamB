@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { getUserBooks } from "@/lib/api";
+import { getUserBooks, getPaidServices } from "@/lib/api";
 import { auth } from "@/lib/firebase";
 import Loading from "@/components/Loading";
 import { useRouter } from "next/navigation";
@@ -11,26 +11,36 @@ const StandardPlan = () => {
   const [hasBooks, setHasBooks] = useState(false);
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [booksCreated, setBooksCreated] = useState(0);
+  const [creationLimit, setCreationLimit] = useState(10);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchBooks = async () => {
+    const fetchData = async () => {
       try {
         const currentUser = auth.currentUser;
         if (currentUser) {
           const token = await currentUser.getIdToken();
+
           const books = await getUserBooks(token);
           setHasBooks(books.length > 0);
           setBooks(books);
+
+          const paidServices = await getPaidServices(token);
+          if (paidServices && paidServices.length > 0) {
+            const serviceData = paidServices[0];
+            setBooksCreated(serviceData.books_created || 0);
+            setCreationLimit(serviceData.creation_limit || 10);
+          }
         }
       } catch (error) {
-        console.error("Failed to fetch user books:", error);
+        console.error("Failed to fetch data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBooks();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -91,7 +101,7 @@ const StandardPlan = () => {
                 </h2>
               </div>
               <p className="text-center text-gray-600 mb-6 font-comic">
-                {books.length}/10 回作成済
+                {booksCreated}/{creationLimit} 回作成済
               </p>
               <button
                 onClick={() => router.push("/children")}

@@ -190,6 +190,28 @@ export const postPayment = async (idToken: string) => {
   }
 };
 
+// PaidServiceをGETするAPIリクエスト
+export const getPaidServices = async (token: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/api/paid-services/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch paid services: ${response.statusText}`);
+    }
+
+    const paidServices = await response.json();
+    return paidServices;
+  } catch (error) {
+    console.error("Error fetching paid services:", error);
+    return null;
+  }
+};
+
 // 会員ステータスの確認リクエスト
 export const fetchMembershipStatus = async (idToken: string) => {
   try {

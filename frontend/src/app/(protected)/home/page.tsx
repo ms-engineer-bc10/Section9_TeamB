@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PenTool, Book, MessageCircle, LogOut, Star } from "lucide-react";
-import { fetchMembershipStatus, getChild } from "@/lib/api";
+import { fetchMembershipStatus, getChild, getPaidServices } from "@/lib/api";
 import { handleLogout } from "@/lib/auth";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -11,15 +11,33 @@ const Home = () => {
   const { user } = useAuth();
   const [membershipStatus, setMembershipStatus] = useState<string | null>(null);
   const [children, setChildren] = useState<any[]>([]);
+  const [booksCreated, setBooksCreated] = useState(0);
+  const [creationLimit, setCreationLimit] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async (token: string) => {
+    const fetchChildrenData = async (token: string) => {
       try {
         const data = await getChild(token);
+        console.log("Children data:", data); // 子ども情報を確認
         setChildren(data);
       } catch (error) {
         console.error("Error fetching children data:", error);
+      }
+    };
+
+    const fetchPaidServicesData = async (token: string) => {
+      try {
+        const paidServices = await getPaidServices(token);
+        console.log("Paid services data:", paidServices); // Paid servicesのレスポンスを確認
+        if (paidServices && paidServices.length > 0) {
+          const serviceData = paidServices[0];
+          setBooksCreated(serviceData.books_created);
+          setCreationLimit(serviceData.creation_limit);
+          console.log("Books Created:", serviceData.books_created); // books_createdの値を確認
+        }
+      } catch (error) {
+        console.error("Error fetching paid services:", error);
       }
     };
 
@@ -29,7 +47,8 @@ const Home = () => {
           const token = await user.getIdToken();
           const membershipData = await fetchMembershipStatus(token);
           setMembershipStatus(membershipData.status);
-          fetchData(token);
+          fetchChildrenData(token); // 子ども情報を取得
+          fetchPaidServicesData(token); // Paid servicesを取得
         }
       } catch (error) {
         console.error("Error fetching token or membership status:", error);
@@ -140,19 +159,23 @@ const Home = () => {
           </h2>
           <div className="flex justify-around items-center">
             <div className="text-center">
-              <div className="text-4xl font-bold text-purple-600">3</div>
+              <div className="text-4xl font-bold text-purple-600">
+                {booksCreated}
+              </div>
               <div className="text-sm text-gray-600">作成済み</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-pink-600">2</div>
+              <div className="text-4xl font-bold text-pink-600">
+                {creationLimit - booksCreated}
+              </div>
               <div className="text-sm text-gray-600">残り</div>
             </div>
             <div className="flex">
-              {[1, 2, 3, 4, 5].map((_, index) => (
+              {[...Array(10)].map((_, index) => (
                 <Star
                   key={index}
                   className={`w-8 h-8 ${
-                    index < 3 ? "text-yellow-400" : "text-gray-300"
+                    index < booksCreated ? "text-yellow-400" : "text-gray-300"
                   }`}
                 />
               ))}

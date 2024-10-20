@@ -15,6 +15,7 @@ from picturebook_generation.story_generator import generate_story, generate_book
 from picturebook_generation.image_generator import generate_images
 from picturebook_generation.pdf_generator import create_storybook_pdf
 from utils.email_sender import send_book_completion_email
+from payments.models import PaidService
 
 logger = logging.getLogger('book_creation')
 
@@ -95,6 +96,12 @@ def create_book_task(self, user_id, child_id):
                 image_url=image_path
             )
         logger.info("データベースへの保存完了")
+        
+        paid_service = PaidService.objects.filter(user_id=user_id).first()
+        if paid_service:
+            paid_service.books_created += 1
+            paid_service.save()
+            logger.info(f"PaidServiceのbooks_createdを更新しました。現在の値: {paid_service.books_created}")
         
         # 一時ファイルの削除
         for path in temp_image_paths:
