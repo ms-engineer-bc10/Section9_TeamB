@@ -83,30 +83,44 @@ class BookViewSet(viewsets.ModelViewSet):
             return Response({"error": "Invalid child ID"}, status=status.HTTP_400_BAD_REQUEST)
     
         # PaidServiceのチェック
-        paid_service = PaidService.objects.filter(user=user, start_date__lte=timezone.now(), end_date__gte=timezone.now(), status='active').first()
-        if not paid_service:
-            return Response({"error": "有効なPaidServiceがありません"}, status=status.HTTP_403_FORBIDDEN)
+        paid_service = PaidService.objects.filter(user=user).first()
 
-        # books_created が creation_limit を超えていないか確認
-        if paid_service.books_created >= paid_service.creation_limit:
-            return Response({"error": "絵本の作成上限に達しました"}, status=status.HTTP_403_FORBIDDEN)
+        if paid_service:
+            if paid_service.end_date < timezone.now():
+                return Response({"error": "スタンダードプランの有効期限が切れています"}, status=status.HTTP_403_FORBIDDEN)
 
-        try:
-            # 絵本作成タスクの開始
-            task = create_book_task.delay(user.id, child.id)
-            logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
+            if paid_service.books_created >= paid_service.creation_limit:
+                return Response({"error": "絵本の作成上限に達しました"}, status=status.HTTP_403_FORBIDDEN)
 
-            # books_created を1増やして保存（絵本の作成が終わってから+1されるのが理想）
-            paid_service.books_created += 1
-            paid_service.save()
+            try:
+                task = create_book_task.delay(user.id, child.id)
+                logger.info(f"絵本作成タスクを開始しました。タスクID: {task.id}")
 
-            return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
-        except OperationalError as e:
-            logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
-            return Response({"error": "タスクの作成に失敗しました。しばらくしてからもう一度お試しください。"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        except Exception as e:    
-            logger.error(f"予期せぬエラーが発生しました: {str(e)}")
-            return Response({"error": "予期せぬエラーが発生しました。"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                paid_service.books_created += 1   # 本当は絵本作成の全タスクが終わってから+1されるのが理想
+                paid_service.save()
+
+                return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+            except OperationalError as e:
+                logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
+                return Response({"error": "タスクの作成に失敗しました。しばらくしてからもう一度お試しください。"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            except Exception as e:
+                logger.error(f"予期せぬエラーが発生しました: {str(e)}")
+                return Response({"error": "予期せぬエラーが発生しました。"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # PaidServiceが存在しない場合
+        else:
+            try:
+                task = create_book_task.delay(user.id, child.id)
+                logger.info(f"トライアル絵本作成タスクを開始しました。タスクID: {task.id}")
+            
+                return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+            except OperationalError as e:
+                logger.error(f"Celeryタスクの作成に失敗しました: {str(e)}")
+                return Response({"error": "タスクの作成に失敗しました。しばらくしてからもう一度お試しください。"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            except Exception as e:
+                logger.error(f"予期せぬエラーが発生しました: {str(e)}")
+                return Response({"error": "予期せぬエラーが発生しました。"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     @action(detail=False, methods=['get'])
     def check_task_status(self, request):
