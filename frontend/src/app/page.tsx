@@ -23,27 +23,21 @@ export default function HomePage() {
   const userVoices = [
     {
       name: "田中さん家族",
-      comment: "クリスマスの楽しさが伝わってきて、子供たちが大喜びでした！家族で読むのが恒例になりそうです。",
-      bookImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-Al78gCdXbEH9yF0gCimL93mmVwgP5K.png",
-      bookTitle: "みんなのドタバタクリスマス！",
-      ageRecommendation: "1〜5歳におすすめ",
-      giftRecommendation: "クリスマスプレゼントに"
+      comment: "子供の誕生日プレゼントに作りました。名前入りの絵本に子供が大喜び！",
+      bookImage:  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-PrEvse0atDddUARolhyFJNkSUXGNiZ.png",
+      bookTitle: "あしたはだれのたんじょうび？"
     },
     {
       name: "佐藤さん家族",
-      comment: "子供の誕生日に合わせて作りました。名前入りの絵本に子供が大喜び！特別な思い出になりました。",
-      bookImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-PrEvse0atDddUARolhyFJNkSUXGNiZ.png",
-      bookTitle: "あしたはだれのたんじょうび？",
-      ageRecommendation: "1〜5歳におすすめ",
-      giftRecommendation: "お誕生日のプレゼントに"
+      comment: "家族の思い出をストーリーにできて、素敵な記念になりました。",
+      bookImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-Al78gCdXbEH9yF0gCimL93mmVwgP5K.png",
+      bookTitle: "みんなのドタバタクリスマス！"
     },
     {
       name: "鈴木さん家族",
-      comment: "想像力豊かなストーリーに子供たちが夢中になっています。寝る前の読み聞かせのお気に入りです。",
+      comment: "兄弟仲良く一緒に読んでいます。想像力が豊かになった気がします。",
       bookImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-c9pN0Rucfp043yNMhNuoM5TnEggxqv.png",
-      bookTitle: "ほしのゆめ",
-      ageRecommendation: "3〜8歳におすすめ",
-      giftRecommendation: "冒険の物語"
+      bookTitle: "ふしぎな森のぼうけん"
     },
   ];
 
@@ -84,7 +78,7 @@ export default function HomePage() {
                   お子さまに家族のストーリーをお話しましょう！
                 </h1>
                 <p className="text-xl mb-8 text-[#444444] font-bold">
-                  養子縁組、里親など複雑な背景をもつお子さまにオリジナルな真実告知ができる絵本サービスです
+                  養子縁組やステップファミリーのお子さまをもつお父さん、お母さん向けの真実告知ができるオリジナル絵本サービスです
                 </p>
                 <div className="flex justify-center items-center mb-8">
                   <Image
@@ -179,22 +173,30 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* StoryTelling セクション */}
-        
-        <section id="storytelling" className="py-16 bg-[#E0F2F1] rounded-3xl mx-4 mt-8">
+         {/* StoryTelling セクション (updated) */}
+         <section id="storytelling" className="py-16 bg-[#E0F2F1] rounded-3xl mx-4 mt-8">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12 text-[#4CAF50]" style={{ fontFamily: "'Caveat', cursive" }}>STORYTELLING</h2>
-            <div className="bg-white p-8 rounded-3xl shadow-lg">
-              <h3 className="text-2xl font-bold mb-4 text-[#8D6E63]">真実告知とは？</h3>
-              <p className="text-[#444444] text-lg font-bold mb-4">
-                
-                真実告知とは、「私は、あなたの本当の親じゃないんだよ」と、伝えることではありません。
-                お子さんに伝えていただきたいことは、「お父さんとお母さんは結婚して、そして子どもがほしいと願った。一生懸命努力したけど、子どもが生まれなかった。
-                それでも子どもの親になりたくて、神様に毎日毎日お願いをしていたら、こんなに可愛いあなたが、私たちの子になってくれたんだよ」と奇跡と愛をお子さんに伝えることです。
+            <h2 className="text-3xl font-bold text-center text-[#4CAF50] mb-10" style={{ fontFamily: "'Caveat', cursive" }}>STORYTELLING</h2>
+            <div className="bg-white rounded-3xl p-8 shadow-lg">
+              <h3 className="text-2xl font-bold mb-6 text-center text-[#8D6E63]">
+                真実告知とは？
+              </h3>
+              <p className="text-[#444444] mb-6 text-center">
+                真実告知とは、「私は、あなたの本当の親じゃないんだよ」と、言うことではありません。お子さんに伝えていただきたいことは、
               </p>
-              <p className="text-[#444444] text-lg font-bold">
-                真実告知を家族の絆をさらに深め愛情を伝えるきっかけに、絵本を通じてサポートしていきたい、私たちのねがいです。
+              <div className="bg-[#FFF3E0] p-6 rounded-lg mb-6">
+                <p className="text-[#8D6E63] italic text-center">
+                  「お父さんとお母さんは結婚して、そして子どもがほしいと願った。一生懸命努力したけど、子どもが生まれなかった。それでも子どもの親になりたくて、神様に毎日毎日お願いをしていたら、こんなに可愛いあなたが、うちの子になってくれたんだよ」
+                </p>
+              </div>
+              <p className="text-[#444444] mb-6 text-center">
+                と<span className="font-semibold text-[#FF8C00]">奇跡</span>をお子さんに伝えることです。
               </p>
+              <div className="border-t-2 border-b-2 border-[#4CAF50] py-4">
+                <p className="text-[#4CAF50] font-semibold text-center">
+                  養子縁組や里親の家族に向けて真実告知のハードルを下げ、自然にできるように絵本を通じて手助けしていけることが私たちのねがいです。
+                </p>
+              </div>
             </div>
           </div>
         </section>
