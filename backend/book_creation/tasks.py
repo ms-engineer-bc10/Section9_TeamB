@@ -5,14 +5,16 @@ from datetime import timedelta
 from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
+from django.core.mail import send_mail
 from PIL import Image
 from io import BytesIO
 
-from accounts.models import Child
+from accounts.models import Child, CustomUser
 from .models import Book, Page
 from picturebook_generation.story_generator import generate_story, generate_book_title
 from picturebook_generation.image_generator import generate_images
 from picturebook_generation.pdf_generator import create_storybook_pdf
+from utils.email_sender import send_book_completion_email
 
 logger = logging.getLogger('book_creation')
 
@@ -109,6 +111,14 @@ def create_book_task(self, user_id, child_id):
         logger.info(f"絵本の生成完了 - 本のID: {book.id}")
         logger.info(f"絵本の生成完了 - 合計時間: {total_time}")
         
+        # メール通知を送信
+        user = CustomUser.objects.get(id=user_id)
+        
+        if send_book_completion_email(user.email, book_title):
+            logger.info(f"メール通知を送信しました。ユーザーID: {user_id}")
+        else:
+            logger.error(f"メール通知の送信に失敗しました。ユーザーID: {user_id}")
+
         return {'book_id': book.id, 'log_info': log_info}
     except Exception as e:
         logger.error(f"絵本作成中にエラーが発生しました: {str(e)}")
