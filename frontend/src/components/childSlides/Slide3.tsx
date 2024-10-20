@@ -11,7 +11,7 @@ export const Slide3 = ({ register }: Slide3Props) => (
       お子さまからどのように呼ばれていますか？
     </label>
     <label className="text-sm text-gray-600">
-      例：ぱぱ、おとうさん、ダディ
+      例：パパ、おとうさん、ダディ
     </label>
     <input
       {...register("fatherTitle")}
@@ -19,7 +19,7 @@ export const Slide3 = ({ register }: Slide3Props) => (
       className="w-full p-2 mb-4 border rounded"
     />
     <label className="text-sm text-gray-600">
-      例：まま、おかあさん、マミー
+      例：ママ、おかあさん、マミー
     </label>
     <input
       {...register("motherTitle")}

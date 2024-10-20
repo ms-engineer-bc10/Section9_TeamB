@@ -10,7 +10,7 @@ export const Slide4 = ({ register }: Slide4Props) => (
     <label className="block mb-2">
       お子さまの好きなもの・ことを教えてください。
     </label>
-    <p className="text-sm text-gray-600">例： 恐竜、おままごと、砂場遊び</p>
+    <p className="text-sm text-gray-600">例： 恐竜、電車、おままごと、ねこ</p>
     <p className="text-sm text-gray-600">
       　　もしかすると、絵本の中に登場するかもしれません！
     </p>
