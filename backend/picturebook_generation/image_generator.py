@@ -22,12 +22,12 @@ def generate_images(story_pages, child, book_title):
     child_age = calculate_age(child.birth_date)
     
     main_character_prompt = f"{child_age}歳の元気で親しみやすい{child.gender}の子どもで、名前は{child.name}です"
-    style_prompt = "温かみのある、カラフルな子ども向け絵本の画像スタイルにしてください。すべての画像でキャラクターのデザインを統一し、キャラクターの髪型や服装も共通にしてください。"
+    style_prompt = "温かみのあるストーリーブックスタイルにしてください。すべての画像でキャラクターのデザインを統一し、キャラクターの髪型や服装も共通にしてください。"
     
     try:
         # 表紙の生成
         cover_prompt = f"""
-        子ども向け絵本『{book_title}』の表紙を作成してください。以下の指示を厳密に守ってください：
+        子ども向けのストーリー『{book_title}』の表紙画像を作成してください。以下の指示を厳密に守ってください：
         1. 画像内に日本語のひらがなで『{book_title}』の文字をタイトルとして表示して入れてください。
         2. {child.name}という名前の{child_age}歳の{child.gender}の子どもを中心に描いてください。
         3. 背景は柔らかく、親しみやすい雰囲気で、絵本らしいデザインにしてください。
@@ -41,7 +41,7 @@ def generate_images(story_pages, child, book_title):
         # ストーリーページの生成
         for i, page_content in enumerate(story_pages, start=1):
             prompt = f"""
-            子ども向け絵本の{i}ページ目のイラストを作成してください。以下の指示を厳密に守ってください：
+            子ども向けの物語に合わせて{i}ページ目のイラストを作成してください。以下の指示を厳密に守ってください：
             1. このページの内容: {page_content}
                このストーリーの内容を視覚的に表現してください。
             2. {main_character_prompt}
