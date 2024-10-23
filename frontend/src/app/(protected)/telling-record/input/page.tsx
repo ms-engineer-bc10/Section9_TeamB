@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { getChild, getUserBooks, createTellingRecord } from "@/lib/api";
@@ -16,13 +15,14 @@ export default function NewTellingRecord() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [childAge, setChildAge] = useState<string>("");
+
   const { user } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState<Omit<TellingRecord, "id" | "user">>({
     child: 0,
     book: null,
-    telling_date: new Date().toISOString().split("T")[0], // 初期値として今日の日付を設定
+    telling_date: new Date().toISOString().split("T")[0], // 初期値として今日の日付をセット
     child_reaction: "",
     notes: null,
   });
@@ -40,15 +40,17 @@ export default function NewTellingRecord() {
         setChildren(childrenData);
         setBooks(booksData);
 
-        // 最初の子どもを選択
+        // 最初の子どもを選択し、年齢を表示
         if (childrenData.length > 0) {
           const today = new Date().toISOString().split("T")[0];
+          const firstChild = childrenData[0];
+
           setFormData((prev) => ({
             ...prev,
-            child: childrenData[0].id,
+            child: firstChild.id,
             telling_date: today,
           }));
-          updateChildAge(childrenData[0].birthDate, today);
+          updateChildAge(firstChild.birthDate, today);
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -60,31 +62,43 @@ export default function NewTellingRecord() {
     fetchData();
   }, [user]);
 
+  // 年齢を計算・表示する関数
   const updateChildAge = (birthDate: string, tellingDate: string) => {
-    const age = calculateAge(birthDate, tellingDate);
-    setChildAge(age);
+    if (birthDate && tellingDate) {
+      const age = calculateAge(new Date(birthDate), new Date(tellingDate));
+      setChildAge(`${age}歳`);
+    } else {
+      setChildAge("");
+    }
   };
 
+  // 子どもを変更する処理
   const handleChildChange = (childId: number) => {
     const selectedChild = children.find((child) => child.id === childId);
+
     setFormData((prev) => ({
       ...prev,
       child: childId,
-      book: null, // 子どもを変更したら絵本選択をリセット
+      book: null, // 子どもが変わったら絵本選択をリセット
     }));
+
     if (selectedChild) {
       updateChildAge(selectedChild.birthDate, formData.telling_date);
     }
   };
 
+  // 告知日を変更する処理
   const handleDateChange = (date: string) => {
     const selectedChild = children.find((child) => child.id === formData.child);
+
     setFormData((prev) => ({ ...prev, telling_date: date }));
+
     if (selectedChild) {
       updateChildAge(selectedChild.birthDate, date);
     }
   };
 
+  // フォームの送信処理
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -102,7 +116,7 @@ export default function NewTellingRecord() {
     }
   };
 
-  // 選択された子どもの絵本のみをフィルタリング
+  // 子どもに関連する絵本のみを表示
   const filteredBooks = books.filter((book) => book.child === formData.child);
 
   if (isLoading) {
@@ -111,7 +125,7 @@ export default function NewTellingRecord() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-200 to-orange-100 py-8 px-4 relative overflow-hidden">
-      {/* Background decorations */}
+      {/* 背景装飾 */}
       <div className="absolute top-10 left-10 w-32 h-32 bg-yellow-300 rounded-full opacity-50 animate-pulse"></div>
       <div className="absolute bottom-20 right-20 w-24 h-24 bg-white rounded-full opacity-50 animate-bounce"></div>
       <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-orange-400 rounded-full opacity-30 animate-float"></div>
@@ -187,35 +201,6 @@ export default function NewTellingRecord() {
                   </option>
                 ))}
               </select>
-            </div>
-
-            <div>
-              <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
-                お子さまの反応
-              </label>
-              <textarea
-                value={formData.child_reaction}
-                onChange={(e) =>
-                  setFormData({ ...formData, child_reaction: e.target.value })
-                }
-                className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg h-32"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
-                メモ
-              </label>
-              <textarea
-                value={formData.notes || ""}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    notes: e.target.value || null,
-                  })
-                }
-                className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg h-32"
-              />
             </div>
 
             <div className="flex justify-end items-center pt-4 gap-4">

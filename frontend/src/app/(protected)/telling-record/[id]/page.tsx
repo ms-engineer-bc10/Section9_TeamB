@@ -53,7 +53,10 @@ export default function TellingRecordDetail({ params }: PageProps) {
 
           if (childData) {
             setChildAge(
-              calculateAge(childData.birthDate, currentRecord.telling_date)
+              `${calculateAge(
+                new Date(childData.birthDate),
+                new Date(currentRecord.telling_date)
+              )}歳`
             );
           }
         }
@@ -106,7 +109,7 @@ export default function TellingRecordDetail({ params }: PageProps) {
     if (!child || !record) return;
 
     setRecord((prev) => ({ ...prev!, telling_date: date }));
-    setChildAge(calculateAge(child.birthDate, date));
+    setChildAge(`${calculateAge(new Date(child.birthDate), new Date(date))}歳`);
   };
 
   // 選択した子どもの絵本のみをフィルタリング

@@ -1,26 +1,20 @@
-// TellingRecord用の年齢計算
-export function calculateAge(birthDate: string, targetDate: string): string {
-  try {
-    const birth = new Date(birthDate);
-    const target = new Date(targetDate);
+// TellingRecord用の年齢を計算する関数
+/**
+ * @param birthDate - 子どもの誕生日
+ * @param notificationDate - 告知日
+ * @returns {number} 年齢
+ */
+export const calculateAge = (
+  birthDate: Date,
+  notificationDate: Date
+): number => {
+  let age = notificationDate.getFullYear() - birthDate.getFullYear();
+  const monthDiff = notificationDate.getMonth() - birthDate.getMonth();
+  const dayDiff = notificationDate.getDate() - birthDate.getDate();
 
-    // 生年月日から年齢を計算
-    let age = target.getFullYear() - birth.getFullYear();
-
-    // 誕生日がまだ来ていない場合は1歳引く
-    const thisYearBirthday = new Date(
-      target.getFullYear(),
-      birth.getMonth(),
-      birth.getDate()
-    );
-
-    if (target < thisYearBirthday) {
-      age--;
-    }
-
-    return age >= 0 ? `${age}歳` : "計算できません";
-  } catch (error) {
-    console.error("Age calculation error:", error, { birthDate, targetDate });
-    return "計算できません";
+  // 告知月が誕生月より前、または同じ月でも告知日が誕生日より前の場合、1歳引く
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age--;
   }
-}
+  return age;
+};
