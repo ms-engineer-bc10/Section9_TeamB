@@ -143,12 +143,12 @@ const Home = () => {
           </Link>
 
           <Link
-            href="/tellingRecord"
+            href="/telling-record"
             className="bg-gradient-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white rounded-2xl p-6 text-center transition-all transform hover:scale-105 hover:rotate-2 shadow-lg"
           >
             <MessageCircle size={64} className="mx-auto mb-4 animate-pulse" />
             <span className="text-2xl font-bold font-comic">
-              子供の反応を記録
+              お子様の反応を記録
             </span>
           </Link>
         </div>
