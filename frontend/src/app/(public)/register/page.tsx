@@ -6,13 +6,11 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
 import { createUserInDjango } from "@/lib/api";
 import { Inputs } from "@/types";
 import Link from "next/link";
 
 const Register: React.FC = () => {
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -42,8 +40,6 @@ const Register: React.FC = () => {
       );
 
       reset();
-
-      router.push("/login");
     } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {
         setError("email", {

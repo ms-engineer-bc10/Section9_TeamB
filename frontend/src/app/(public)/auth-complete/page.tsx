@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { applyActionCode } from "firebase/auth";
+import { applyActionCode, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useAuth } from "@/contexts/AuthContext";
 import Loading from "@/components/Loading";
 
 const AuthCompletePage = () => {
@@ -14,7 +13,6 @@ const AuthCompletePage = () => {
   const searchParams = useSearchParams();
   const oobCode = searchParams.get("oobCode");
   const mode = searchParams.get("mode");
-  const { user } = useAuth();
 
   useEffect(() => {
     if (!oobCode || !mode) {
@@ -25,21 +23,24 @@ const AuthCompletePage = () => {
 
     const handleAction = async () => {
       try {
-        switch (mode) {
-          case "verifyEmail":
-            await applyActionCode(auth, oobCode as string);
-            break;
-          case "resetPassword":
-            router.push("/reset-password?oobCode=" + oobCode);
-            return;
-          default:
-            setError("Unknown action.");
-            setLoading(false);
-            return;
+        if (mode === "verifyEmail") {
+          await applyActionCode(auth, oobCode as string);
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              user.reload().then(() => {
+                if (user.emailVerified) {
+                  setLoading(false);
+                  router.push("/home");
+                } else {
+                  setError("Email not verified yet.");
+                }
+              });
+            }
+          });
+        } else {
+          setError("Unknown action.");
+          setLoading(false);
         }
-
-        setLoading(false);
-        router.push("/home");
       } catch (error) {
         console.error(error);
         setError("Failed to complete action.");
@@ -48,24 +49,24 @@ const AuthCompletePage = () => {
     };
 
     handleAction();
-  }, [oobCode, mode, router]);
+  }, [oobCode, mode, router, auth]);
 
   if (loading) {
     return <Loading />;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <Loading />;
   }
 
   return (
-    <div>
-      <h1>Action Completed</h1>
-      {user ? (
-        <p>Redirecting to the home page...</p>
-      ) : (
-        <p>Authentication is required.</p>
-      )}
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4">
+          メールアドレスを確認しました。
+        </h1>
+        <p className="text-lg">画面が自動的に遷移するまでお待ちください。</p>
+      </div>
     </div>
   );
 };
