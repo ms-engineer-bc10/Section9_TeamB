@@ -5,12 +5,10 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Star,
   Book,
   FileText,
   Baby,
   Lightbulb,
-  Heart,
   Clock,
   ChevronDown,
   ChevronUp,
@@ -116,54 +114,23 @@ export default function HomePage() {
             </div>
             <nav>
               <ul className="flex space-x-6">
-                <li>
-                  <Link
-                    href="#top"
-                    className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-                  >
-                    TOP
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#telling"
-                    className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-                  >
-                    TELLING
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#features"
-                    className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-                  >
-                    FEATURES
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#plan"
-                    className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-                  >
-                    PLAN
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#information"
-                    className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-                  >
-                    INFORMATION
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#contact"
-                    className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-                  >
-                    CONTACT
-                  </Link>
-                </li>
+                {[
+                  { href: "#top", label: "TOP" },
+                  { href: "#telling", label: "TELLING" },
+                  { href: "#features", label: "FEATURES" },
+                  { href: "#plan", label: "PLAN" },
+                  { href: "#information", label: "INFORMATION" },
+                  { href: "#contact", label: "CONTACT" },
+                ].map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className="text-white hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>
@@ -211,8 +178,9 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* (Accordion menu) */}
+                {/* tellingセクション(Accordion menu) */}
                 <button
+                  id="telling"
                   className="w-full flex justify-center items-center text-2xl font-bold text-[#8D6E63] py-4 hover:bg-[#FFF3E0] focus:outline-none  rounded-t-lg transition-colors duration-300"
                   onClick={() => setIsOpen(!isOpen)}
                 >
@@ -324,7 +292,7 @@ export default function HomePage() {
                     📁 PDFで簡単保存
                   </li>
                 </ul>
-                <button className="w-full bg-[#FF8C00] text-white text-xl py-4 px-10 rounded-full hover:bg-[#FF7F00] hover:shadow-2xl transition-colors">
+                <button className="w-full bg-[#FF8C00] text-white text-xl py-4 px-10 rounded-full hover:bg-[#FF7F00] hover:shadow-xl transition-colors">
                   さっそく無料トライ！
                 </button>
               </div>
@@ -364,7 +332,7 @@ export default function HomePage() {
                   </li>
                 </ul>
                 <Link href="http://localhost:3000/register">
-                  <button className="w-full bg-[#FF8C00] text-white text-xl py-4 px-10 rounded-full hover:bg-[#FF7F00] hover:shadow-2xl transition-colors">
+                  <button className="w-full bg-[#FF8C00] text-white text-xl py-4 px-10 rounded-full hover:bg-[#FF7F00] hover:shadow-xl transition-colors">
                     今すぐはじめる
                   </button>
                 </Link>
@@ -556,24 +524,19 @@ export default function HomePage() {
               &copy; 2024 Tellry. All rights reserved.
             </p>
             <div className="mt-4">
-              <Link
-                href="#"
-                className="mx-2 hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-              >
-                Facebook
-              </Link>
-              <Link
-                href="#"
-                className="mx-2 hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-              >
-                Twitter
-              </Link>
-              <Link
-                href="#"
-                className="mx-2 hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
-              >
-                Instagram
-              </Link>
+              {[
+                { name: "Facebook", href: "#" },
+                { name: "Twitter", href: "#" },
+                { name: "Instagram", href: "#" },
+              ].map((item, index) => (
+                <Link
+                  key={index}
+                  href={item.href}
+                  className="mx-2 hover:text-[#FFE4B5] transition-colors duration-200 font-bold"
+                >
+                  {item.name}
+                </Link>
+              ))}
             </div>
           </div>
         </footer>
