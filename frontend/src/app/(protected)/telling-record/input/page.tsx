@@ -22,10 +22,50 @@ export default function NewTellingRecord() {
   const [formData, setFormData] = useState<Omit<TellingRecord, "id" | "user">>({
     child: 0,
     book: null,
-    telling_date: new Date().toISOString().split("T")[0], // 初期値として今日の日付をセット
+    telling_date: new Date().toISOString().split("T")[0],
     child_reaction: "",
     notes: null,
   });
+
+  // 年齢算出
+  const updateChildAge = (
+    birthDate: string | undefined,
+    tellingDate: string
+  ) => {
+    if (!birthDate || !tellingDate) {
+      setChildAge("");
+      return;
+    }
+
+    try {
+      // 日付が有効なYYYY-MM-DD形式であることを確認
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(birthDate) ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(tellingDate)
+      ) {
+        console.error("Invalid date format");
+        setChildAge("");
+        return;
+      }
+
+      // UTC時間として解釈
+      const birthDateObj = new Date(birthDate + "T00:00:00Z");
+      const tellingDateObj = new Date(tellingDate + "T00:00:00Z");
+
+      // 日付が有効かチェック
+      if (isNaN(birthDateObj.getTime()) || isNaN(tellingDateObj.getTime())) {
+        console.error("Invalid date values");
+        setChildAge("");
+        return;
+      }
+
+      const age = calculateAge(birthDateObj, tellingDateObj);
+      setChildAge(`${age}歳`);
+    } catch (error) {
+      console.error("Error calculating age:", error);
+      setChildAge("");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,17 +80,20 @@ export default function NewTellingRecord() {
         setChildren(childrenData);
         setBooks(booksData);
 
-        // 最初の子どもを選択し、年齢を表示
         if (childrenData.length > 0) {
-          const today = new Date().toISOString().split("T")[0];
           const firstChild = childrenData[0];
+          const today = new Date().toISOString().split("T")[0];
 
           setFormData((prev) => ({
             ...prev,
             child: firstChild.id,
             telling_date: today,
           }));
-          updateChildAge(firstChild.birthDate, today);
+
+          // firstChild.birthDateが存在することを確認してから年齢計算
+          if (firstChild.birthDate) {
+            updateChildAge(firstChild.birthDate, today);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -62,16 +105,6 @@ export default function NewTellingRecord() {
     fetchData();
   }, [user]);
 
-  // 年齢を計算・表示する関数
-  const updateChildAge = (birthDate: string, tellingDate: string) => {
-    if (birthDate && tellingDate) {
-      const age = calculateAge(new Date(birthDate), new Date(tellingDate));
-      setChildAge(`${age}歳`);
-    } else {
-      setChildAge("");
-    }
-  };
-
   // 子どもを変更する処理
   const handleChildChange = (childId: number) => {
     const selectedChild = children.find((child) => child.id === childId);
@@ -79,10 +112,10 @@ export default function NewTellingRecord() {
     setFormData((prev) => ({
       ...prev,
       child: childId,
-      book: null, // 子どもが変わったら絵本選択をリセット
+      book: null,
     }));
 
-    if (selectedChild) {
+    if (selectedChild?.birthDate) {
       updateChildAge(selectedChild.birthDate, formData.telling_date);
     }
   };
@@ -93,7 +126,7 @@ export default function NewTellingRecord() {
 
     setFormData((prev) => ({ ...prev, telling_date: date }));
 
-    if (selectedChild) {
+    if (selectedChild?.birthDate) {
       updateChildAge(selectedChild.birthDate, date);
     }
   };
@@ -106,7 +139,15 @@ export default function NewTellingRecord() {
     setIsSaving(true);
     try {
       const token = await user.getIdToken();
-      await createTellingRecord(token, formData);
+      const submitData = {
+        ...formData,
+        // YYYY-MM-DDThh:mm:ss.sssZ 形式に変換
+        telling_date: new Date(formData.telling_date).toISOString(),
+      };
+
+      console.log("Submitting date:", submitData.telling_date); // デバッグ用
+
+      await createTellingRecord(token, submitData);
       router.push("/telling-record");
     } catch (error) {
       console.error("Failed to create record:", error);
@@ -132,7 +173,7 @@ export default function NewTellingRecord() {
 
       <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center text-orange-600 font-comic">
-          真実告知記録の新規登録
+          真実告知をした記録
         </h1>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
@@ -201,6 +242,34 @@ export default function NewTellingRecord() {
                   </option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
+                お子さまの反応
+              </label>
+              <textarea
+                value={formData.child_reaction}
+                onChange={(e) =>
+                  setFormData({ ...formData, child_reaction: e.target.value })
+                }
+                className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg h-32"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
+                メモ
+              </label>
+              <textarea
+                value={formData.notes || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    notes: e.target.value || null,
+                  })
+                }
+                className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg h-32"
+              />
             </div>
 
             <div className="flex justify-end items-center pt-4 gap-4">

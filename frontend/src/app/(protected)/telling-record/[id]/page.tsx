@@ -32,6 +32,45 @@ export default function TellingRecordDetail({ params }: PageProps) {
   const { user } = useAuth();
   const router = useRouter();
 
+  // 年齢を更新する関数
+  const updateChildAge = (
+    birthDate: string | undefined,
+    tellingDate: string
+  ) => {
+    if (!birthDate || !tellingDate) {
+      setChildAge("");
+      return;
+    }
+
+    try {
+      // 両方の日付が有効なYYYY-MM-DD形式であることを確認
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(birthDate) ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(tellingDate)
+      ) {
+        console.error("Invalid date format");
+        setChildAge("");
+        return;
+      }
+
+      const birthDateObj = new Date(birthDate + "T00:00:00Z"); // UTC時間として解釈
+      const tellingDateObj = new Date(tellingDate + "T00:00:00Z"); // UTC時間として解釈
+
+      // 日付が有効かチェック
+      if (isNaN(birthDateObj.getTime()) || isNaN(tellingDateObj.getTime())) {
+        console.error("Invalid date values");
+        setChildAge("");
+        return;
+      }
+
+      const age = calculateAge(birthDateObj, tellingDateObj);
+      setChildAge(`${age}歳`);
+    } catch (error) {
+      console.error("Error calculating age:", error);
+      setChildAge("");
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
@@ -42,8 +81,10 @@ export default function TellingRecordDetail({ params }: PageProps) {
         const currentRecord = records.find(
           (r: TellingRecord) => r.id === Number(params.id)
         );
+
         if (currentRecord) {
           setRecord(currentRecord);
+
           const [childData, booksData] = await Promise.all([
             getChildId(String(currentRecord.child)),
             getUserBooks(token),
@@ -52,12 +93,7 @@ export default function TellingRecordDetail({ params }: PageProps) {
           setBooks(booksData);
 
           if (childData) {
-            setChildAge(
-              `${calculateAge(
-                new Date(childData.birthDate),
-                new Date(currentRecord.telling_date)
-              )}歳`
-            );
+            updateChildAge(childData.birthDate, currentRecord.telling_date);
           }
         }
       } catch (error) {
@@ -70,6 +106,7 @@ export default function TellingRecordDetail({ params }: PageProps) {
     fetchData();
   }, [user, params.id]);
 
+  // 送信時の処理
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !record) return;
@@ -109,7 +146,7 @@ export default function TellingRecordDetail({ params }: PageProps) {
     if (!child || !record) return;
 
     setRecord((prev) => ({ ...prev!, telling_date: date }));
-    setChildAge(`${calculateAge(new Date(child.birthDate), new Date(date))}歳`);
+    updateChildAge(child.birthDate, date);
   };
 
   // 選択した子どもの絵本のみをフィルタリング
@@ -128,7 +165,7 @@ export default function TellingRecordDetail({ params }: PageProps) {
 
       <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center text-orange-600 font-comic">
-          真実告知記録の詳細
+          告知記録の詳細
         </h1>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">

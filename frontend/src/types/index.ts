@@ -86,7 +86,7 @@ export interface TellingRecord {
   user: number;
   child: number;
   book: number | null;
-  telling_date: string;
+  telling_date: string; // "YYYY-MM-DD" 形式の日付
   child_reaction: string;
   notes: string | null;
 }
