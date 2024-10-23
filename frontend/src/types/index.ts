@@ -32,6 +32,8 @@ export const backgroundTypeMap: Record<string, BackgroundType> = {
 };
 
 export interface ChildFormData {
+  id: number;
+  user: number;
   name: string;
   birthDate: string; // "YYYY-MM-DD" 形式の日付
   arrivalDate: string; // "YYYY-MM-DD" 形式の日付
@@ -44,6 +46,8 @@ export interface ChildFormData {
   familyStructure: string;
   fatherTitle: string;
   motherTitle: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // Bookの型定義
