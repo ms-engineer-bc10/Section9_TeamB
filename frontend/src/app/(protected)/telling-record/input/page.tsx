@@ -21,10 +21,10 @@ export default function NewTellingRecord() {
 
   const [formData, setFormData] = useState<Omit<TellingRecord, "id" | "user">>({
     child: 0,
-    book: 0,
-    telling_date: new Date().toISOString().split("T")[0],
+    book: null,
+    telling_date: new Date().toISOString().split("T")[0], // 初期値として今日の日付を設定
     child_reaction: "",
-    notes: "",
+    notes: null,
   });
 
   useEffect(() => {
@@ -42,12 +42,13 @@ export default function NewTellingRecord() {
 
         // 最初の子どもを選択
         if (childrenData.length > 0) {
+          const today = new Date().toISOString().split("T")[0];
           setFormData((prev) => ({
             ...prev,
             child: childrenData[0].id,
-            book: booksData.length > 0 ? booksData[0].id : 0,
+            telling_date: today,
           }));
-          updateChildAge(childrenData[0].birthDate, formData.telling_date);
+          updateChildAge(childrenData[0].birthDate, today);
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -66,7 +67,11 @@ export default function NewTellingRecord() {
 
   const handleChildChange = (childId: number) => {
     const selectedChild = children.find((child) => child.id === childId);
-    setFormData((prev) => ({ ...prev, child: childId }));
+    setFormData((prev) => ({
+      ...prev,
+      child: childId,
+      book: null, // 子どもを変更したら絵本選択をリセット
+    }));
     if (selectedChild) {
       updateChildAge(selectedChild.birthDate, formData.telling_date);
     }
@@ -96,6 +101,9 @@ export default function NewTellingRecord() {
       setIsSaving(false);
     }
   };
+
+  // 選択された子どもの絵本のみをフィルタリング
+  const filteredBooks = books.filter((book) => book.child === formData.child);
 
   if (isLoading) {
     return <Loading />;
@@ -160,17 +168,20 @@ export default function NewTellingRecord() {
 
             <div>
               <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
-                使用した絵本*
+                使用した絵本
               </label>
               <select
-                value={formData.book}
+                value={formData.book || ""}
                 onChange={(e) =>
-                  setFormData({ ...formData, book: Number(e.target.value) })
+                  setFormData({
+                    ...formData,
+                    book: e.target.value ? Number(e.target.value) : null,
+                  })
                 }
-                required
                 className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg"
               >
-                {books.map((book) => (
+                <option value="">選択してください</option>
+                {filteredBooks.map((book) => (
                   <option key={book.id} value={book.id}>
                     {book.title}
                   </option>
@@ -196,9 +207,12 @@ export default function NewTellingRecord() {
                 メモ
               </label>
               <textarea
-                value={formData.notes}
+                value={formData.notes || ""}
                 onChange={(e) =>
-                  setFormData({ ...formData, notes: e.target.value })
+                  setFormData({
+                    ...formData,
+                    notes: e.target.value || null,
+                  })
                 }
                 className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg h-32"
               />

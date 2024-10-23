@@ -85,8 +85,8 @@ export interface TellingRecord {
   id: number;
   user: number;
   child: number;
-  book: number;
+  book: number | null;
   telling_date: string;
   child_reaction: string;
-  notes: string;
+  notes: string | null;
 }

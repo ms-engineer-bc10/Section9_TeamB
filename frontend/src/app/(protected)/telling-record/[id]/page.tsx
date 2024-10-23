@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +28,7 @@ export default function TellingRecordDetail({ params }: PageProps) {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [childAge, setChildAge] = useState<string>("");
   const { user } = useAuth();
   const router = useRouter();
 
@@ -48,6 +50,12 @@ export default function TellingRecordDetail({ params }: PageProps) {
           ]);
           setChild(childData);
           setBooks(booksData);
+
+          if (childData) {
+            setChildAge(
+              calculateAge(childData.birthDate, currentRecord.telling_date)
+            );
+          }
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -94,11 +102,19 @@ export default function TellingRecordDetail({ params }: PageProps) {
     }
   };
 
+  const handleDateChange = (date: string) => {
+    if (!child || !record) return;
+
+    setRecord((prev) => ({ ...prev!, telling_date: date }));
+    setChildAge(calculateAge(child.birthDate, date));
+  };
+
+  // 選択した子どもの絵本のみをフィルタリング
+  const filteredBooks = books.filter((book) => book.child === record?.child);
+
   if (isLoading || !child || !record) {
     return <Loading />;
   }
-
-  const childAge = calculateAge(child.birthDate, record.telling_date);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-200 to-orange-100 py-8 px-4 relative overflow-hidden">
@@ -133,9 +149,7 @@ export default function TellingRecordDetail({ params }: PageProps) {
               <input
                 type="date"
                 value={record.telling_date}
-                onChange={(e) =>
-                  setRecord({ ...record, telling_date: e.target.value })
-                }
+                onChange={(e) => handleDateChange(e.target.value)}
                 required
                 className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg"
               />
@@ -155,17 +169,20 @@ export default function TellingRecordDetail({ params }: PageProps) {
 
             <div>
               <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
-                使用した絵本*
+                使用した絵本
               </label>
               <select
-                value={record.book}
+                value={record.book || ""}
                 onChange={(e) =>
-                  setRecord({ ...record, book: Number(e.target.value) })
+                  setRecord({
+                    ...record,
+                    book: e.target.value ? Number(e.target.value) : null,
+                  })
                 }
-                required
                 className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg"
               >
-                {books.map((book) => (
+                <option value="">選択してください</option>
+                {filteredBooks.map((book) => (
                   <option key={book.id} value={book.id}>
                     {book.title}
                   </option>
@@ -191,9 +208,12 @@ export default function TellingRecordDetail({ params }: PageProps) {
                 メモ
               </label>
               <textarea
-                value={record.notes}
+                value={record.notes || ""}
                 onChange={(e) =>
-                  setRecord({ ...record, notes: e.target.value })
+                  setRecord({
+                    ...record,
+                    notes: e.target.value || null,
+                  })
                 }
                 className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg h-32"
               />

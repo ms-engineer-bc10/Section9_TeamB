@@ -48,7 +48,8 @@ export default function TellingRecordPage() {
     return child?.name || "Unknown";
   };
 
-  const getBookTitle = (bookId: number) => {
+  const getBookTitle = (bookId: number | null) => {
+    if (!bookId) return "未選択";
     const book = books.find((b) => b.id === bookId);
     return book?.title || "Unknown";
   };
@@ -76,7 +77,7 @@ export default function TellingRecordPage() {
 
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-center text-orange-600 font-comic">
-          真実告知記録
+          真実告知の記録
         </h1>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
