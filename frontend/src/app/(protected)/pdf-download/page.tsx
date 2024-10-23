@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Book, Download, Home } from "lucide-react";
 import { Book as BookType } from "@/types";
 import Loading from "@/components/Loading";
+import Button from "@/components/Button";
 
 interface Child {
   id: number;
@@ -163,13 +164,10 @@ export default function BookDownloadPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <button
-            onClick={() => router.push("/home")}
-            className="bg-white text-orange-600 px-6 py-3 rounded-full hover:bg-orange-100 focus:outline-none shadow-md transition-all transform hover:scale-105 font-comic text-lg inline-flex items-center"
-          >
+          <Button onClick={() => router.push("/home")}>
             <Home className="mr-2" size={20} />
             ホームに戻る
-          </button>
+          </Button>
         </div>
       </div>
     </div>

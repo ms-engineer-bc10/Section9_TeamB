@@ -6,6 +6,7 @@ import { getChild } from "@/lib/api";
 import Link from "next/link";
 import { Book, Home, Star } from "lucide-react";
 import Loading from "@/components/Loading";
+import Button from "@/components/Button";
 
 const Page = () => {
   const router = useRouter();
@@ -79,13 +80,10 @@ const Page = () => {
           </div>
 
           <div className="mt-8 text-center">
-            <button
-              onClick={() => router.push("/home")}
-              className="bg-white text-orange-600 px-6 py-3 rounded-full hover:bg-orange-100 focus:outline-none shadow-md transition-all transform hover:scale-105 font-comic text-lg inline-flex items-center"
-            >
+            <Button onClick={() => router.push("/home")}>
               <Home className="mr-2" size={20} />
               ホームに戻る
-            </button>
+            </Button>
           </div>
         </div>
       </div>
