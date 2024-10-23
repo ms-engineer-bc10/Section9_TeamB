@@ -75,3 +75,14 @@ export interface Page {
   content: string;
   image_url: string;
 }
+
+// Telling-recordの型定義
+export interface TellingRecord {
+  id: number;
+  user: number;
+  child: number;
+  book: number;
+  telling_date: string;
+  child_reaction: string;
+  notes: string;
+}
