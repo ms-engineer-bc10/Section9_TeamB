@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { getTellingRecords, getChild, getUserBooks } from "@/lib/api";
 import { ChildFormData, TellingRecord, Book } from "@/types";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Home } from "lucide-react";
 import { calculateAge } from "@/utils/dateFormat";
 import Loading from "@/components/Loading";
 
@@ -120,7 +120,7 @@ export default function TellingRecordPage() {
                     告知日
                   </th>
                   <th className="px-4 py-3 text-left font-comic text-orange-600">
-                    年齢
+                    告知した時の年齢
                   </th>
                   <th className="px-4 py-3 text-left font-comic text-orange-600">
                     使用した絵本
@@ -161,6 +161,17 @@ export default function TellingRecordPage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* ホームに戻るボタン */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => router.push("/home")}
+            className="bg-white text-orange-600 px-6 py-3 rounded-full hover:bg-orange-100 focus:outline-none shadow-md transition-all transform hover:scale-105 font-comic text-lg inline-flex items-center"
+          >
+            <Home className="mr-2" size={20} />
+            ホームに戻る
+          </button>
         </div>
       </div>
     </div>
