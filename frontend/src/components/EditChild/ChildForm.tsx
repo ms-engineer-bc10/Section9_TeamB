@@ -165,7 +165,7 @@ export default function ChildForm({
               {currentBackground.originLabel}
             </label>
             <p className="text-sm text-gray-500 mt-2">
-              例: {currentBackground.originExample}
+              {currentBackground.originExample}
             </p>
             <textarea
               name="origin_background"
@@ -177,7 +177,7 @@ export default function ChildForm({
           <div>
             <label className="block mb-2">{currentBackground.careLabel}</label>
             <p className="text-sm text-gray-500 mt-2">
-              例: {currentBackground.careExample}
+              {currentBackground.careExample}
             </p>
             <textarea
               name="care_background"

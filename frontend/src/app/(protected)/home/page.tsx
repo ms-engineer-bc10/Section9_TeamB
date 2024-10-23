@@ -19,7 +19,6 @@ const Home = () => {
     const fetchChildrenData = async (token: string) => {
       try {
         const data = await getChild(token);
-        console.log("Children data:", data); // 子ども情報を確認
         setChildren(data);
       } catch (error) {
         console.error("Error fetching children data:", error);
@@ -29,12 +28,10 @@ const Home = () => {
     const fetchPaidServicesData = async (token: string) => {
       try {
         const paidServices = await getPaidServices(token);
-        console.log("Paid services data:", paidServices); // Paid servicesのレスポンスを確認
         if (paidServices && paidServices.length > 0) {
           const serviceData = paidServices[0];
           setBooksCreated(serviceData.books_created);
           setCreationLimit(serviceData.creation_limit);
-          console.log("Books Created:", serviceData.books_created); // books_createdの値を確認
         }
       } catch (error) {
         console.error("Error fetching paid services:", error);
@@ -72,9 +69,9 @@ const Home = () => {
           </span>
           <button
             onClick={() => handleLogout(router)}
-            className="bg-orange-600 text-white p-3 rounded-full hover:bg-orange-700 transition-transform transform hover:scale-110 shadow-lg"
+            className="bg-orange-600 text-white p-3 rounded-full hover:bg-orange-700 transition-transform transform hover:scale-110 shadow-lg flex items-center space-x-2"
           >
-            <LogOut size={20} />
+            <span>ログアウト</span> <LogOut size={20} />
           </button>
         </div>
       </header>
