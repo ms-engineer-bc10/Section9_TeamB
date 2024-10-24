@@ -7,14 +7,12 @@ import { getChild, getUserBooks, createTellingRecord } from "@/lib/api";
 import { Book, ChildFormData, TellingRecord } from "@/types";
 import { Home, Save } from "lucide-react";
 import Loading from "@/components/Loading";
-import { calculateAge } from "@/utils/dateFormat";
 
 export default function NewTellingRecord() {
   const [children, setChildren] = useState<ChildFormData[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [childAge, setChildAge] = useState<string>("");
 
   const { user } = useAuth();
   const router = useRouter();
@@ -26,25 +24,6 @@ export default function NewTellingRecord() {
     child_reaction: "",
     notes: null,
   });
-
-  // 年齢計算関数
-  const updateChildAge = (
-    birthDate: string | undefined,
-    tellingDate: string
-  ) => {
-    if (!birthDate || !tellingDate) {
-      setChildAge("");
-      return;
-    }
-
-    try {
-      const age = calculateAge(birthDate, tellingDate);
-      setChildAge(age > 0 ? `${age}歳` : "");
-    } catch (error) {
-      console.error("Error calculating age:", error);
-      setChildAge("");
-    }
-  };
 
   // 初期データの取得
   useEffect(() => {
@@ -69,10 +48,6 @@ export default function NewTellingRecord() {
             child: firstChild.id,
             telling_date: today,
           }));
-
-          if (firstChild.birthDate) {
-            updateChildAge(firstChild.birthDate, today);
-          }
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -86,27 +61,16 @@ export default function NewTellingRecord() {
 
   // 子ども選択変更時の処理
   const handleChildChange = (childId: number) => {
-    const selectedChild = children.find((child) => child.id === childId);
-
     setFormData((prev) => ({
       ...prev,
       child: childId,
       book: null,
     }));
-
-    if (selectedChild?.birthDate) {
-      updateChildAge(selectedChild.birthDate, formData.telling_date);
-    }
   };
 
   // 告知日変更時の処理
   const handleDateChange = (date: string) => {
-    const selectedChild = children.find((child) => child.id === formData.child);
     setFormData((prev) => ({ ...prev, telling_date: date }));
-
-    if (selectedChild?.birthDate) {
-      updateChildAge(selectedChild.birthDate, date);
-    }
   };
 
   // フォーム送信処理
@@ -182,18 +146,6 @@ export default function NewTellingRecord() {
                 onChange={(e) => handleDateChange(e.target.value)}
                 required
                 className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
-                告知時の年齢
-              </label>
-              <input
-                type="text"
-                value={childAge}
-                disabled
-                className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm font-comic text-lg opacity-75"
               />
             </div>
 

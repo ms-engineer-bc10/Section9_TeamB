@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getTellingRecords, getChild, getUserBooks } from "@/lib/api";
 import { ChildFormData, TellingRecord, Book } from "@/types";
 import { Plus, Edit, Home } from "lucide-react";
-import { calculateAge } from "@/utils/dateFormat";
 import Loading from "@/components/Loading";
 
 export default function TellingRecordPage() {
@@ -52,12 +51,6 @@ export default function TellingRecordPage() {
     if (!bookId) return "未選択";
     const book = books.find((b) => b.id === bookId);
     return book?.title || "Unknown";
-  };
-
-  const getChildAge = (childId: number, tellingDate: string) => {
-    const child = children.find((c) => c.id === childId);
-    if (!child?.birthDate) return "Unknown";
-    return calculateAge(child.birthDate, tellingDate);
   };
 
   const filteredRecords = selectedChildId
@@ -120,13 +113,10 @@ export default function TellingRecordPage() {
                     告知日
                   </th>
                   <th className="px-4 py-3 text-left font-comic text-orange-600">
-                    告知した時の年齢
-                  </th>
-                  <th className="px-4 py-3 text-left font-comic text-orange-600">
                     使用した絵本
                   </th>
                   <th className="px-4 py-3 text-right font-comic text-orange-600">
-                    詳細
+                    記録の詳細
                   </th>
                 </tr>
               </thead>
@@ -138,9 +128,6 @@ export default function TellingRecordPage() {
                   >
                     <td className="px-4 py-4 font-comic">
                       {new Date(record.telling_date).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-4 font-comic">
-                      {getChildAge(record.child, record.telling_date)}
                     </td>
                     <td className="px-4 py-4 font-comic">
                       {getBookTitle(record.book)}

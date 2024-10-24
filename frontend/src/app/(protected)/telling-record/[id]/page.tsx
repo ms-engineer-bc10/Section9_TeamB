@@ -12,7 +12,6 @@ import {
   deleteTellingRecord,
 } from "@/lib/api";
 import { Book, ChildFormData, TellingRecord } from "@/types";
-import { calculateAge } from "@/utils/dateFormat";
 import { Home, Save, Trash } from "lucide-react";
 import Loading from "@/components/Loading";
 
@@ -28,24 +27,8 @@ export default function TellingRecordDetail({ params }: PageProps) {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [childAge, setChildAge] = useState<string>("");
   const { user } = useAuth();
   const router = useRouter();
-
-  // 年齢を更新する関数
-  const updateChildAge = (birthDate: string, tellingDate: string) => {
-    if (!birthDate || !tellingDate) {
-      setChildAge("");
-      return;
-    }
-
-    const age = calculateAge(birthDate, tellingDate);
-    if (age > 0) {
-      setChildAge(`${age}歳`);
-    } else {
-      setChildAge("");
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,10 +57,6 @@ export default function TellingRecordDetail({ params }: PageProps) {
           ]);
           setChild(childData);
           setBooks(booksData);
-
-          if (childData && childData.birthDate && telling_date) {
-            updateChildAge(childData.birthDate, telling_date);
-          }
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -89,7 +68,6 @@ export default function TellingRecordDetail({ params }: PageProps) {
     fetchData();
   }, [user, params.id]);
 
-  // 送信時の処理
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !record) return;
@@ -126,13 +104,11 @@ export default function TellingRecordDetail({ params }: PageProps) {
   };
 
   const handleDateChange = (date: string) => {
-    if (!child || !record) return;
+    if (!record) return;
 
     setRecord((prev) => ({ ...prev!, telling_date: date }));
-    updateChildAge(child.birthDate, date);
   };
 
-  // 選択した子どもの絵本のみをフィルタリング
   const filteredBooks = books.filter((book) => book.child === record?.child);
 
   if (isLoading || !child || !record) {
@@ -175,18 +151,6 @@ export default function TellingRecordDetail({ params }: PageProps) {
                 onChange={(e) => handleDateChange(e.target.value)}
                 required
                 className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
-                告知時の年齢
-              </label>
-              <input
-                type="text"
-                value={childAge}
-                disabled
-                className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm font-comic text-lg opacity-75"
               />
             </div>
 
