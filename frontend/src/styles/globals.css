@@ -40,6 +40,16 @@ body {
   }
 }
 
+@keyframes wiggle-lp {
+  0%,
+  100% {
+    transform: rotate(10deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
+}
+
 @keyframes bounce {
   0%,
   100% {
@@ -56,6 +66,10 @@ body {
 
 .animate-wiggle {
   animation: wiggle 1s ease-in-out infinite;
+}
+
+.animate-wiggle-lp {
+  animation: wiggle-lp 1s ease-in-out infinite;
 }
 
 .animate-bounce {
