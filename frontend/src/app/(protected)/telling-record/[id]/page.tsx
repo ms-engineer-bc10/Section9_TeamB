@@ -33,40 +33,16 @@ export default function TellingRecordDetail({ params }: PageProps) {
   const router = useRouter();
 
   // 年齢を更新する関数
-  const updateChildAge = (
-    birthDate: string | undefined,
-    tellingDate: string
-  ) => {
+  const updateChildAge = (birthDate: string, tellingDate: string) => {
     if (!birthDate || !tellingDate) {
       setChildAge("");
       return;
     }
 
-    try {
-      // 両方の日付が有効なYYYY-MM-DD形式であることを確認
-      if (
-        !/^\d{4}-\d{2}-\d{2}$/.test(birthDate) ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(tellingDate)
-      ) {
-        console.error("Invalid date format");
-        setChildAge("");
-        return;
-      }
-
-      const birthDateObj = new Date(birthDate + "T00:00:00Z"); // UTC時間として解釈
-      const tellingDateObj = new Date(tellingDate + "T00:00:00Z"); // UTC時間として解釈
-
-      // 日付が有効かチェック
-      if (isNaN(birthDateObj.getTime()) || isNaN(tellingDateObj.getTime())) {
-        console.error("Invalid date values");
-        setChildAge("");
-        return;
-      }
-
-      const age = calculateAge(birthDateObj, tellingDateObj);
+    const age = calculateAge(birthDate, tellingDate);
+    if (age > 0) {
       setChildAge(`${age}歳`);
-    } catch (error) {
-      console.error("Error calculating age:", error);
+    } else {
       setChildAge("");
     }
   };
@@ -83,7 +59,14 @@ export default function TellingRecordDetail({ params }: PageProps) {
         );
 
         if (currentRecord) {
-          setRecord(currentRecord);
+          const telling_date = currentRecord.telling_date
+            ? currentRecord.telling_date.split("T")[0] // "T"以降を削除
+            : "";
+
+          setRecord({
+            ...currentRecord,
+            telling_date,
+          });
 
           const [childData, booksData] = await Promise.all([
             getChildId(String(currentRecord.child)),
@@ -92,8 +75,8 @@ export default function TellingRecordDetail({ params }: PageProps) {
           setChild(childData);
           setBooks(booksData);
 
-          if (childData) {
-            updateChildAge(childData.birthDate, currentRecord.telling_date);
+          if (childData && childData.birthDate && telling_date) {
+            updateChildAge(childData.birthDate, telling_date);
           }
         }
       } catch (error) {

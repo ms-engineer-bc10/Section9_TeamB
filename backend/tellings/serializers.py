@@ -1,6 +1,8 @@
+import datetime
 from rest_framework import serializers
 from .models import TellingRecord, TellingReminder
 
+# serializers.py
 class TellingRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = TellingRecord
@@ -18,13 +20,10 @@ class TellingRecordSerializer(serializers.ModelSerializer):
         """日付のバリデーションと変換"""
         if isinstance(value, str):
             try:
-                from datetime import datetime
-                from django.utils import timezone
-                # ISO形式の文字列をパースしてUTCとして解釈
-                parsed_date = datetime.fromisoformat(value.replace('Z', '+00:00'))
-                return timezone.make_aware(parsed_date)
+                # YYYY-MM-DD形式の文字列をパース
+                return datetime.strptime(value, '%Y-%m-%d').date()
             except ValueError as e:
-                raise serializers.ValidationError(f"Invalid date format: {str(e)}")
+                raise serializers.ValidationError(f"Invalid date format. Use YYYY-MM-DD: {str(e)}")
         return value
 
 class TellingReminderSerializer(serializers.ModelSerializer):

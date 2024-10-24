@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { getChild, getUserBooks, createTellingRecord } from "@/lib/api";
 import { Book, ChildFormData, TellingRecord } from "@/types";
-import { calculateAge } from "@/utils/dateFormat";
 import { Home, Save } from "lucide-react";
 import Loading from "@/components/Loading";
+import { calculateAge } from "@/utils/dateFormat";
 
 export default function NewTellingRecord() {
   const [children, setChildren] = useState<ChildFormData[]>([]);
@@ -27,7 +27,7 @@ export default function NewTellingRecord() {
     notes: null,
   });
 
-  // 年齢算出
+  // 年齢計算関数
   const updateChildAge = (
     birthDate: string | undefined,
     tellingDate: string
@@ -38,35 +38,15 @@ export default function NewTellingRecord() {
     }
 
     try {
-      // 日付が有効なYYYY-MM-DD形式であることを確認
-      if (
-        !/^\d{4}-\d{2}-\d{2}$/.test(birthDate) ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(tellingDate)
-      ) {
-        console.error("Invalid date format");
-        setChildAge("");
-        return;
-      }
-
-      // UTC時間として解釈
-      const birthDateObj = new Date(birthDate + "T00:00:00Z");
-      const tellingDateObj = new Date(tellingDate + "T00:00:00Z");
-
-      // 日付が有効かチェック
-      if (isNaN(birthDateObj.getTime()) || isNaN(tellingDateObj.getTime())) {
-        console.error("Invalid date values");
-        setChildAge("");
-        return;
-      }
-
-      const age = calculateAge(birthDateObj, tellingDateObj);
-      setChildAge(`${age}歳`);
+      const age = calculateAge(birthDate, tellingDate);
+      setChildAge(age > 0 ? `${age}歳` : "");
     } catch (error) {
       console.error("Error calculating age:", error);
       setChildAge("");
     }
   };
 
+  // 初期データの取得
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
@@ -90,7 +70,6 @@ export default function NewTellingRecord() {
             telling_date: today,
           }));
 
-          // firstChild.birthDateが存在することを確認してから年齢計算
           if (firstChild.birthDate) {
             updateChildAge(firstChild.birthDate, today);
           }
@@ -105,7 +84,7 @@ export default function NewTellingRecord() {
     fetchData();
   }, [user]);
 
-  // 子どもを変更する処理
+  // 子ども選択変更時の処理
   const handleChildChange = (childId: number) => {
     const selectedChild = children.find((child) => child.id === childId);
 
@@ -120,10 +99,9 @@ export default function NewTellingRecord() {
     }
   };
 
-  // 告知日を変更する処理
+  // 告知日変更時の処理
   const handleDateChange = (date: string) => {
     const selectedChild = children.find((child) => child.id === formData.child);
-
     setFormData((prev) => ({ ...prev, telling_date: date }));
 
     if (selectedChild?.birthDate) {
@@ -131,7 +109,7 @@ export default function NewTellingRecord() {
     }
   };
 
-  // フォームの送信処理
+  // フォーム送信処理
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -139,13 +117,11 @@ export default function NewTellingRecord() {
     setIsSaving(true);
     try {
       const token = await user.getIdToken();
+      // 日付をそのままYYYY-MM-DD形式で送信
       const submitData = {
         ...formData,
-        // YYYY-MM-DDThh:mm:ss.sssZ 形式に変換
-        telling_date: new Date(formData.telling_date).toISOString(),
+        telling_date: formData.telling_date,
       };
-
-      console.log("Submitting date:", submitData.telling_date); // デバッグ用
 
       await createTellingRecord(token, submitData);
       router.push("/telling-record");
@@ -157,7 +133,7 @@ export default function NewTellingRecord() {
     }
   };
 
-  // 子どもに関連する絵本のみを表示
+  // 選択された子どもの絵本のみをフィルタリング
   const filteredBooks = books.filter((book) => book.child === formData.child);
 
   if (isLoading) {
@@ -243,15 +219,17 @@ export default function NewTellingRecord() {
                 ))}
               </select>
             </div>
+
             <div>
               <label className="block text-xl font-medium text-orange-600 mb-2 font-comic">
-                お子さまの反応
+                お子さまの反応*
               </label>
               <textarea
                 value={formData.child_reaction}
                 onChange={(e) =>
                   setFormData({ ...formData, child_reaction: e.target.value })
                 }
+                required
                 className="w-full py-3 px-4 border-2 border-orange-300 bg-orange-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 font-comic text-lg h-32"
               />
             </div>
