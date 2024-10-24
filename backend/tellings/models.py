@@ -6,7 +6,7 @@ class TellingRecord(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='telling_records')
     child = models.ForeignKey('accounts.Child', on_delete=models.CASCADE)
     book = models.ForeignKey('book_creation.Book', on_delete=models.CASCADE, related_name='telling_records')
-    telling_date = models.DateTimeField()
+    telling_date = models.DateField()
     child_reaction = models.TextField()
     notes = models.TextField()
 
