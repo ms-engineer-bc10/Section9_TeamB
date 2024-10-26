@@ -1,13 +1,18 @@
-import { UseFormRegister } from "react-hook-form";
+import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { ChildFormData } from "@/types/index";
 import { backgroundLabels } from "@/lib/backgroundLabels"; // backgroundLabelsをインポート
 
 interface Slide7Props {
   register: UseFormRegister<ChildFormData>;
+  errors: FieldErrors<ChildFormData>;
   selectedBackgroundType: string;
 }
 
-export const Slide7 = ({ register, selectedBackgroundType }: Slide7Props) => {
+export const Slide7 = ({
+  register,
+  errors,
+  selectedBackgroundType,
+}: Slide7Props) => {
   const selectedLabels = backgroundLabels[selectedBackgroundType] || {
     careLabel: "ご家族になった背景を教えてください",
     careExample: "",
@@ -20,6 +25,11 @@ export const Slide7 = ({ register, selectedBackgroundType }: Slide7Props) => {
         {...register("careBackground")}
         className="w-full p-2 mb-4 border rounded h-36"
       ></textarea>
+      {errors.careBackground && (
+        <p className="text-red-500 text-sm mb-4">
+          {errors.careBackground.message}
+        </p>
+      )}
       {selectedLabels.careExample && (
         <p className="text-sm text-gray-600">{selectedLabels.careExample}</p>
       )}

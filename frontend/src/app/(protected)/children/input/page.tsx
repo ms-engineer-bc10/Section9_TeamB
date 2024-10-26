@@ -20,7 +20,14 @@ import { ChevronLeft, ChevronRight, Home, Send, Sparkles } from "lucide-react";
 const TOTAL_STEPS = 8;
 
 const ChildInfoForm = () => {
-  const { register, handleSubmit, watch } = useForm<ChildFormData>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm<ChildFormData>({
     defaultValues: { gender: "no_answer" },
   });
   const [step, setStep] = useState(1);
@@ -28,13 +35,13 @@ const ChildInfoForm = () => {
   const swiperRef = useRef<any>(null);
   const selectedBackgroundType = watch("backgroundType");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const { user } = useAuth();
 
   const onSubmit = async (data: ChildFormData) => {
     setIsLoading(true);
-    setError(null);
+    setServerError(null);
     setMessage(null);
 
     try {
@@ -74,12 +81,62 @@ const ChildInfoForm = () => {
       }, 5000);
     } catch (error) {
       console.error("APIリクエスト中にエラーが発生しました:", error);
-      setError(
+      setServerError(
         error instanceof Error ? error.message : "予期せぬエラーが発生しました"
       );
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleNext = () => {
+    if (!isValid()) return;
+    nextStep(swiperRef, step, setStep);
+  };
+
+  const isValid = () => {
+    let isValid = true;
+
+    if (step == 1) {
+      /* step1の時のバリデーション */
+      // nameのバリデーション
+      if (watch().name === "") {
+        setError("name", { message: "名前は必須です" });
+        isValid = false;
+      } else if (
+        /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watch().name)
+      ) {
+        setError("name", {
+          message: "アルファベット・記号を入れることができません",
+        });
+        isValid = false;
+      } else {
+        clearErrors("name");
+      }
+      // birthDateのバリデーション
+      if (watch().birthDate === "") {
+        setError("birthDate", { message: "お誕生日は必須です" });
+        isValid = false;
+      } else if (new Date(watch().birthDate) >= new Date()) {
+        setError("birthDate", { message: "今日以前の日付にしてください" });
+        isValid = false;
+      } else {
+        clearErrors("birthDate");
+      }
+    } else if (step == 2) {
+      /* TODO step2の時のバリデーション */
+    } else if (step == 3) {
+      /* TODO step3の時のバリデーション */
+    } else if (step == 4) {
+      /* TODO step4の時のバリデーション */
+    } else if (step == 5) {
+      /* TODO step5の時のバリデーション */
+    } else if (step == 6) {
+      /* TODO step6の時のバリデーション */
+    } else if (step == 7) {
+      /* TODO step7の時のバリデーション */
+    }
+    return isValid;
   };
 
   return (
@@ -116,33 +173,36 @@ const ChildInfoForm = () => {
               onSlideChange={(swiper) => setStep(swiper.activeIndex + 1)}
             >
               <SwiperSlide>
-                <Slide1 register={register} />
+                <Slide1 register={register} errors={errors} />
               </SwiperSlide>
               <SwiperSlide>
-                <Slide2 register={register} />
+                <Slide2 register={register} errors={errors} />
               </SwiperSlide>
               <SwiperSlide>
-                <Slide3 register={register} />
+                <Slide3 register={register} errors={errors} />
               </SwiperSlide>
               <SwiperSlide>
-                <Slide4 register={register} />
+                <Slide4 register={register} errors={errors} />
               </SwiperSlide>
               <SwiperSlide>
                 <Slide5
                   register={register}
                   selectedBackgroundType={selectedBackgroundType}
+                  errors={errors}
                 />
               </SwiperSlide>
               <SwiperSlide>
                 <Slide6
                   register={register}
                   selectedBackgroundType={selectedBackgroundType}
+                  errors={errors}
                 />
               </SwiperSlide>
               <SwiperSlide>
                 <Slide7
                   register={register}
                   selectedBackgroundType={selectedBackgroundType}
+                  errors={errors}
                 />
               </SwiperSlide>
               <SwiperSlide>
@@ -172,8 +232,10 @@ const ChildInfoForm = () => {
                       </>
                     )}
                   </button>
-                  {error && (
-                    <p className="text-red-500 mt-2 font-comic">{error}</p>
+                  {serverError && (
+                    <p className="text-red-500 mt-2 font-comic">
+                      {serverError}
+                    </p>
                   )}
                   {message && (
                     <p className="text-green-500 mt-2 font-comic">{message}</p>
@@ -200,7 +262,7 @@ const ChildInfoForm = () => {
               {step < TOTAL_STEPS && (
                 <button
                   type="button"
-                  onClick={() => nextStep(swiperRef, step, setStep)}
+                  onClick={handleNext}
                   disabled={isLoading}
                   className="px-6 py-3 bg-orange-500 text-white rounded-full font-bold font-comic text-lg hover:bg-orange-600 transition-colors duration-300 flex items-center"
                 >
