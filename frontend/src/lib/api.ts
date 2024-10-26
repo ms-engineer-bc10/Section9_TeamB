@@ -233,3 +233,74 @@ export const fetchMembershipStatus = async (idToken: string) => {
     throw error;
   }
 };
+
+// Telling-recordのCRUDリクエスト
+export const getTellingRecords = async (token: string) => {
+  const response = await fetch(`${apiUrl}/api/telling-records/`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch telling records");
+  }
+
+  return response.json();
+};
+
+export const createTellingRecord = async (
+  token: string,
+  data: Omit<TellingRecord, "id" | "user">
+) => {
+  const response = await fetch(`${apiUrl}/api/telling-records/`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create telling record");
+  }
+
+  return response.json();
+};
+
+export const updateTellingRecord = async (
+  token: string,
+  id: number,
+  data: Partial<TellingRecord>
+) => {
+  const response = await fetch(`${apiUrl}/api/telling-records/${id}/`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update telling record");
+  }
+
+  return response.json();
+};
+
+export const deleteTellingRecord = async (token: string, id: number) => {
+  const response = await fetch(`${apiUrl}/api/telling-records/${id}/`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete telling record");
+  }
+};
