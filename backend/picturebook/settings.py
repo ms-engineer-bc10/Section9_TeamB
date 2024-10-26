@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-di5$7m6)js(1^*q7w9*+aka4-v0i@x5lui*z58o@_&kab@wzb4"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "your-default-secret-key")
 
 # .envファイルを読み込み
 load_dotenv()
@@ -40,17 +40,13 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PRICE_ID = os.getenv("STRIPE_PRICE_ID")
 
-# Firebaseのサービスアカウントキーのパスを指定
-cred_path = os.path.join(BASE_DIR, 'picturebook', 'serviceAccountKey.json')
-
-# Firebase Admin SDKを初期化
-cred = credentials.Certificate(cred_path)
-firebase_admin.initialize_app(cred)
+# FirebaseのサービスアカウントキーはCloud RunのIAMで管理するため削除
+firebase_admin.initialize_app()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 
 # Application definition
@@ -124,24 +120,19 @@ WSGI_APPLICATION = "picturebook.wsgi.application"
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+# Database settings for Cloud SQL
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'tellingsupport',
-        'USER': 'user',
-        'PASSWORD': 'password',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': os.getenv('CLOUD_SQL_DATABASE_NAME', 'tellingsupport'),
+        'USER': os.getenv('CLOUD_SQL_USERNAME', 'your_db_user'),
+        'PASSWORD': os.getenv('CLOUD_SQL_PASSWORD', 'your_db_password'),
+        'HOST': os.getenv('CLOUD_SQL_HOST', '/cloudsql/your-project-id:your-region:your-instance-id'),  # Unixソケットで接続
+        'PORT': '',
     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -171,39 +162,34 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = "static/"
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# CORS設定
 CORS_ORIGIN_ALLOW_ALL = True
 
-# MEDIA_ROOTの設定
+# MEDIA設定
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# MEDIA_URLの設定
 MEDIA_URL = '/media/'
 
-# Celery settings
-CELERY_BROKER_URL = 'redis://redis:6379/0'
+# Celery settings with Cloud Memorystore for Redis
+CELERY_BROKER_URL = f'redis://{os.getenv("REDIS_HOST", "your-memorystore-ip")}:6379/0'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
-
 CELERY_BROKER_CONNECTION_RETRY = True
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # Redis settings
-REDIS_HOST = 'redis'
+REDIS_HOST = os.getenv('REDIS_HOST', 'your-memorystore-ip')
 REDIS_PORT = 6379
 REDIS_DB = 0
 
+# Logging settings
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
