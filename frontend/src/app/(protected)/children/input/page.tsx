@@ -124,17 +124,96 @@ const ChildInfoForm = () => {
         clearErrors("birthDate");
       }
     } else if (step == 2) {
-      /* TODO step2の時のバリデーション */
+      /* step2の時のバリデーション */
+      // familyStructureのバリデーション
+      if (watch().familyStructure === "") {
+        setError("familyStructure", { message: "家族構成は必須です" });
+        isValid = false;
+      } else if (
+        /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+          watch().familyStructure
+        )
+      ) {
+        setError("familyStructure", {
+          message: "アルファベット・記号を入れることができません",
+        });
+        isValid = false;
+      } else {
+        clearErrors("familyStructure");
+      }
     } else if (step == 3) {
-      /* TODO step3の時のバリデーション */
+      /* step3の時のバリデーション */
+      // fatherTitleのバリデーション
+      if (watch().fatherTitle === "") {
+        setError("fatherTitle", { message: "必須項目です" });
+        isValid = false;
+      } else if (
+        /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watch().fatherTitle)
+      ) {
+        setError("fatherTitle", {
+          message: "アルファベット・記号を入れることができません",
+        });
+        isValid = false;
+      } else {
+        clearErrors("fatherTitle");
+      }
+      // fatherTitleのバリデーション
+      if (watch().motherTitle === "") {
+        setError("motherTitle", { message: "必須項目です" });
+        isValid = false;
+      } else if (
+        /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watch().motherTitle)
+      ) {
+        setError("motherTitle", {
+          message: "アルファベット・記号を入れることができません",
+        });
+        isValid = false;
+      } else {
+        clearErrors("motherTitle");
+      }
     } else if (step == 4) {
-      /* TODO step4の時のバリデーション */
+      /* step4の時のバリデーション */
+      // interestsのバリデーション
+      if (watch().interests === "") {
+        setError("interests", { message: "必須項目です" });
+        isValid = false;
+      } else {
+        clearErrors("interests");
+      }
     } else if (step == 5) {
-      /* TODO step5の時のバリデーション */
+      /* step5の時のバリデーション */
+      // backgroundTypeのバリデーション
+      if (watch().backgroundType === undefined) {
+        setError("backgroundType", { message: "必須項目です" });
+        isValid = false;
+      } else {
+        clearErrors("backgroundType");
+      }
+      // arrivalDateのバリデーション
+      if (watch().arrivalDate === "") {
+        setError("arrivalDate", { message: "必須項目です" });
+        isValid = false;
+      } else {
+        clearErrors("arrivalDate");
+      }
     } else if (step == 6) {
-      /* TODO step6の時のバリデーション */
+      /* step6の時のバリデーション */
+      // originBackgroundのバリデーション
+      if (watch().originBackground === "") {
+        setError("originBackground", { message: "必須項目です" });
+        isValid = false;
+      } else {
+        clearErrors("originBackground");
+      }
     } else if (step == 7) {
-      /* TODO step7の時のバリデーション */
+      /* step7の時のバリデーション */
+      // careBackgroundのバリデーション
+      if (watch().careBackground === "") {
+        setError("careBackground", { message: "必須項目です" });
+        isValid = false;
+      } else {
+        clearErrors("careBackground");
+      }
     }
     return isValid;
   };
