@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.10-slim
 
 # 環境変数の設定
 ENV PYTHONIOENCODING=utf-8
@@ -23,3 +23,4 @@ RUN fc-cache -f -v
 # Cloud Runはデフォルトでポート8080を使用するため、そのポートでDjangoを実行
 # サーバー起動前にマイグレーションを実行するため、カスタムエントリーポイントを使用
 CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8080"]
+
