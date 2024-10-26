@@ -12,7 +12,7 @@ import {
   deleteTellingRecord,
 } from "@/lib/api";
 import { Book, ChildFormData, TellingRecord } from "@/types";
-import { Home, Save, Trash } from "lucide-react";
+import { ArrowLeft, Save, Trash } from "lucide-react";
 import Loading from "@/components/Loading";
 
 interface PageProps {
@@ -222,7 +222,7 @@ export default function TellingRecordDetail({ params }: PageProps) {
                   onClick={() => router.push("/telling-record")}
                   className="bg-white text-orange-600 px-6 py-3 rounded-full hover:bg-orange-100 transition-colors duration-300 flex items-center gap-2 font-comic hover:scale-105"
                 >
-                  <Home size={20} />
+                  <ArrowLeft size={20} />
                   戻る
                 </button>
                 <button

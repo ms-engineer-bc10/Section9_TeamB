@@ -74,7 +74,7 @@ export default function TellingRecordPage() {
         </h1>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-4 mb-8">
             <div className="flex-1">
               <label
                 htmlFor="childSelect"
@@ -96,13 +96,15 @@ export default function TellingRecordPage() {
                 ))}
               </select>
             </div>
-            <button
-              onClick={() => router.push("/telling-record/input")}
-              className="ml-4 bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-300 flex items-center gap-2 font-comic hover:scale-105"
-            >
-              <Plus size={20} />
-              新規登録
-            </button>
+            <div className="self-end">
+              <button
+                onClick={() => router.push("/telling-record/input")}
+                className="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-300 flex items-center gap-2 font-comic hover:scale-105"
+              >
+                <Plus size={20} />
+                新規登録
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
