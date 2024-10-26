@@ -20,9 +20,6 @@ staticfiles/
 .env
 .env.*
 
-# Django Migrations
-*/migrations/*
-
 # pyenv
 .python-version
 
@@ -67,3 +64,8 @@ docker-compose.override.yml
 .dockerignore
 
 venv/
+
+serviceAccountKey.json
+
+#ログファイル
+logs/

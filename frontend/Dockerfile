@@ -1,4 +1,5 @@
-FROM node:18-alpine
+# ベースイメージとして軽量なNode.jsイメージを使用
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
@@ -7,6 +8,13 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3000
+# アプリケーションをビルド（Next.jsの場合）
+RUN npm run build
 
-CMD ["npm", "run", "dev"]
+# nginxを使って静的ファイルを提供
+FROM nginx:alpine
+COPY --from=build /app/out /usr/share/nginx/html
+
+# EXPOSEは不要
+# Cloud Runのデフォルトポートを使ってサーバーを起動
+CMD ["nginx", "-g", "daemon off;"]

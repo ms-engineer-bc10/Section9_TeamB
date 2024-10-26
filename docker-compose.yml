@@ -1,6 +1,21 @@
-version: '3.8'
-
 services:
+  redis:
+    image: "redis:alpine"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=tellingsupport
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+
   frontend:
     build: ./frontend
     volumes:
@@ -23,18 +38,23 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - DEBUG=1
       - DATABASE_URL=postgresql://user:password@db:5432/tellingsupport
+      - CELERY_BROKER_URL=redis://redis:6379/0
     command: python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
+      - redis
 
-  db:
-    image: postgres:13
+  celery:
+    build: ./backend
+    command: celery -A picturebook worker -l info
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
     environment:
-      - POSTGRES_DB=tellingsupport
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+      - DATABASE_URL=postgresql://user:password@db:5432/tellingsupport
+      - CELERY_BROKER_URL=redis://redis:6379/0
 
 volumes:
   postgres_data:
