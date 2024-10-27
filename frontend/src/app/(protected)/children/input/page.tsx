@@ -125,10 +125,70 @@ const ChildInfoForm = () => {
       }
     } else if (step == 2) {
       /* TODO step2の時のバリデーション */
+      // 家族構成
+      if (watch().familyStructure === ""){
+        setError("familyStructure", { message: "家族構成は必須です" });
+        isValid = false;
+      }
+
     } else if (step == 3) {
       /* TODO step3の時のバリデーション */
+      // お子様からの呼び名
+      if (watch().fatherTitle === ""){
+        setError("fatherTitle", { message: "父親の呼び方は必須です" });
+        isValid = false; 
+      } else if (
+        /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watch().name)
+      ) {
+        setError("fatherTitle", {
+          message: "アルファベット・記号を入れることができません",
+        });
+        isValid = false;
+      } else if (watch().fatherTitle.length >= 11){
+        setError("fatherTitle", {
+          message: "10文字以下で入力してください",
+        });
+        isValid = false;
+
+      }else {
+        clearErrors("fatherTitle");
+      }
+      if (watch().motherTitle === ""){
+        setError("motherTitle", { message: "母親の呼び方は必須です" });
+        isValid = false; 
+      } else if (
+        /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watch().name)
+      ) {
+        setError("motherTitle", {
+          message: "アルファベット・記号を入れることができません",
+        });
+        isValid = false;
+      } else if (watch().motherTitle.length >= 11){
+        setError("motherTitle", {
+          message: "10文字以下で入力してください",
+        });
+        isValid = false;
+
+      }else {
+        clearErrors("motherTitle");
+      }
+
     } else if (step == 4) {
       /* TODO step4の時のバリデーション */
+      // お子様の好きなこと
+      if (watch().interests === ""){
+        setError("interests", { message: "お子様の好きなことは必須です" });
+        isValid = false; 
+      } else if (watch().interests.length >= 31){
+        setError("interests", {
+          message: "30文字以下で入力してください",
+        });
+        isValid = false;
+
+      }else {
+        clearErrors("interests");
+      }
+
     } else if (step == 5) {
       /* TODO step5の時のバリデーション */
     } else if (step == 6) {
