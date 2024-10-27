@@ -1,4 +1,5 @@
 export const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
+import { TellingRecord } from "@/types";
 
 // ユーザ－情報をPOSTするAPIリクエスト
 export const createUserInDjango = async (
