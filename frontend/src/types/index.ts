@@ -14,7 +14,8 @@ export type BackgroundType =
   | "sperm_donation"
   | "egg_donation"
   | "step_family"
-  | "other";
+  | "other"
+  | "";
 
 export const genderMap: Record<string, Gender> = {
   boy: "boy",

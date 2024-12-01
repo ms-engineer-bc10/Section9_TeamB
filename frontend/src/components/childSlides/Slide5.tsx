@@ -1,12 +1,17 @@
-import { UseFormRegister } from "react-hook-form";
+import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { ChildFormData } from "@/types";
 
 interface Slide5Props {
   register: UseFormRegister<ChildFormData>;
+  errors: FieldErrors<ChildFormData>;
   selectedBackgroundType: string;
 }
 
-export const Slide5 = ({ register, selectedBackgroundType }: Slide5Props) => {
+export const Slide5 = ({
+  register,
+  errors,
+  selectedBackgroundType,
+}: Slide5Props) => {
   return (
     <div>
       <label className="block mb-2">
@@ -33,6 +38,11 @@ export const Slide5 = ({ register, selectedBackgroundType }: Slide5Props) => {
             type="text"
             className="w-full p-2 mb-4 border rounded"
           />
+          {errors.backgroundOther && (
+            <p className="text-red-500 text-sm mb-4">
+              {errors.backgroundOther.message}
+            </p>
+          )}
         </div>
       )}
 
@@ -47,6 +57,11 @@ export const Slide5 = ({ register, selectedBackgroundType }: Slide5Props) => {
               type="date"
               className="w-full p-2 mb-4 border rounded"
             />
+            {errors.arrivalDate && (
+              <p className="text-red-500 text-sm mb-4">
+                {errors.arrivalDate.message}
+              </p>
+            )}
           </div>
         )}
     </div>
