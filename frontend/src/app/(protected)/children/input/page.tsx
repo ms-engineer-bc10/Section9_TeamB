@@ -121,7 +121,9 @@ const ChildInfoForm = () => {
         setError("birthDate", { message: "今日以前の日付にしてください" });
         isValid = false;
       } else if (new Date(watch().birthDate) < new Date("2012-01-01")) {
-        setError("birthDate", { message: "2012年1月1日以降の日付にしてください" });
+        setError("birthDate", {
+          message: "2012年1月1日以降の日付にしてください",
+        });
         isValid = false;
       } else {
         clearErrors("birthDate");
@@ -129,98 +131,106 @@ const ChildInfoForm = () => {
     } else if (step == 2) {
       /* TODO step2の時のバリデーション */
       // 家族構成
-      if (watch().familyStructure === ""){
-        setError("familyStructure", { message: "家族構成は必須です" });
-        isValid = false;
-      }
-
     } else if (step == 3) {
       /* TODO step3の時のバリデーション */
-      // お子様からの呼び名
-      if (watch().fatherTitle === ""){
-        setError("fatherTitle", { message: "父親の呼び方は必須です" });
-        isValid = false; 
-      } else if (
-        /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watch().name)
-      ) {
+      const fatherTitle = watch().fatherTitle || "";
+      const motherTitle = watch().motherTitle || "";
+
+      if (/[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(fatherTitle)) {
         setError("fatherTitle", {
           message: "アルファベット・記号を入れることができません",
         });
         isValid = false;
-      } else if (watch().fatherTitle.length >= 11){
+      } else if (fatherTitle.length > 10) {
         setError("fatherTitle", {
           message: "10文字以下で入力してください",
         });
         isValid = false;
-
-      }else {
+      } else {
         clearErrors("fatherTitle");
       }
-      if (watch().motherTitle === ""){
-        setError("motherTitle", { message: "母親の呼び方は必須です" });
-        isValid = false; 
-      } else if (
-        /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watch().name)
-      ) {
+
+      if (/[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(motherTitle)) {
         setError("motherTitle", {
           message: "アルファベット・記号を入れることができません",
         });
         isValid = false;
-      } else if (watch().motherTitle.length >= 11){
+      } else if (motherTitle.length > 10) {
         setError("motherTitle", {
           message: "10文字以下で入力してください",
         });
         isValid = false;
-
-      }else {
+      } else {
         clearErrors("motherTitle");
       }
-
     } else if (step == 4) {
       /* TODO step4の時のバリデーション */
-      // お子様の好きなこと
-      if (watch().interests === ""){
-        setError("interests", { message: "お子様の好きなことは必須です" });
-        isValid = false; 
-      } else if (watch().interests.length >= 31){
+
+      if (watch().interests.length >= 31) {
         setError("interests", {
           message: "30文字以下で入力してください",
         });
         isValid = false;
-
-      }else {
+      } else {
         clearErrors("interests");
       }
-
     } else if (step == 5) {
       /* TODO step5の時のバリデーション */
       // 家族になった経緯
-      if (watch().backgroundType === ""){
-        setError("backgroundType", { message: "ご家族になられた経緯は必須です" });
-        isValid = false; 
-      } else if (/[事故死,虐待,逮捕,薬物,殺害,犯罪,暴力,自殺,死亡,中毒]/.test(watch().name)) {
-          const forbiddenWord = watch().name.match(/[事故死,虐待,逮捕,薬物,殺害,犯罪,暴力,自殺,死亡]/)[0]; // 最初の一致する禁止ワードを取得
-          setError("backgroundType", {
-              message: `禁止ワードが含まれています。(${forbiddenWord}) お子様が受け取りやすい言葉に変更してください。`,
+      const backgroundType = watch().backgroundType;
+      const backgroundOther = watch().backgroundOther;
+
+      if (backgroundType === "") {
+        setError("backgroundType", {
+          message: "ご家族になられた経緯は必須です",
+        });
+        isValid = false;
+      } else if (backgroundType === "other" && backgroundOther) {
+        // 禁止ワードが含まれているかチェック
+        const forbiddenWord = backgroundOther.match(
+          /事故死|虐待|逮捕|薬物|殺害|犯罪|暴力|自殺|死亡|中毒/
+        )?.[0];
+        if (forbiddenWord) {
+          setError("backgroundOther", {
+            message: `禁止ワードが含まれています。(${forbiddenWord}) お子様が受け取りやすい言葉に変更してください。`,
           });
           isValid = false;
+        }
       }
-      
     } else if (step == 6) {
       /* TODO step6の時のバリデーション */
       // 育てられなかった背景
-      if (watch().originBackground === ""){
-        setError("originBackground", { message: "育てられなかった背景は必須です" });
-        isValid = false; 
+      const originBackground = watch().originBackground;
+      if (
+        originBackground &&
+        /事故死|虐待|逮捕|薬物|殺害|犯罪|暴力|自殺|死亡/.test(originBackground)
+      ) {
+        const forbiddenWord = originBackground.match(
+          /事故死|虐待|逮捕|薬物|殺害|犯罪|暴力|自殺|死亡/
+        )?.[0];
+        setError("originBackground", {
+          message: `禁止ワードが含まれています。(${forbiddenWord}) お子様が受け取りやすい言葉に変更してください。`,
+        });
+        isValid = false;
       }
     } else if (step == 7) {
       /* TODO step7の時のバリデーション */
       // 家族になった背景
-      if (watch().careBackground === ""){
-        setError("careBackground", { message: "ご家族になられた背景は必須です" });
-        isValid = false; 
+      const careBackground = watch().careBackground;
+      if (
+        careBackground &&
+        /事故死|虐待|逮捕|薬物|殺害|犯罪|暴力|自殺|死亡/.test(careBackground)
+      ) {
+        const forbiddenWord = careBackground.match(
+          /事故死|虐待|逮捕|薬物|殺害|犯罪|暴力|自殺|死亡/
+        )?.[0];
+        setError("careBackground", {
+          message: `禁止ワードが含まれています。(${forbiddenWord}) お子様が受け取りやすい言葉に変更してください。`,
+        });
+        isValid = false;
       }
     }
+
     return isValid;
   };
 
